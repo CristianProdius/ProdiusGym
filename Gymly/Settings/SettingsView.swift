@@ -165,6 +165,19 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .id(weightUpdatedTrigger)
+
+                    // Fitness Profile Section
+                    Section("Fitness Profile") {
+                        NavigationLink(destination: FitnessProfileDetailView(config: config)) {
+                            HStack {
+                                Image(systemName: "figure.strengthtraining.traditional")
+                                Text("View Fitness Profile")
+                            }
+                        }
+                        .frame(width: 300)
+                    }
+                    .listRowBackground(Color.black.opacity(0.05))
+
                     Section("") {
                         NavigationLink(destination: AISummaryView()) {
                             Image(systemName: "apple.intelligence")

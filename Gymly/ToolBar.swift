@@ -17,6 +17,7 @@ struct ToolBar: View {
     @State private var todayViewModel: WorkoutViewModel?
     @State private var calendarViewModel: WorkoutViewModel?
     @State private var signInViewModel: WorkoutViewModel?
+    @State private var showFitnessProfileSetup = false
 
     var body: some View {
         Group {
@@ -38,6 +39,21 @@ struct ToolBar: View {
 
                             .toolbar(.visible, for: .tabBar)
                             .toolbarBackground(.black, for: .tabBar)
+                    }
+                    .fullScreenCover(isPresented: $showFitnessProfileSetup) {
+                        FitnessProfileSetupView(config: config)
+                    }
+                    .onChange(of: config.hasCompletedFitnessProfile) { _, hasCompleted in
+                        // If user hasn't completed profile, show setup
+                        if !hasCompleted {
+                            showFitnessProfileSetup = true
+                        }
+                    }
+                    .onAppear {
+                        // Check if profile needs to be shown on initial load
+                        if !config.hasCompletedFitnessProfile {
+                            showFitnessProfileSetup = true
+                        }
                     }
                 }
             } else {

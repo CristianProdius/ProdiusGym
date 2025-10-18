@@ -18,6 +18,7 @@ struct SignInView: View {
     @Environment(\.colorScheme) var colorScheme
     @State private var isSyncingFromCloud = false
     @State private var syncProgress: Double = 0.0
+    @State private var iCloudSync: iCloudSyncManager?
 
     var body: some View {
         ZStack {
@@ -152,6 +153,14 @@ struct SignInView: View {
 
                                         print("🔥 USERPROFILE CLOUDKIT SYNC COMPLETED")
                                         print("🔥 CURRENT USERNAME: \(userProfileManager.currentProfile?.username ?? "none")")
+
+                                        // Fetch Fitness Profile from iCloud Key-Value Store
+                                        print("🔥 FETCHING FITNESS PROFILE FROM ICLOUD")
+                                        if iCloudSync == nil {
+                                            iCloudSync = iCloudSyncManager(config: config)
+                                        }
+                                        await iCloudSync?.fetchFromiCloudWithTimeout(timeout: 2.0)
+                                        print("🔥 FITNESS PROFILE FETCH COMPLETED")
                                     }
 
                                     // NOTE: Workout data (splits/exercises/days) syncs automatically via SwiftData iCloud

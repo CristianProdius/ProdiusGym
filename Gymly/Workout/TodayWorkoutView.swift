@@ -325,7 +325,7 @@ struct TodayWorkoutView: View {
                        let hour = Int(timeComponents[0]),
                        let minute = Int(timeComponents[1]) {
 
-                        var calendar = Calendar.current
+                        let calendar = Calendar.current
                         var dateComponents = calendar.dateComponents([.year, .month, .day], from: Date())
                         dateComponents.hour = hour
                         dateComponents.minute = minute

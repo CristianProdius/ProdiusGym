@@ -122,11 +122,6 @@ struct EditUserView: View {
                                     await MainActor.run {
                                         dismiss()
                                     }
-                                } catch {
-                                    print("❌ Failed to sync profile changes to CloudKit: \(error)")
-                                    await MainActor.run {
-                                        dismiss()
-                                    }
                                 }
                             }
                         }
