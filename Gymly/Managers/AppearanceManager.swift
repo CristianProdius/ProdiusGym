@@ -83,6 +83,35 @@ public class AppearanceManager: ObservableObject {
             accentColor = color
         }
         debugPrint("🎨 Accent color changed to: \(color.rawValue)")
+
+        // Update app icon to match accent color
+        updateAppIcon(for: color)
+    }
+
+    public func updateAppIcon(for color: AccentColorOption) {
+        let iconName: String? = {
+            switch color {
+            case .red: return nil // nil = default icon (AppIcon)
+            case .purple: return "AppIconPurple"
+            case .blue: return "AppIconBlue"
+            case .green: return "AppIconGreen"
+            case .orange: return "AppIconOrange"
+            case .pink: return "AppIconPink"
+            }
+        }()
+
+        guard UIApplication.shared.supportsAlternateIcons else {
+            debugPrint("⚠️ Alternate icons not supported on this device")
+            return
+        }
+
+        UIApplication.shared.setAlternateIconName(iconName) { error in
+            if let error = error {
+                debugPrint("❌ Error setting app icon: \(error.localizedDescription)")
+            } else {
+                debugPrint("✅ App icon changed to: \(iconName ?? "default (Red)")")
+            }
+        }
     }
 
     private func saveAccentColor() {

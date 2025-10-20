@@ -50,6 +50,17 @@ struct AppearanceView: View {
                         }
                         .padding(.horizontal, 24)
 
+                        // Info note about app icon change
+                        HStack(spacing: 8) {
+                            Image(systemName: "app.badge")
+                                .foregroundStyle(.secondary)
+                            Text("App icon will update to match your chosen color")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 24)
+                        .padding(.bottom, 4)
+
                         // Color Grid
                         LazyVGrid(columns: [
                             GridItem(.flexible()),
