@@ -79,10 +79,24 @@ struct TodayWorkoutView: View {
                             /// Display exercises in a day
                             let globalOrderMap: [UUID: Int] = Dictionary(uniqueKeysWithValues: (selectedDay.exercises ?? []).map { ($0.id, $0.exerciseOrder) })
                             List {
-                                ForEach(muscleGroups) { group in
-                                    if !group.exercises.isEmpty {
-                                        Section(header: Text(group.name)) {
-                                            ForEach(group.exercises.sorted(by: { $0.exerciseOrder < $1.exerciseOrder }), id: \.id) { exercise in
+                                // Build groups from selectedDay.exercises while preserving the order of first appearance
+                                let grouped: [(String, [Exercise])] = {
+                                    var order: [String] = []
+                                    var dict: [String: [Exercise]] = [:]
+                                    for ex in (selectedDay.exercises ?? []).sorted(by: { $0.exerciseOrder < $1.exerciseOrder }) {
+                                        if dict[ex.muscleGroup] == nil {
+                                            order.append(ex.muscleGroup)
+                                            dict[ex.muscleGroup] = []
+                                        }
+                                        dict[ex.muscleGroup]!.append(ex)
+                                    }
+                                    return order.map { ($0, dict[$0]!) }
+                                }()
+
+                                ForEach(grouped, id: \.0) { name, exercises in
+                                    if !exercises.isEmpty {
+                                        Section(header: Text(name)) {
+                                            ForEach(exercises, id: \.id) { exercise in
                                                 NavigationLink(destination: ExerciseDetailView(viewModel: viewModel, exercise: exercise)) {
                                                     HStack {
                                                         Text("\(globalOrderMap[exercise.id] ?? 0)")
@@ -124,11 +138,21 @@ struct TodayWorkoutView: View {
 
                                             viewModel.updateMuscleGroupDataValues(from: selectedDay.exercises ?? [], modelContext: context)
                                             await viewModel.insertWorkout(from: selectedDay)
+
+                                            // Clear timestamps and reset done flags for next workout
                                             if let exercises = selectedDay.exercises {
                                                 for i in exercises.indices {
                                                     exercises[i].done = false
+
+                                                    // Clear all set timestamps for fresh next workout
+                                                    if let sets = exercises[i].sets {
+                                                        for j in sets.indices {
+                                                            exercises[i].sets?[j].time = ""
+                                                        }
+                                                    }
                                                 }
                                             }
+                                            debugPrint("🧹 CLEANUP: Cleared all set timestamps for next workout")
                                         }
                                     }
                                     .scrollContentBackground(.hidden)
