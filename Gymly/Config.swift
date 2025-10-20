@@ -107,6 +107,65 @@ class Config:ObservableObject {
         }
     }
 
+    // MARK: - Fitness Profile Properties
+
+    @Published var hasCompletedFitnessProfile: Bool {
+        didSet {
+            UserDefaults.standard.set(hasCompletedFitnessProfile, forKey: "hasCompletedFitnessProfile")
+        }
+    }
+
+    @Published var fitnessGoal: String {
+        didSet {
+            UserDefaults.standard.set(fitnessGoal, forKey: "fitnessGoal")
+        }
+    }
+
+    @Published var equipmentAccess: String {
+        didSet {
+            UserDefaults.standard.set(equipmentAccess, forKey: "equipmentAccess")
+        }
+    }
+
+    @Published var experienceLevel: String {
+        didSet {
+            UserDefaults.standard.set(experienceLevel, forKey: "experienceLevel")
+        }
+    }
+
+    @Published var trainingDaysPerWeek: Int {
+        didSet {
+            UserDefaults.standard.set(trainingDaysPerWeek, forKey: "trainingDaysPerWeek")
+        }
+    }
+
+    // Helper computed property for type-safe access
+    var fitnessProfile: FitnessProfile? {
+        get {
+            guard !fitnessGoal.isEmpty,
+                  !equipmentAccess.isEmpty,
+                  !experienceLevel.isEmpty,
+                  let goal = FitnessGoal(rawValue: fitnessGoal),
+                  let equipment = EquipmentType(rawValue: equipmentAccess),
+                  let experience = ExperienceLevel(rawValue: experienceLevel) else {
+                return nil
+            }
+            return FitnessProfile(
+                goal: goal,
+                equipment: equipment,
+                experience: experience,
+                daysPerWeek: trainingDaysPerWeek
+            )
+        }
+        set {
+            guard let profile = newValue else { return }
+            fitnessGoal = profile.goal.rawValue
+            equipmentAccess = profile.equipment.rawValue
+            experienceLevel = profile.experience.rawValue
+            trainingDaysPerWeek = profile.daysPerWeek
+        }
+    }
+
     init() {
         self.daysRecorded = UserDefaults.standard.object(forKey: "daysRecorded") as? [String] ?? []
         self.splitStarted = UserDefaults.standard.object(forKey: "splitStarted") as? Bool ?? false
@@ -123,6 +182,13 @@ class Config:ObservableObject {
         self.isCloudKitEnabled = UserDefaults.standard.object(forKey: "isCloudKitEnabled") as? Bool ?? false
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
         self.isHealtKitEnabled = UserDefaults.standard.object(forKey: "isHealtKitEnabled") as? Bool ?? false
+
+        // Fitness Profile initialization
+        self.hasCompletedFitnessProfile = UserDefaults.standard.object(forKey: "hasCompletedFitnessProfile") as? Bool ?? false
+        self.fitnessGoal = UserDefaults.standard.object(forKey: "fitnessGoal") as? String ?? ""
+        self.equipmentAccess = UserDefaults.standard.object(forKey: "equipmentAccess") as? String ?? ""
+        self.experienceLevel = UserDefaults.standard.object(forKey: "experienceLevel") as? String ?? ""
+        self.trainingDaysPerWeek = UserDefaults.standard.object(forKey: "trainingDaysPerWeek") as? Int ?? 4
     }
 
 }

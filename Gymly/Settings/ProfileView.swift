@@ -1,15 +1,14 @@
 //
-//  AccountView.swift
+//  ProfileView.swift
 //  Gymly
 //
-//  Created by Sebastián Kučera on 13.05.2024.
+//  Created by Sebastián Kučera on 19.10.2025.
 //
 
 import SwiftUI
 import SwiftData
-import Foundation
 
-struct SettingsView: View {
+struct ProfileView: View {
     @ObservedObject var viewModel: WorkoutViewModel
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
@@ -17,24 +16,19 @@ struct SettingsView: View {
     @StateObject var healthKitManager = HealthKitManager()
     @Environment(\.modelContext) var context: ModelContext
     @Environment(\.colorScheme) private var scheme
-    @State private var height: Double?
-    @State private var weight: Double?
-    @State private var bmi: Double?
-    @State var bmiStatus: String = ""
-    @State var bmiColor: Color = .green
-    @State private var age: Int?
+
+    @State private var bmiColor: Color = .green
+    @State private var bmiStatus: String = ""
     @State private var editUser: Bool = false
     @State private var showBmiDetail: Bool = false
     @State private var showWeightDetail: Bool = false
     @State private var profileImage: UIImage?
-    @State var selectedUnit:String = ""
     @State private var weightUpdatedTrigger = false
-    
-    
-    let units: [String] = ["Kg","Lbs"]
-    
+    @State private var showCalendar: Bool = false
+
     @State var graphSorting: [String] = ["Today","Week","Month","All Time"]
     @State var graphSortingSelected: String = "Today"
+
     private var selectedTimeRange: ContentViewGraph.TimeRange {
         switch graphSortingSelected {
         case "Today": return .day
@@ -44,7 +38,7 @@ struct SettingsView: View {
         default: return .month
         }
     }
-    
+
     /// Computed property for formatted workout hours
     private var formattedWorkoutHours: Int {
         return config.totalWorkoutTimeMinutes / 60
@@ -55,7 +49,9 @@ struct SettingsView: View {
             ZStack {
                 FloatingClouds(theme: CloudsTheme.red(scheme))
                     .ignoresSafeArea()
+
                 List {
+                    // Profile Header - Tappable to edit
                     Button(action: {
                         editUser = true
                     }) {
@@ -66,6 +62,7 @@ struct SettingsView: View {
                                 endPoint: .bottomTrailing
                             )
                             .cornerRadius(20)
+
                             HStack {
                                 ProfileImageCell(profileImage: profileImage, frameSize: 80)
                                     .padding()
@@ -76,7 +73,6 @@ struct SettingsView: View {
                                         .font(.body)
                                         .padding(.trailing)
 
-
                                     HStack(spacing: 15) {
                                         HStack(spacing: 4) {
                                             Image(systemName: "flame")
@@ -85,7 +81,6 @@ struct SettingsView: View {
                                         .font(.footnote)
                                         .bold()
 
-
                                         HStack(spacing: 4) {
                                             Image(systemName: "clock")
                                             Text("\(formattedWorkoutHours) h")
@@ -93,7 +88,6 @@ struct SettingsView: View {
                                         .font(.footnote)
                                         .bold()
                                         .padding(.trailing)
-
                                     }
                                 }
                                 .foregroundStyle(Color.black)
@@ -105,6 +99,8 @@ struct SettingsView: View {
                     .listRowBackground(Color.clear)
                     .frame(width: 340, height: 120)
                     .listRowSeparator(.hidden)
+
+                    // Body Stats Cards
                     HStack {
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: 16) {
@@ -129,6 +125,7 @@ struct SettingsView: View {
                                 .foregroundStyle(Color.white)
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
+
                                 Button(action: {
                                     showBmiDetail = true
                                 }) {
@@ -143,6 +140,7 @@ struct SettingsView: View {
                                 .foregroundStyle(Color.white)
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
+
                                 SettingUserInfoCell(
                                     value: String(format: "%.2f", (userProfileManager.currentProfile?.height ?? 0.0) / 100.0),
                                     metric: "m",
@@ -150,6 +148,7 @@ struct SettingsView: View {
                                     additionalInfo: "Height",
                                     icon: "figure.wave"
                                 )
+
                                 SettingUserInfoCell(
                                     value: String(format: "%.0f", Double(userProfileManager.currentProfile?.age ?? 0)),
                                     metric: "yo",
@@ -166,61 +165,9 @@ struct SettingsView: View {
                     .listRowSeparator(.hidden)
                     .id(weightUpdatedTrigger)
 
-                    // Fitness Profile Section
-                    Section("Fitness Profile") {
-                        NavigationLink(destination: FitnessProfileDetailView(config: config)) {
-                            HStack {
-                                Image(systemName: "figure.strengthtraining.traditional")
-                                Text("View Fitness Profile")
-                            }
-                        }
-                        .frame(width: 300)
-                    }
-                    .listRowBackground(Color.black.opacity(0.05))
-
-                    Section("") {
-                        NavigationLink(destination: AISummaryView()) {
-                            Image(systemName: "apple.intelligence")
-                            Text("Week AI Summary")
-                        }
-                        .frame(width: 300)
-                    }
-                    .listRowBackground(Color.black.opacity(0.05))
-                    Section("Preferences") {
-                        HStack {
-                            HStack {
-                                Image(systemName: "scalemass")
-                                Text("Unit")
-                            }
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            
-                            Picker(selection: Binding(
-                                get: { userProfileManager.currentProfile?.weightUnit ?? "Kg" },
-                                set: { userProfileManager.updatePreferences(weightUnit: $0) }
-                            ), label: Text("")) {
-                                ForEach(units, id: \.self) { unit in
-                                    Text(unit)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .frame(maxWidth: .infinity, alignment: .trailing)
-                            .padding(.trailing, -30)
-                            .onChange(of: userProfileManager.currentProfile?.weightUnit ?? "Kg") {
-                                debugPrint("Selected unit: \(userProfileManager.currentProfile?.weightUnit ?? "Kg")")
-                                userProfileManager.updatePreferences(roundSetWeights: true)
-                                weightUpdatedTrigger.toggle()
-                            }
-                        }
-                        .frame(width: 300)
-                        NavigationLink(destination: ConnectionsView(viewModel: viewModel)) {
-                            Image(systemName: "square.2.layers.3d.top.filled")
-                            Text("App connections")
-                        }
-                        .frame(width: 300)
-                    }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    // Progress Section - Graph
                     Section(header: HStack {
-                        Text("Graph")
+                        Text("Progress")
                     }) {
                         VStack(spacing: 8) {
                             Picker(selection: $graphSortingSelected, label: Text("")) {
@@ -229,7 +176,7 @@ struct SettingsView: View {
                                 }
                             }
                             .pickerStyle(.segmented)
-                            
+
                             ZStack {
                                 ContentViewGraph(range: selectedTimeRange)
                                 RadarLabels()
@@ -239,30 +186,69 @@ struct SettingsView: View {
                     }
                     .listRowBackground(Color.clear)
                     .padding(.horizontal)
+
+                    // AI Insights Section
+                    Section("AI Insights") {
+                        NavigationLink(destination: AISummaryView()) {
+                            HStack {
+                                Image(systemName: "apple.intelligence")
+                                Text("Week AI Summary")
+                                Spacer()
+                                Image(systemName: "star.fill")
+                                    .foregroundColor(.yellow)
+                                    .font(.caption)
+                            }
+                        }
+                        .frame(width: 300)
+                    }
+                    .listRowBackground(Color.black.opacity(0.05))
+
+                    // Fitness Section
+                    Section("Fitness") {
+                        NavigationLink(destination: FitnessProfileDetailView(config: config)) {
+                            HStack {
+                                Image(systemName: "figure.strengthtraining.traditional")
+                                Text("Your Fitness Profile")
+                            }
+                        }
+                        .frame(width: 300)
+                    }
+                    .listRowBackground(Color.black.opacity(0.05))
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                .navigationTitle("\(userProfileManager.currentProfile?.username ?? "User")'s profile")
+                .navigationTitle("Progress")
+                .navigationBarTitleDisplayMode(.inline)
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Button(action: {
+                            showCalendar = true
+                        }) {
+                            Image(systemName: "calendar")
+                                .font(.body)
+                        }
+                    }
+
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button("Done") {
+                            dismiss()
+                        }
+                    }
+                }
                 .onAppear {
                     profileImage = userProfileManager.currentProfile?.profileImage
 
-                    // Don't fetch from HealthKit on appear to preserve manually saved data
-                    // Just update UI with current profile data
                     let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
                     let (color, status) = getBmiStyle(bmi: bmi)
                     bmiColor = color
                     bmiStatus = status
-
-                    print("📱 SettingsView appeared - Current weight: \(userProfileManager.currentProfile?.weight ?? 0.0) kg")
                 }
                 .onChange(of: config.isHealtKitEnabled) { _, newValue in
-                    // When HealthKit status changes, update BMI color immediately
                     DispatchQueue.main.async {
                         let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
                         let (color, status) = getBmiStyle(bmi: bmi)
                         bmiColor = color
                         bmiStatus = status
-                        print("🎨 SETTINGS: Updated BMI color due to HealthKit status change")
                     }
                 }
                 .sheet(isPresented: $editUser, onDismiss: {
@@ -273,117 +259,29 @@ struct SettingsView: View {
                         DispatchQueue.main.async {
                             userProfileManager.updatePhysicalStats(weight: weight ?? 0.0)
                         }
-                    }                }) {
-                        EditUserView(viewModel: viewModel)
                     }
-                    .sheet(isPresented: $showBmiDetail, onDismiss: {
-                    }) {
-                        let (color, status) = getBmiStyle(bmi: userProfileManager.currentProfile?.bmi ?? 0.0)
-                        BmiDetailView(viewModel: viewModel, bmiColor: color, bmiText: status)
+                }) {
+                    EditUserView(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showBmiDetail) {
+                    let (color, status) = getBmiStyle(bmi: userProfileManager.currentProfile?.bmi ?? 0.0)
+                    BmiDetailView(viewModel: viewModel, bmiColor: color, bmiText: status)
+                }
+                .sheet(isPresented: $showWeightDetail, onDismiss: {
+                    DispatchQueue.main.async {
+                        let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
+                        let (color, status) = getBmiStyle(bmi: bmi)
+                        bmiColor = color
+                        bmiStatus = status
+                        weightUpdatedTrigger.toggle()
                     }
-                    .sheet(isPresented: $showWeightDetail, onDismiss: {
-                        // Just update the UI with the current profile weight (already saved in WeightDetailView)
-                        DispatchQueue.main.async {
-                            let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
-                            let (color, status) = getBmiStyle(bmi: bmi)
-                            bmiColor = color
-                            bmiStatus = status
-                            weightUpdatedTrigger.toggle() // Trigger UI update
-                        }
-                    }) {
-                            WeightDetailView(viewModel: viewModel)
-                        }
-                        .onAppear {
-                            // Refresh HealthKit permissions when view appears
-                            refreshHealthKitDataWithFullUpdate()
-                            // Load profile image
-                            Task {
-                                await loadProfileImage()
-                            }
-                        }
-            }
-        }
-    }
-
-    /// Refresh HealthKit data
-    private func refreshHealthKitData() {
-        if UserDefaults.standard.bool(forKey: "healthKitEnabled") {
-            healthKitManager.fetchWeight { weight in
-                DispatchQueue.main.async {
-                    let currentWeight = userProfileManager.currentProfile?.weight ?? 0.0
-                    userProfileManager.updatePhysicalStats(weight: weight ?? currentWeight)
+                }) {
+                    WeightDetailView(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showCalendar) {
+                    CalendarView(viewModel: viewModel)
                 }
             }
-            healthKitManager.fetchHeight { height in
-                DispatchQueue.main.async {
-                    let currentHeight = userProfileManager.currentProfile?.height ?? 0.0
-                    // Convert from meters to centimeters for UserProfile storage
-                    let heightInCm = (height ?? (currentHeight / 100.0)) * 100.0
-                    userProfileManager.updatePhysicalStats(height: heightInCm)
-                }
-            }
-            healthKitManager.fetchAge { age in
-                DispatchQueue.main.async {
-                    let currentAge = userProfileManager.currentProfile?.age ?? 0
-                    userProfileManager.updatePhysicalStats(age: age ?? currentAge)
-                }
-            }
-            // Update BMI
-            DispatchQueue.main.async {
-                let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
-                if bmi > 0 {
-                    let (color, status) = getBmiStyle(bmi: bmi)
-                    bmiColor = color
-                    bmiStatus = status
-                }
-            }
-        }
-    }
-
-    /// Full HealthKit data refresh (fetches height and age, preserves manual weight)
-    private func refreshHealthKitDataWithFullUpdate() {
-        // Only fetch if HealthKit is enabled
-        guard UserDefaults.standard.bool(forKey: "healthKitEnabled") else {
-            // If HealthKit not enabled, just update UI with existing data
-            DispatchQueue.main.async {
-                let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
-                let (color, status) = getBmiStyle(bmi: bmi)
-                bmiColor = color
-                bmiStatus = status
-                weightUpdatedTrigger.toggle()
-            }
-            return
-        }
-
-        // Fetch height from HealthKit
-        healthKitManager.fetchHeight { height in
-            DispatchQueue.main.async {
-                if let height = height {
-                    // HealthKit returns height in meters, UserProfile stores in centimeters
-                    let heightInCm = height * 100.0
-                    userProfileManager.updatePhysicalStats(height: heightInCm)
-                    print("✅ SETTINGS: Fetched height from HealthKit: \(height) m (\(heightInCm) cm)")
-                }
-            }
-        }
-
-        // Fetch age from HealthKit
-        healthKitManager.fetchAge { age in
-            DispatchQueue.main.async {
-                if let age = age {
-                    userProfileManager.updatePhysicalStats(age: age)
-                    print("✅ SETTINGS: Fetched age from HealthKit: \(age) years")
-                }
-            }
-        }
-
-        // Update BMI UI after fetching
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let bmi = userProfileManager.currentProfile?.bmi ?? 0.0
-            let (color, status) = getBmiStyle(bmi: bmi)
-            bmiColor = color
-            bmiStatus = status
-            weightUpdatedTrigger.toggle()
         }
     }
 
@@ -394,18 +292,3 @@ struct SettingsView: View {
         }
     }
 }
-
-func getBmiStyle(bmi: Double) -> (Color, String) {
-    switch bmi {
-    case ..<18.5:
-        return (.orange, "Underweight")
-    case 18.5...24.9:
-        return (.green, "Normal weight")
-    case 25...29.9:
-        return (.orange, "Overweight")
-    default:
-        return (.red, "Obese")
-    }
-}
-
-

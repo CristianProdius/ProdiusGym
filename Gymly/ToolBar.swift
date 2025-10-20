@@ -15,14 +15,15 @@ struct ToolBar: View {
     @State private var loginRefreshTrigger = false
     @StateObject private var userProfileManager = UserProfileManager.shared
     @State private var todayViewModel: WorkoutViewModel?
-    @State private var calendarViewModel: WorkoutViewModel?
+    @State private var settingsViewModel: WorkoutViewModel?
     @State private var signInViewModel: WorkoutViewModel?
+    @State private var showFitnessProfileSetup = false
 
     var body: some View {
         Group {
             if config.isUserLoggedIn {
                 // Only show TabView when user is logged in
-                if let todayVM = todayViewModel, let calendarVM = calendarViewModel {
+                if let todayVM = todayViewModel, let settingsVM = settingsViewModel {
                     TabView {
                         TodayWorkoutView(viewModel: todayVM, loginRefreshTrigger: loginRefreshTrigger)
                             .tabItem {
@@ -30,14 +31,29 @@ struct ToolBar: View {
                             }
                             .tag(1)
 
-                        CalendarView(viewModel: calendarVM)
+                        NewSettingsView(viewModel: settingsVM)
                             .tabItem {
-                                Label("Calendar", systemImage: "calendar")
+                                Label("Settings", systemImage: "gearshape")
                             }
                             .tag(2)
 
                             .toolbar(.visible, for: .tabBar)
                             .toolbarBackground(.black, for: .tabBar)
+                    }
+                    .fullScreenCover(isPresented: $showFitnessProfileSetup) {
+                        FitnessProfileSetupView(config: config)
+                    }
+                    .onChange(of: config.hasCompletedFitnessProfile) { _, hasCompleted in
+                        // If user hasn't completed profile, show setup
+                        if !hasCompleted {
+                            showFitnessProfileSetup = true
+                        }
+                    }
+                    .onAppear {
+                        // Check if profile needs to be shown on initial load
+                        if !config.hasCompletedFitnessProfile {
+                            showFitnessProfileSetup = true
+                        }
                     }
                 }
             } else {
@@ -55,15 +71,15 @@ struct ToolBar: View {
 
             // Initialize WorkoutViewModels and connect userProfileManager
             let todayVM = WorkoutViewModel(config: config, context: context)
-            let calendarVM = WorkoutViewModel(config: config, context: context)
+            let settingsVM = WorkoutViewModel(config: config, context: context)
             let signInVM = WorkoutViewModel(config: config, context: context)
 
             todayVM.setUserProfileManager(userProfileManager)
-            calendarVM.setUserProfileManager(userProfileManager)
+            settingsVM.setUserProfileManager(userProfileManager)
             signInVM.setUserProfileManager(userProfileManager)
 
             todayViewModel = todayVM
-            calendarViewModel = calendarVM
+            settingsViewModel = settingsVM
             signInViewModel = signInVM
 
             print("✅ TOOLBAR: Connected userProfileManager to all ViewModels")

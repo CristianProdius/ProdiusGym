@@ -12,6 +12,7 @@
 		EC06F1622E7BCCC900E42CCF /* ExerciseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F1612E7BCCC900E42CCF /* ExerciseExtensions.swift */; };
 		EC06F1672E7CA3C100E42CCF /* UserProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F1652E7CA3C100E42CCF /* UserProfile.swift */; };
 		EC06F16A2E7CA3DA00E42CCF /* UserProfileManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F1682E7CA3DA00E42CCF /* UserProfileManager.swift */; };
+		EC317F392EA2473D000DFB1E /* FitnessProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC317F382EA2473D000DFB1E /* FitnessProfile.swift */; };
 		EC3BEC3D2C76624600C9DF0B /* Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC3BEC3C2C76624600C9DF0B /* Config.swift */; };
 		EC4FD1532C4ED88300D1A4A6 /* Day.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4FD1522C4ED88300D1A4A6 /* Day.swift */; };
 		EC4FD1572C4EE0A600D1A4A6 /* Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC4FD1552C4EE0A600D1A4A6 /* Color.swift */; };
@@ -66,6 +67,7 @@
 		EC06F1612E7BCCC900E42CCF /* ExerciseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseExtensions.swift; sourceTree = "<group>"; };
 		EC06F1652E7CA3C100E42CCF /* UserProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfile.swift; sourceTree = "<group>"; };
 		EC06F1682E7CA3DA00E42CCF /* UserProfileManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserProfileManager.swift; sourceTree = "<group>"; };
+		EC317F382EA2473D000DFB1E /* FitnessProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FitnessProfile.swift; sourceTree = "<group>"; };
 		EC3BEC3C2C76624600C9DF0B /* Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Config.swift; sourceTree = "<group>"; };
 		EC4FD1522C4ED88300D1A4A6 /* Day.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Day.swift; sourceTree = "<group>"; };
 		EC4FD1542C4EE0A600D1A4A6 /* onFirstAppear.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = onFirstAppear.swift; sourceTree = "<group>"; };
@@ -155,6 +157,7 @@
 				EC71CA892D705986003EAB09 /* Split.swift */,
 				EC8C15102C80A94D008E4152 /* DayStorage.swift */,
 				EC629C652C9CAE2300009902 /* MuscleGroup.swift */,
+				EC317F382EA2473D000DFB1E /* FitnessProfile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -336,7 +339,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1520;
-				LastUpgradeCheck = 1620;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					ECA5D13F2BF20CF100DCC9F8 = {
 						CreatedOnToolsVersion = 15.2;
@@ -429,6 +432,7 @@
 				EC66F6A12D94213D0086D625 /* BMIGaugeView.swift in Sources */,
 				EC9A6A602E716FC20081E390 /* GraphEntry.swift in Sources */,
 				EC66F69B2D92FD750086D625 /* WhatsNewManager.swift in Sources */,
+				EC317F392EA2473D000DFB1E /* FitnessProfile.swift in Sources */,
 				ECDE63112D48D27B00C2DA94 /* SignInView.swift in Sources */,
 				EC06F1672E7CA3C100E42CCF /* UserProfile.swift in Sources */,
 			);
@@ -502,6 +506,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -525,6 +530,7 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -565,6 +571,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -581,6 +588,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -595,7 +603,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Gymly/Preview Content\"";
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Gymly/Info.plist;
@@ -631,7 +638,6 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_ASSET_PATHS = "\"Gymly/Preview Content\"";
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Gymly/Info.plist;
@@ -664,7 +670,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
@@ -683,7 +688,6 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
@@ -701,7 +705,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
@@ -719,7 +722,6 @@
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = PH3V9JYRDW;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;

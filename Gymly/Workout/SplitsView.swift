@@ -37,7 +37,7 @@ struct SplitsView: View {
                                                     viewModel.switchActiveSplit(split: split, context: context)
                                                 }
                                             }
-                                        
+
                                     }
                                     VStack {
                                         /// Display split name
@@ -85,7 +85,6 @@ struct SplitsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listRowBackground(Color.clear)
-                .navigationTitle("My Splits")
                 .padding(.vertical)
                 .toolbar {
                     /// Button for adding splits
@@ -98,25 +97,25 @@ struct SplitsView: View {
                     }
                 }
             }
-        }
-        .onReceive(NotificationCenter.default.publisher(for: Notification.Name.importSplit)) { notification in
-            if let split = notification.object as? Split {
-                print("📩 Received imported split notification: \(split.name)")
-                
-                DispatchQueue.main.async {
-                    viewModel.deactivateAllSplits()
-                    splits = viewModel.getAllSplits() // Reload all splits from database
-                }
-            }
+            .navigationTitle("My Splits")
         }
         .task {
             splits = viewModel.getAllSplits()
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name.importSplit)) { notification in
-            splits = viewModel.getAllSplits()
+            if let split = notification.object as? Split {
+                print("📩 Received imported split notification: \(split.name)")
+
+                DispatchQueue.main.async {
+                    viewModel.deactivateAllSplits()
+                    splits = viewModel.getAllSplits() // Reload all splits from database
+                }
+            } else {
+                splits = viewModel.getAllSplits()
+            }
         }
         .sheet(isPresented: $createSplit, onDismiss: {
-            
+
         }) {
             SetupSplitView(viewModel: viewModel)
                 .presentationDetents([.medium])
