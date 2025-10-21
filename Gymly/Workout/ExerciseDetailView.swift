@@ -78,13 +78,8 @@ struct ExerciseDetailView: View {
                             exercise.done = true
                             exercise.completedAt = Date() // Set completion time to now
 
-                            // Update muscle group chart data when exercise is completed
-                            Task {
-                                    viewModel.updateMuscleGroupDataValues(
-                                    from: [exercise],
-                                    modelContext: context
-                                )
-                            }
+                            // Graph will be updated when "Workout done" is tapped
+                            // No need to update here to avoid double-counting
 
                             dismiss()
                         }

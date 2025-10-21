@@ -74,14 +74,9 @@ class Config:ObservableObject {
             UserDefaults.standard.set(graphMaxValue, forKey: "graphMaxValue")
         }
     }
-    
-    @Published var graphUpdatedExerciseIDs: Set<UUID> {
-        didSet {
-            let idsAsStrings = graphUpdatedExerciseIDs.map { $0.uuidString }
-            UserDefaults.standard.set(idsAsStrings, forKey: "graphUpdatedExerciseIDs")
-        }
-    }
-    
+
+    // Note: graphUpdatedExerciseIDs removed - no longer needed
+    // Graph now recalculates from database instead of accumulating
 
     @Published var totalWorkoutTimeMinutes: Int {
         didSet {
@@ -177,7 +172,7 @@ class Config:ObservableObject {
         self.activeExercise = UserDefaults.standard.object(forKey: "activeExercise") as? Int ?? 1
         self.graphDataValues = UserDefaults.standard.object(forKey: "graphDataValues") as? [Double] ?? []
         self.graphMaxValue = UserDefaults.standard.object(forKey: "graphMaxValue") as? Double ?? 1.0
-        self.graphUpdatedExerciseIDs = UserDefaults.standard.object(forKey: "graphUpdatedExerciseIDs") as? Set<UUID> ?? []
+        // graphUpdatedExerciseIDs removed - no longer tracking exercise IDs
         self.totalWorkoutTimeMinutes = UserDefaults.standard.object(forKey: "totalWorkoutTimeMinutes") as? Int ?? 0
         self.isCloudKitEnabled = UserDefaults.standard.object(forKey: "isCloudKitEnabled") as? Bool ?? false
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
@@ -189,6 +184,7 @@ class Config:ObservableObject {
         self.equipmentAccess = UserDefaults.standard.object(forKey: "equipmentAccess") as? String ?? ""
         self.experienceLevel = UserDefaults.standard.object(forKey: "experienceLevel") as? String ?? ""
         self.trainingDaysPerWeek = UserDefaults.standard.object(forKey: "trainingDaysPerWeek") as? Int ?? 4
+1
     }
 
 }
