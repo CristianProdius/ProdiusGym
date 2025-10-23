@@ -219,7 +219,7 @@ struct WorkoutSummaryView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .bold()
                 }
             }

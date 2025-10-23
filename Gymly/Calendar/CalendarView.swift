@@ -12,6 +12,7 @@ struct CalendarView: View {
     @State private var currentMonth = Date()
     @EnvironmentObject var config: Config
     @Environment(\.colorScheme) var scheme
+    @EnvironmentObject var appearanceManager: AppearanceManager
     let calendar = Calendar.current
     let daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
@@ -28,7 +29,7 @@ struct CalendarView: View {
                             }) {
                                 Image(systemName: "chevron.left")
                                     .bold()
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(appearanceManager.accentColor.color)
                             }
                             Spacer()
                             Text(viewModel.monthAndYearString(from: currentMonth))
@@ -39,7 +40,7 @@ struct CalendarView: View {
                             }) {
                                 Image(systemName: "chevron.right")
                                     .bold()
-                                    .foregroundStyle(.red)
+                                    .foregroundStyle(appearanceManager.accentColor.color)
                             }
                         }
                         .padding()
@@ -56,10 +57,10 @@ struct CalendarView: View {
                                 }
                             }
                             .padding(5)
-                            .background(Color.red)
+                            .background(appearanceManager.accentColor.color)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 5)
-                                    .stroke(.red, lineWidth: 4)
+                                    .stroke(appearanceManager.accentColor.color, lineWidth: 4)
                             )
                             .padding(.bottom, 10)
 
@@ -78,11 +79,11 @@ struct CalendarView: View {
                                             .foregroundColor(Color.white)
                                             .padding(.horizontal, 3)
                                             .padding(.vertical, 2)
-                                            .background(Color.red)
+                                            .background(appearanceManager.accentColor.color)
                                             .cornerRadius(25)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 25)
-                                                    .stroke(.red, lineWidth: 4)
+                                                    .stroke(appearanceManager.accentColor.color, lineWidth: 4)
                                             )
                                             .fontWeight(.bold)
                                             .padding(3)
@@ -109,7 +110,7 @@ struct CalendarView: View {
                                                 if config.daysRecorded.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString) {
                                                     Circle()
                                                         .frame(width: 10, height: 10)
-                                                        .foregroundColor(.red)
+                                                        .foregroundColor(appearanceManager.accentColor.color)
                                                         .offset(x: 0, y: 20)
                                                 }
                                             }

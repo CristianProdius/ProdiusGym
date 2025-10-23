@@ -58,9 +58,15 @@ struct NewSettingsView: View {
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("Appearance (Coming Soon)")) {
-                            Image(systemName: "paintbrush.fill")
-                            Text("Appearance")
+                        NavigationLink(destination: AppearanceView()) {
+                            HStack {
+                                Image(systemName: "paintbrush.fill")
+                                Text("Appearance")
+                                Spacer()
+                                Image(systemName: "star.fill")
+                                    .foregroundColor(.yellow)
+                                    .font(.caption)
+                            }
                         }
                         .frame(width: 300)
                     }
@@ -78,9 +84,7 @@ struct NewSettingsView: View {
 
                     // Premium Section
                     Section("Premium") {
-                        Button(action: {
-                            // TODO: Show premium upgrade flow
-                        }) {
+                        NavigationLink(destination: PremiumSubscriptionView()) {
                             HStack {
                                 Image(systemName: "star.fill")
                                     .foregroundColor(.yellow)
@@ -93,9 +97,6 @@ struct NewSettingsView: View {
                                         .font(.caption)
                                 }
                                 Spacer()
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
                             }
                         }
                         .frame(width: 300)

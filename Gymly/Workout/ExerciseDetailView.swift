@@ -9,10 +9,11 @@ import SwiftUI
 import SwiftData
 
 struct ExerciseDetailView: View {
-    
+
     /// Environment and observed objects
     @Environment(\.modelContext) private var context
     @EnvironmentObject var config: Config
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: WorkoutViewModel
     @State var exercise: Exercise
@@ -24,6 +25,9 @@ struct ExerciseDetailView: View {
     @State private var showSetEditSheet = false
     @State private var selectedSet: Exercise.Set?
 
+    // OPTIMIZATION: Cached sorted sets to avoid recomputing on every render
+    @State private var cachedSortedSets: [(index: Int, set: Exercise.Set)] = []
+
     var body: some View {
         ZStack {
             FloatingClouds(theme: CloudsTheme.graphite(scheme))
@@ -32,22 +36,22 @@ struct ExerciseDetailView: View {
                 /// Displays set and rep count
                 HStack {
                     Text("\(exercise.sets?.count ?? 0) Sets")
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(appearanceManager.accentColor.color)
                         .padding()
                         .bold()
                     Spacer()
                     Text("\(exercise.repGoal) Reps")
-                        .foregroundStyle(.accent)
+                        .foregroundStyle(appearanceManager.accentColor.color)
                         .padding()
                         .bold()
                 }
                 Form {
-                    /// List of exercise sets
-                    ForEach(Array((exercise.sets ?? []).sorted(by: { $0.createdAt < $1.createdAt }).enumerated()), id: \.element.id) { index, set in
+                    /// List of exercise sets - OPTIMIZATION: Use cached sorted sets
+                    ForEach(cachedSortedSets, id: \.set.id) { item in
                         SetCell(
                             viewModel: viewModel,
-                            index: index,
-                            set: set,
+                            index: item.index,
+                            set: item.set,
                             config: config,
                             exercise: exercise,
                             setForCalendar: false,
@@ -63,11 +67,13 @@ struct ExerciseDetailView: View {
                         .swipeActions(edge: .trailing) {
                             /// Swipe-to-delete action for a set
                             Button(role: .destructive) {
-                                viewModel.deleteSet(set, exercise: exercise)
+                                viewModel.deleteSet(item.set, exercise: exercise)
+                                // OPTIMIZATION: Update cache after deletion
+                                updateCachedSortedSets()
                             } label: {
                                 Label("Delete", systemImage: "trash")
                             }
-                            
+
                         }
                     }
                     /// Dismiss button
@@ -77,19 +83,15 @@ struct ExerciseDetailView: View {
                             exercise.done = true
                             exercise.completedAt = Date() // Set completion time to now
 
-                            // Update muscle group chart data when exercise is completed
-                            Task {
-                                    viewModel.updateMuscleGroupDataValues(
-                                    from: [exercise],
-                                    modelContext: context
-                                )
-                            }
+                            // Graph will be updated when "Workout done" is tapped
+                            // No need to update here to avoid double-counting
 
                             dismiss()
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
                         .listRowBackground(Color.black.opacity(0.1))
+                        .foregroundStyle(appearanceManager.accentColor.color)
                     }
                 }
                 .toolbar {
@@ -110,7 +112,18 @@ struct ExerciseDetailView: View {
             .listRowBackground(Color.clear)
             .navigationTitle("\(exercise.name)")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showSetEditSheet) {
+            .onAppear {
+                // OPTIMIZATION: Initialize cached sorted sets on appear
+                updateCachedSortedSets()
+            }
+            .onChange(of: exercise.sets?.count) { _, _ in
+                // OPTIMIZATION: Update cache when set count changes
+                updateCachedSortedSets()
+            }
+            .sheet(isPresented: $showSetEditSheet, onDismiss: {
+                // OPTIMIZATION: Update cache when set edit sheet closes (in case set data changed)
+                updateCachedSortedSets()
+            }) {
                 if let selectedSet = selectedSet {
                     EditExerciseSetView(
                         targetSet: selectedSet,
@@ -134,6 +147,13 @@ struct ExerciseDetailView: View {
         Task {
             exercise = await viewModel.fetchExercise(id: exercise.id)
         }
+    }
+
+    /// OPTIMIZATION: Compute and cache sorted sets
+    private func updateCachedSortedSets() {
+        let sortedSets = (exercise.sets ?? []).sorted(by: { $0.createdAt < $1.createdAt })
+        cachedSortedSets = sortedSets.enumerated().map { (index: $0.offset, set: $0.element) }
+        debugPrint("[OPTIMIZATION] Cached \(cachedSortedSets.count) sorted sets for exercise '\(exercise.name)'")
     }
 }
 
