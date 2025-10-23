@@ -21,6 +21,7 @@ struct TodayWorkoutView: View {
     @ObservedObject var viewModel: WorkoutViewModel
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.modelContext) var context: ModelContext
     @Environment(\.colorScheme) var scheme
     @State var showProfileView: Bool = false
@@ -34,7 +35,123 @@ struct TodayWorkoutView: View {
     @State var orderExercises: [String] = []
     @State private var showWorkoutSummary = false
     @State private var workoutSummaryData: WorkoutSummaryData?
-    
+
+    // OPTIMIZATION: Cached grouped exercises to avoid recomputing on every render
+    @State private var cachedGroupedExercises: [(String, [Exercise])] = []
+    @State private var cachedGlobalOrderMap: [UUID: Int] = [:]
+
+    // Break down complex view for compiler
+    private var daySelectionMenu: some View {
+        Menu {
+            ForEach(allSplitDays.sorted(by: { $0.dayOfSplit < $1.dayOfSplit }), id: \.self) { day in
+                Button(action: {
+                    selectedDay = day
+                    viewModel.day = selectedDay
+                    config.dayInSplit = day.dayOfSplit
+                    Task { @MainActor in
+                        await refreshView()
+                    }
+                }) {
+                    HStack {
+                        Text("\(day.dayOfSplit) - \(day.name)")
+                        if day == selectedDay {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+        } label: {
+            HStack {
+                Text("\(selectedDay.name)")
+                    .font(.largeTitle)
+                    .bold()
+                    .padding(.leading)
+                Text(Image(systemName: "chevron.down"))
+                    .font(.title2)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 16)
+            .foregroundStyle(Color.primary)
+        }
+    }
+
+    private var exercisesList: some View {
+        List {
+            // OPTIMIZATION: Use cached grouped exercises instead of recalculating
+            ForEach(cachedGroupedExercises, id: \.0) { name, exercises in
+                if !exercises.isEmpty {
+                    Section(header: Text(name)) {
+                        ForEach(exercises, id: \.id) { exercise in
+                            NavigationLink(destination: ExerciseDetailView(viewModel: viewModel, exercise: exercise)) {
+                                HStack {
+                                    Text("\(cachedGlobalOrderMap[exercise.id] ?? 0)")
+                                        .foregroundStyle(exercise.done ? Color.green.opacity(0.8) : appearanceManager.accentColor.color.opacity(0.8))
+                                    Text(exercise.name)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .listRowBackground(Color.black.opacity(0.1))
+
+            /// Save workout to the calendar button
+            Section("") {
+                Button("Workout done") {
+                    // Calculate workout summary before clearing exercises
+                    if let summaryData = calculateWorkoutDuration() {
+                        workoutSummaryData = summaryData
+                        // Add workout duration to total time
+                        config.totalWorkoutTimeMinutes += summaryData.workoutDurationMinutes
+                        showWorkoutSummary = true
+                    }
+
+                    Task { @MainActor in
+                        // Set completion time for all done exercises
+                        let now = Date()
+                        let doneCount = selectedDay.exercises?.filter { $0.done }.count ?? 0
+                        debugPrint("🏃‍♂️ WORKOUT DONE: \(doneCount) exercises marked as done")
+
+                        if let exercises = selectedDay.exercises {
+                            for i in exercises.indices {
+                                if exercises[i].done {
+                                    exercises[i].completedAt = now
+                                }
+                            }
+                        }
+
+                        viewModel.updateMuscleGroupDataValues(from: selectedDay.exercises ?? [], modelContext: context)
+                        await viewModel.insertWorkout(from: selectedDay)
+
+                        // Clear timestamps and reset done flags for next workout
+                        if let exercises = selectedDay.exercises {
+                            for i in exercises.indices {
+                                exercises[i].done = false
+
+                                // Clear all set timestamps for fresh next workout
+                                if let sets = exercises[i].sets {
+                                    for j in sets.indices {
+                                        exercises[i].sets?[j].time = ""
+                                    }
+                                }
+                            }
+                        }
+                        debugPrint("🧹 CLEANUP: Cleared all set timestamps for next workout")
+                    }
+                }
+                .scrollContentBackground(.hidden)
+                .background(Color.clear)
+                .listRowBackground(Color.black.opacity(0.1))
+                .foregroundStyle(appearanceManager.accentColor.color)
+            }
+        }
+        .scrollContentBackground(.hidden)
+        .background(Color.clear)
+        .listRowBackground(Color.clear)
+    }
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -43,102 +160,8 @@ struct TodayWorkoutView: View {
                 VStack {
                     if !selectedDay.name.isEmpty {
                         VStack {
-                            /// Display the navigation title with menu day selection
-                            Menu {
-                                ForEach(allSplitDays.sorted(by: { $0.dayOfSplit < $1.dayOfSplit }), id: \.self) { day in
-                                    Button(action: {
-                                        selectedDay = day
-                                        viewModel.day = selectedDay
-                                        config.dayInSplit = day.dayOfSplit
-                                        Task { @MainActor in
-                                            await refreshView()
-                                        }
-                                    }) {
-                                        HStack {
-                                            Text("\(day.dayOfSplit) - \(day.name)")
-                                            if day == selectedDay {
-                                                Image(systemName: "checkmark")
-                                            }
-                                        }
-                                    }
-                                }
-                            } label: {
-                                HStack {
-                                    Text("\(selectedDay.name)")
-                                        .font(.largeTitle)
-                                        .bold()
-                                        .padding(.leading)
-                                    Text(Image(systemName: "chevron.down"))
-                                        .font(.title2)
-                                }
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                                .padding(.top, 16)
-                                .foregroundStyle(Color.primary)
-                            }
-                            /// Display exercises in a day
-                            let globalOrderMap: [UUID: Int] = Dictionary(uniqueKeysWithValues: (selectedDay.exercises ?? []).map { ($0.id, $0.exerciseOrder) })
-                            List {
-                                ForEach(muscleGroups) { group in
-                                    if !group.exercises.isEmpty {
-                                        Section(header: Text(group.name)) {
-                                            ForEach(group.exercises.sorted(by: { $0.exerciseOrder < $1.exerciseOrder }), id: \.id) { exercise in
-                                                NavigationLink(destination: ExerciseDetailView(viewModel: viewModel, exercise: exercise)) {
-                                                    HStack {
-                                                        Text("\(globalOrderMap[exercise.id] ?? 0)")
-                                                            .foregroundStyle(exercise.done ? Color.green.opacity(0.8) : Color.red.opacity(0.8))
-                                                        Text(exercise.name)
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                .scrollContentBackground(.hidden)
-                                .background(Color.clear)
-                                .listRowBackground(Color.black.opacity(0.1))
-                                /// Save workout to the calendar button
-                                Section("") {
-                                    Button("Workout done") {
-                                        // Calculate workout summary before clearing exercises
-                                        if let summaryData = calculateWorkoutDuration() {
-                                            workoutSummaryData = summaryData
-                                            // Add workout duration to total time
-                                            config.totalWorkoutTimeMinutes += summaryData.workoutDurationMinutes
-                                            showWorkoutSummary = true
-                                        }
-
-                                        Task { @MainActor in
-                                            // Set completion time for all done exercises
-                                            let now = Date()
-                                            let doneCount = selectedDay.exercises?.filter { $0.done }.count ?? 0
-                                            debugPrint("🏃‍♂️ WORKOUT DONE: \(doneCount) exercises marked as done")
-
-                                            if let exercises = selectedDay.exercises {
-                                                for i in exercises.indices {
-                                                    if exercises[i].done {
-                                                        exercises[i].completedAt = now
-                                                    }
-                                                }
-                                            }
-
-                                            viewModel.updateMuscleGroupDataValues(from: selectedDay.exercises ?? [], modelContext: context)
-                                            await viewModel.insertWorkout(from: selectedDay)
-                                            if let exercises = selectedDay.exercises {
-                                                for i in exercises.indices {
-                                                    exercises[i].done = false
-                                                }
-                                            }
-                                        }
-                                    }
-                                    .scrollContentBackground(.hidden)
-                                    .background(Color.clear)
-                                    .listRowBackground(Color.black.opacity(0.1))
-                                    .foregroundStyle(Color.accentColor)
-                                }
-                            }
-                            .scrollContentBackground(.hidden)
-                            .background(Color.clear)
-                            .listRowBackground(Color.clear)
+                            daySelectionMenu
+                            exercisesList
                         }
                     } else {
                         /// If no split is created show help message
@@ -178,7 +201,13 @@ struct TodayWorkoutView: View {
                 .onChange(of: viewModel.exerciseAddedTrigger) {
                     Task { @MainActor in
                         await refreshMuscleGroups()
+                        // OPTIMIZATION: Refresh cache when exercises are added
+                        updateCachedGroupedExercises()
                     }
+                }
+                /// OPTIMIZATION: Invalidate cache when selectedDay exercises change
+                .onChange(of: selectedDay.exercises?.count) { _, _ in
+                    updateCachedGroupedExercises()
                 }
                 .onReceive(Publishers.Merge(
                     NotificationCenter.default.publisher(for: Notification.Name.importSplit),
@@ -302,6 +331,9 @@ struct TodayWorkoutView: View {
             print("🔄 TODAYWORKOUTVIEW: Set selectedDay to '\(selectedDay.name)'")
         }
 
+        // OPTIMIZATION: Update cached grouped exercises after day changes
+        updateCachedGroupedExercises()
+
         await loadProfileImage()
         await refreshMuscleGroups()
         print("🔄 TODAYWORKOUTVIEW: Refresh complete")
@@ -363,5 +395,28 @@ struct TodayWorkoutView: View {
     @MainActor
     private func loadProfileImage() async {
         profileImage = userProfileManager.currentProfile?.profileImage
+    }
+
+    /// OPTIMIZATION: Compute and cache grouped exercises
+    @MainActor
+    private func updateCachedGroupedExercises() {
+        debugPrint("[OPTIMIZATION] Computing cached grouped exercises")
+
+        // Build global order map
+        cachedGlobalOrderMap = Dictionary(uniqueKeysWithValues: (selectedDay.exercises ?? []).map { ($0.id, $0.exerciseOrder) })
+
+        // Build groups from selectedDay.exercises while preserving the order of first appearance
+        var order: [String] = []
+        var dict: [String: [Exercise]] = [:]
+        for ex in (selectedDay.exercises ?? []).sorted(by: { $0.exerciseOrder < $1.exerciseOrder }) {
+            if dict[ex.muscleGroup] == nil {
+                order.append(ex.muscleGroup)
+                dict[ex.muscleGroup] = []
+            }
+            dict[ex.muscleGroup]!.append(ex)
+        }
+        cachedGroupedExercises = order.map { ($0, dict[$0]!) }
+
+        debugPrint("[OPTIMIZATION] Cached \(cachedGroupedExercises.count) muscle groups with \(selectedDay.exercises?.count ?? 0) total exercises")
     }
 }

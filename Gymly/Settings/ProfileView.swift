@@ -12,6 +12,7 @@ struct ProfileView: View {
     @ObservedObject var viewModel: WorkoutViewModel
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.dismiss) var dismiss
     @StateObject var healthKitManager = HealthKitManager()
     @Environment(\.modelContext) var context: ModelContext
@@ -26,15 +27,15 @@ struct ProfileView: View {
     @State private var weightUpdatedTrigger = false
     @State private var showCalendar: Bool = false
 
-    @State var graphSorting: [String] = ["Today","Week","Month","All Time"]
+    @State var graphSorting: [String] = ["Today","Week ⭐","Month ⭐","All Time ⭐"]
     @State var graphSortingSelected: String = "Today"
 
     private var selectedTimeRange: ContentViewGraph.TimeRange {
         switch graphSortingSelected {
         case "Today": return .day
-        case "Week": return .week
-        case "Month": return .month
-        case "All Time": return .all
+        case "Week ⭐": return .week
+        case "Month ⭐": return .month
+        case "All Time ⭐": return .all
         default: return .month
         }
     }
@@ -47,7 +48,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.red(scheme))
+                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
                     .ignoresSafeArea()
 
                 List {
@@ -57,7 +58,7 @@ struct ProfileView: View {
                     }) {
                         ZStack {
                             LinearGradient(
-                                gradient: Gradient(colors: [.accent, .accent]),
+                                gradient: Gradient(colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color]),
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
@@ -117,7 +118,7 @@ struct ProfileView: View {
                                                 return weight * factor
                                             }()),
                                         metric: userProfileManager.currentProfile?.weightUnit ?? "Kg",
-                                        headerColor: .accent,
+                                        headerColor: appearanceManager.accentColor.color,
                                         additionalInfo: "Body weight",
                                         icon: "figure.mixed.cardio"
                                     )
@@ -144,7 +145,7 @@ struct ProfileView: View {
                                 SettingUserInfoCell(
                                     value: String(format: "%.2f", (userProfileManager.currentProfile?.height ?? 0.0) / 100.0),
                                     metric: "m",
-                                    headerColor: .accent,
+                                    headerColor: appearanceManager.accentColor.color,
                                     additionalInfo: "Height",
                                     icon: "figure.wave"
                                 )
@@ -152,7 +153,7 @@ struct ProfileView: View {
                                 SettingUserInfoCell(
                                     value: String(format: "%.0f", Double(userProfileManager.currentProfile?.age ?? 0)),
                                     metric: "yo",
-                                    headerColor: .accent,
+                                    headerColor: appearanceManager.accentColor.color,
                                     additionalInfo: "Age",
                                     icon: "person.text.rectangle"
                                 )
@@ -176,12 +177,16 @@ struct ProfileView: View {
                                 }
                             }
                             .pickerStyle(.segmented)
+                            .frame(width: 350)
 
                             ZStack {
                                 ContentViewGraph(range: selectedTimeRange)
+                                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                    .id(selectedTimeRange)
                                 RadarLabels()
                             }
                             .frame(width: 300, height: 300)
+                            .animation(.easeInOut(duration: 0.3), value: selectedTimeRange)
                         }
                     }
                     .listRowBackground(Color.clear)
@@ -217,22 +222,14 @@ struct ProfileView: View {
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                .navigationTitle("Progress")
+                .navigationTitle("Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
-                        Button(action: {
-                            showCalendar = true
-                        }) {
-                            Image(systemName: "calendar")
-                                .font(.body)
-                        }
-                    }
-
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
                             dismiss()
                         }
+                        .foregroundStyle(Color.white)
                     }
                 }
                 .onAppear {

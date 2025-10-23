@@ -12,6 +12,7 @@ struct EditExerciseSetView: View {
     /// Environment and observed objects
     @Environment(\.modelContext) private var context
     @EnvironmentObject var config: Config
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var scheme
     @EnvironmentObject var userProfileManager: UserProfileManager
@@ -122,7 +123,7 @@ struct EditExerciseSetView: View {
                         exercise: exercise,
                         increaseWeight: increaseWeight,
                         decreaseWeight: decreaseWeight,
-                        saveWeight: saveWeight
+                        saveWeight: {} // No-op: batch save on Done instead
                     )
                 }
                 .scrollContentBackground(.hidden)
@@ -133,7 +134,7 @@ struct EditExerciseSetView: View {
                     HStack {
                         SetRepetitionsCell(
                             reps: $reps,
-                            saveReps: saveReps
+                            saveReps: {} // No-op: batch save on Done instead
                         )
                     }
                 }
@@ -149,7 +150,7 @@ struct EditExerciseSetView: View {
                         saveAllChanges()
                     } label: {
                         Text("Done")
-                            .foregroundStyle(Color.accentColor)
+                            .foregroundStyle(appearanceManager.accentColor.color)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.white.opacity(0.1))
@@ -192,9 +193,9 @@ struct EditExerciseSetView: View {
         }
     }
 
-    /// Save all changes to the target set
+    /// Save all changes to the target set (BATCH SAVE - called only once on Done)
     private func saveAllChanges() {
-        debugPrint("💾 Saving changes to set ID: \(targetSet.id)")
+        debugPrint("💾 [OPTIMIZED] Batch saving all changes to set ID: \(targetSet.id)")
 
         // Validate that the target set still exists in the exercise
         guard let setIndex = (exercise.sets ?? []).firstIndex(where: { $0.id == targetSet.id }) else {
@@ -211,7 +212,7 @@ struct EditExerciseSetView: View {
 
         debugPrint("✅ Set validation passed - found at index \(setIndex)")
 
-        // Update the target set directly
+        // Update the target set directly with ALL changes at once
         targetSet.weight = weight
         targetSet.reps = reps
         targetSet.failure = failure
@@ -222,9 +223,10 @@ struct EditExerciseSetView: View {
         targetSet.note = note
         targetSet.bodyWeight = bodyWeight
 
+        // SINGLE database write for all changes
         do {
             try context.save()
-            debugPrint("✅ Successfully saved set changes - Weight: \(weight), Reps: \(reps)")
+            debugPrint("✅ [OPTIMIZED] Successfully batch saved set changes - Weight: \(weight), Reps: \(reps)")
         } catch {
             debugPrint("❌ Error saving set changes: \(error)")
         }
@@ -232,47 +234,7 @@ struct EditExerciseSetView: View {
         dismiss()
     }
 
-    /// Save weight to context (for incremental updates)
-    private func saveWeight() {
-        // Validate that the target set still exists
-        guard (exercise.sets ?? []).contains(where: { $0.id == targetSet.id }) else {
-            debugPrint("❌ Error: Cannot save weight - target set no longer exists")
-            return
-        }
-
-        guard weight >= 0 else {
-            debugPrint("❌ Error: Invalid weight value: \(weight)")
-            return
-        }
-
-        targetSet.weight = weight
-        do {
-            try context.save()
-            debugPrint("💾 Weight saved: \(weight) kg")
-        } catch {
-            debugPrint("❌ Error saving weight: \(error)")
-        }
-    }
-
-    /// Save reps to context (for incremental updates)
-    private func saveReps() {
-        // Validate that the target set still exists
-        guard (exercise.sets ?? []).contains(where: { $0.id == targetSet.id }) else {
-            debugPrint("❌ Error: Cannot save reps - target set no longer exists")
-            return
-        }
-
-        guard reps >= 0 else {
-            debugPrint("❌ Error: Invalid reps value: \(reps)")
-            return
-        }
-
-        targetSet.reps = reps
-        do {
-            try context.save()
-            debugPrint("💾 Reps saved: \(reps)")
-        } catch {
-            debugPrint("❌ Error saving reps: \(error)")
-        }
-    }
+    // REMOVED: saveWeight() and saveReps() incremental saves
+    // All changes are now batched and saved once when "Done" is tapped
+    // This reduces database writes from 3+ per adjustment to 1 total per session
 }
