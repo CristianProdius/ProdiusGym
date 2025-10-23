@@ -59,6 +59,7 @@ struct NewSettingsView: View {
                         .frame(width: 300)
 
                         NavigationLink(destination: AppearanceView()) {
+
                             HStack {
                                 Image(systemName: "paintbrush.fill")
                                 Text("Appearance")
@@ -67,6 +68,7 @@ struct NewSettingsView: View {
                                     .foregroundColor(.yellow)
                                     .font(.caption)
                             }
+
                         }
                         .frame(width: 300)
                     }
