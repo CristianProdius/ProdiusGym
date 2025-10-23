@@ -58,7 +58,13 @@ final class WorkoutSummarizer: ObservableObject {
         return formatter.string(from: NSNumber(value: number)) ?? String(format: "%.0f", number)
     }
 
-    func generateWeeklySummary(thisWeek: [CompletedWorkout], lastWeek: [CompletedWorkout]) async throws {
+    func generateWeeklySummary(
+        thisWeek: [CompletedWorkout],
+        lastWeek: [CompletedWorkout],
+        fitnessProfile: FitnessProfile? = nil,
+        userWeight: Double? = nil,
+        weightUnit: String = "Kg"
+    ) async throws {
         isGenerating = true
         defer { isGenerating = false }
 
@@ -135,6 +141,56 @@ final class WorkoutSummarizer: ObservableObject {
                 "No workout data available for comparison from the previous week."
             }
 
+            // Add fitness profile context if available
+            if let profile = fitnessProfile {
+                ""
+                "USER'S FITNESS PROFILE (tailor recommendations to match these goals):"
+                "Primary Goal: \(profile.goal.displayName) - \(profile.goal.description)"
+                "Equipment Access: \(profile.equipment.displayName) - \(profile.equipment.description)"
+                "Experience Level: \(profile.experience.displayName) - \(profile.experience.description)"
+                "Target Training Days: \(profile.daysPerWeek) days per week"
+                ""
+                "IMPORTANT: Tailor ALL recommendations and analysis to align with the user's stated goal of '\(profile.goal.displayName)'."
+                "Consider their \(profile.experience.displayName) experience level when suggesting exercises and programming."
+                "Account for their equipment access (\(profile.equipment.displayName)) in recommendations."
+                if manualStats.totalSessions < profile.daysPerWeek {
+                    "NOTE: User completed \(manualStats.totalSessions) sessions this week but their target is \(profile.daysPerWeek) sessions. Address this gap."
+                } else if manualStats.totalSessions > profile.daysPerWeek {
+                    "NOTE: User completed \(manualStats.totalSessions) sessions this week, exceeding their target of \(profile.daysPerWeek) sessions. Consider recovery needs."
+                }
+            }
+
+            // Add user weight data if available
+            if let weight = userWeight, weight > 0 {
+                ""
+                "USER'S BODY WEIGHT DATA:"
+                "Current Weight: \(String(format: "%.1f", weight)) \(weightUnit)"
+
+                // Goal-specific weight context
+                if let profile = fitnessProfile {
+                    switch profile.goal {
+                    case .gainMuscle:
+                        "Weight Goal Context: User aims to GAIN MUSCLE. Slight weight increase (0.25-0.5kg per week) is healthy and expected with proper training."
+                        "In recommendations, emphasize that weight gain + strength gains = successful muscle building. Reassure user if weight is trending up."
+                    case .loseWeight:
+                        "Weight Goal Context: User aims to LOSE WEIGHT. Target is gradual weight loss (0.5-1kg per week) while preserving muscle mass."
+                        "In recommendations, emphasize maintaining training intensity despite caloric deficit. Celebrate weight loss progress."
+                    case .recomp:
+                        "Weight Goal Context: User aims for BODY RECOMPOSITION (lose fat, gain muscle). Weight may stay STABLE or change slowly."
+                        "In recommendations, emphasize that stable weight + strength gains = successful recomp. Focus on performance metrics, not scale."
+                    case .stayFit:
+                        "Weight Goal Context: User aims to MAINTAIN FITNESS. Weight should remain relatively stable."
+                        "In recommendations, focus on consistency and performance rather than weight changes."
+                    case .increaseStrength:
+                        "Weight Goal Context: User aims to INCREASE STRENGTH. Weight may increase slightly due to muscle gain."
+                        "In recommendations, emphasize strength metrics over weight. Some weight gain is acceptable if strength is improving."
+                    }
+                } else {
+                    "Use this data to provide context-aware recommendations about nutrition and recovery."
+                }
+                ""
+            }
+
             "IMPORTANT: Use these EXACT pre-calculated statistics in your keyStats section (ONLY these three):"
             "- Total Volume: \(formatNumberWithCommas(manualStats.totalVolume)) kg" + (manualStats.volumeDelta != nil ? " (delta: \(manualStats.volumeDelta!))" : "")
             "- Total Sessions: \(manualStats.totalSessions)" + (manualStats.sessionsDelta != nil ? " (delta: \(manualStats.sessionsDelta!))" : "")
@@ -200,7 +256,52 @@ final class WorkoutSummarizer: ObservableObject {
             } else {
                 "  * Training frequency is appropriate. Focus concerns on other areas like muscle balance, volume distribution, exercise variety, etc."
             }
-            "- 2-3 specific, actionable recommendations for next week (covering training frequency, progressive overload, exercise selection, etc). When making frequency recommendations:"
+            "- 2-3 specific, actionable recommendations for next week (covering training frequency, progressive overload, exercise selection, etc)."
+
+            // Goal-specific recommendation guidance
+            if let profile = fitnessProfile {
+                "  * GOAL-ALIGNED RECOMMENDATIONS for '\(profile.goal.displayName)':"
+                switch profile.goal {
+                case .gainMuscle:
+                    "    - Focus on progressive overload and sufficient volume for hypertrophy (8-12 reps, 3-5 sets)"
+                    "    - Ensure adequate protein and caloric surplus"
+                    "    - Emphasize compound movements and time under tension"
+                case .loseWeight:
+                    "    - Maintain strength training to preserve muscle while in caloric deficit"
+                    "    - Consider circuit training or supersets to increase calorie burn"
+                    "    - Emphasize consistency and sustainable training volume"
+                case .recomp:
+                    "    - Balance strength training with adequate protein intake"
+                    "    - Progressive overload is crucial to build muscle while losing fat"
+                    "    - Recommend slight caloric deficit with high protein"
+                case .stayFit:
+                    "    - Maintain current training volume and variety"
+                    "    - Focus on exercise enjoyment and consistency"
+                    "    - Suggest variations to keep workouts interesting"
+                case .increaseStrength:
+                    "    - Prioritize heavy compound lifts (3-6 reps, higher weight)"
+                    "    - Emphasize proper rest between sets (3-5 minutes)"
+                    "    - Progressive overload with focus on weight increases, not volume"
+                }
+
+                "  * EXPERIENCE-ADJUSTED GUIDANCE for \(profile.experience.displayName):"
+                switch profile.experience {
+                case .beginner:
+                    "    - Focus on form and technique over weight"
+                    "    - Recommend full-body workouts or upper/lower splits"
+                    "    - Avoid overly complex programming or excessive volume"
+                case .intermediate:
+                    "    - Can handle moderate training volume and intensity"
+                    "    - Suggest periodization and planned deloads"
+                    "    - Appropriate for push/pull/legs or body part splits"
+                case .advanced:
+                    "    - Can utilize advanced techniques (drop sets, rest-pause, etc.)"
+                    "    - May benefit from specialized programming and periodization"
+                    "    - Focus on weak points and optimization"
+                }
+            }
+
+            "  * When making frequency recommendations:"
             if manualStats.totalSessions <= 2 {
                 "  * FIRST RECOMMENDATION MUST BE: User only completed \(manualStats.totalSessions) sessions. Recommend INCREASING training frequency to minimum 4 sessions per week."
                 "  * DO NOT recommend rest or recovery - they need MORE training, not less."

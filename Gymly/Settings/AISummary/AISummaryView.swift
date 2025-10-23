@@ -11,6 +11,8 @@ import SwiftData
 struct AISummaryView: View {
     @Environment(\.colorScheme) private var scheme
     @Environment(\.modelContext) private var context
+    @EnvironmentObject var config: Config
+    @EnvironmentObject var userProfileManager: UserProfileManager
     @StateObject private var summarizer = WorkoutSummarizer()
     @State private var dataFetcher: WorkoutDataFetcher?
     @State private var selectedTimeframe = 7
@@ -72,13 +74,43 @@ struct AISummaryView: View {
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 ))
-            
+
             Text("Weekly Workout Intelligence")
                 .font(.title2.bold())
-            
+
             Text("AI-powered insights from your past \(selectedTimeframe) days")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            // Show fitness profile and weight status
+            HStack(spacing: 8) {
+                if let profile = config.fitnessProfile {
+                    HStack(spacing: 6) {
+                        Image(systemName: "target")
+                            .font(.caption2)
+                        Text("Goal: \(profile.goal.displayName)")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.blue)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.blue.opacity(0.1), in: Capsule())
+                }
+
+                if let weight = userProfileManager.currentProfile?.weight, weight > 0 {
+                    let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                    HStack(spacing: 6) {
+                        Image(systemName: "scalemass")
+                            .font(.caption2)
+                        Text("\(String(format: "%.1f", weight)) \(weightUnit)")
+                            .font(.caption)
+                    }
+                    .foregroundStyle(.green)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.green.opacity(0.1), in: Capsule())
+                }
+            }
         }
         .padding(.vertical)
     }
@@ -477,7 +509,18 @@ struct AISummaryView: View {
                 }
 
                 let comparisonData = fetcher.fetchWorkoutsForComparison()
-                try await summarizer.generateWeeklySummary(thisWeek: comparisonData.thisWeek, lastWeek: comparisonData.lastWeek)
+                // Retrieve fitness profile from config
+                let fitnessProfile = config.fitnessProfile
+                // Retrieve user weight data from profile
+                let userWeight = userProfileManager.currentProfile?.weight
+                let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                try await summarizer.generateWeeklySummary(
+                    thisWeek: comparisonData.thisWeek,
+                    lastWeek: comparisonData.lastWeek,
+                    fitnessProfile: fitnessProfile,
+                    userWeight: userWeight,
+                    weightUnit: weightUnit
+                )
             } catch {
                 await MainActor.run {
                     summarizer.error = error
