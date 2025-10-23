@@ -324,20 +324,30 @@ final class WorkoutSummarizer: ObservableObject {
         for try await partialResponse in stream {
             workoutSummary = partialResponse.content
         }
+
+        // Save the completed summary to cache
+        if let finalSummary = workoutSummary {
+            AISummaryCache.shared.saveSummary(finalSummary)
+        }
     }
 
     func prewarm() {
         session.prewarm()
     }
 
+    func loadCachedSummary() {
+        // Cache loading is now handled directly in the view
+        // This method is kept for backward compatibility but does nothing
+    }
+
     func clearSummary() {
         workoutSummary = nil
+        AISummaryCache.shared.clearCache()
     }
 
     func cleanup() {
-        // Clear the summary to release memory
-        workoutSummary = nil
-        // Recreate the session to clear any cached data
+        // DON'T clear the summary - it's now cached and should persist
+        // Only recreate the session to clear any cached data
         session = LanguageModelSession(
             instructions: Instructions {
                 "You are an expert fitness coach and performance analyst."

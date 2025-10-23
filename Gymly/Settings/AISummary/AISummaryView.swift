@@ -18,6 +18,8 @@ struct AISummaryView: View {
     @State private var selectedTimeframe = 7
     @State private var showError = false
     @State private var hasStartedGeneration = false
+    @State private var cacheAge: String?
+    @State private var cachedData: CachedSummaryData?
     
     var body: some View {
         ZStack {
@@ -43,7 +45,14 @@ struct AISummaryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             setupDataFetcher()
-            // Don't fetch workouts here - only fetch when generating summary
+            // Load cached summary if available
+            if summarizer.workoutSummary == nil && cachedData == nil {
+                cachedData = AISummaryCache.shared.loadCachedData()
+                if cachedData != nil {
+                    hasStartedGeneration = true // Show the cached content
+                    cacheAge = AISummaryCache.shared.getCacheAgeString()
+                }
+            }
         }
         .onDisappear {
             // Clean up memory when view disappears
@@ -81,6 +90,20 @@ struct AISummaryView: View {
             Text("AI-powered insights from your past \(selectedTimeframe) days")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
+
+            // Show cache age if available
+            if let age = cacheAge {
+                HStack(spacing: 6) {
+                    Image(systemName: "clock")
+                        .font(.caption2)
+                    Text("Generated \(age)")
+                        .font(.caption)
+                }
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.secondary.opacity(0.1), in: Capsule())
+            }
 
             // Show fitness profile and weight status
             HStack(spacing: 8) {
@@ -158,6 +181,8 @@ struct AISummaryView: View {
             
             if let summary = summarizer.workoutSummary {
                 summaryContent(summary)
+            } else if let cached = cachedData {
+                cachedSummaryContent(cached)
             }
         }
         .animation(.easeInOut(duration: 0.3), value: summarizer.workoutSummary?.headline)
@@ -491,7 +516,210 @@ struct AISummaryView: View {
         }
         .padding()
     }
-    
+
+    @ViewBuilder
+    private func cachedSummaryContent(_ cached: CachedSummaryData) -> some View {
+        VStack(spacing: 20) {
+            if let headline = cached.headline {
+                headlineCard(headline)
+            }
+
+            if let overview = cached.overview {
+                overviewCard(overview)
+            }
+
+            if let keyStats = cached.keyStats, !keyStats.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Key Stats", systemImage: "chart.bar.fill")
+                        .font(.headline)
+
+                    ForEach(keyStats.indices, id: \.self) { index in
+                        let stat = keyStats[index]
+                        HStack {
+                            Image(systemName: iconForStat(stat.name ?? ""))
+                                .font(.title3)
+                                .foregroundStyle(.gray)
+                            VStack(alignment: .leading) {
+                                if let name = stat.name {
+                                    Text(name)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                if let value = stat.value {
+                                    Text(value)
+                                        .font(.headline)
+                                }
+                            }
+                            Spacer()
+                            if let delta = stat.delta {
+                                Text(delta)
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.white)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(delta.contains("+") ? Color.green.opacity(0.5) : (delta.contains("-") ? Color.red.opacity(0.5) : Color.gray.opacity(0.5)))
+                                    .clipShape(RoundedRectangle(cornerRadius: 6))
+                            }
+                        }
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+
+            if let trends = cached.trends, !trends.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Trends", systemImage: "chart.line.uptrend.xyaxis")
+                        .font(.headline)
+
+                    ForEach(trends.indices, id: \.self) { index in
+                        let trend = trends[index]
+                        HStack {
+                            if let direction = trend.direction {
+                                Image(systemName: trendIcon(for: direction))
+                                    .foregroundStyle(trendColor(for: direction))
+                            }
+
+                            VStack(alignment: .leading) {
+                                if let label = trend.label {
+                                    Text(label)
+                                        .font(.subheadline.bold())
+                                }
+                                if let evidence = trend.evidence {
+                                    Text(evidence)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+
+            if let prs = cached.prs, !prs.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Personal Records", systemImage: "trophy.fill")
+                        .font(.headline)
+                        .foregroundStyle(.yellow)
+
+                    ForEach(prs.indices, id: \.self) { index in
+                        let pr = prs[index]
+                        HStack {
+                            Image(systemName: "medal.fill")
+                                .foregroundStyle(.yellow)
+
+                            VStack(alignment: .leading) {
+                                if let exercise = pr.exercise {
+                                    Text(exercise)
+                                        .font(.subheadline.bold())
+                                }
+                                HStack {
+                                    if let type = pr.type {
+                                        Text(type)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    Text("•")
+                                        .foregroundStyle(.secondary)
+                                    if let value = pr.value {
+                                        Text(value)
+                                            .font(.caption.bold())
+                                    }
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .padding()
+                .background(
+                    LinearGradient(
+                        colors: [Color.yellow.opacity(0.1), Color.orange.opacity(0.1)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ),
+                    in: RoundedRectangle(cornerRadius: 12)
+                )
+            }
+
+            if let issues = cached.issues, !issues.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Areas of Concern", systemImage: "exclamationmark.triangle")
+                        .font(.headline)
+                        .foregroundStyle(.orange)
+
+                    ForEach(issues.indices, id: \.self) { index in
+                        let issue = issues[index]
+                        HStack(alignment: .top) {
+                            if let severity = issue.severity {
+                                Circle()
+                                    .fill(severityColor(for: severity))
+                                    .frame(width: 8, height: 8)
+                                    .padding(.top, 6)
+                            }
+
+                            VStack(alignment: .leading) {
+                                if let category = issue.category {
+                                    Text(category)
+                                        .font(.caption.bold())
+                                        .foregroundStyle(severityColor(for: issue.severity ?? "low"))
+                                }
+                                if let detail = issue.detail {
+                                    Text(detail)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+
+            if let recommendations = cached.recommendations, !recommendations.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Label("Recommendations", systemImage: "lightbulb.fill")
+                        .font(.headline)
+                        .foregroundStyle(.blue)
+
+                    ForEach(recommendations.indices, id: \.self) { index in
+                        let rec = recommendations[index]
+                        VStack(alignment: .leading, spacing: 8) {
+                            if let title = rec.title {
+                                Text(title)
+                                    .font(.subheadline.bold())
+                            }
+
+                            if let rationale = rec.rationale {
+                                Text(rationale)
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            if let action = rec.action {
+                                Label(action, systemImage: "arrow.right.circle")
+                                    .font(.caption.bold())
+                                    .foregroundStyle(.blue)
+                                    .padding(.top, 4)
+                            }
+                        }
+                        .padding(.vertical, 12)
+                        .padding(.horizontal, 16)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .background(Color.blue.opacity(0.05), in: RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+            }
+        }
+    }
+
     private func setupDataFetcher() {
         dataFetcher = WorkoutDataFetcher(context: context)
         summarizer.prewarm()
@@ -504,8 +732,10 @@ struct AISummaryView: View {
             do {
                 await MainActor.run {
                     hasStartedGeneration = true
-                    // Clear previous summary to show fresh streaming
+                    // Clear previous summary and cache to show fresh streaming
                     summarizer.clearSummary()
+                    cachedData = nil
+                    cacheAge = nil
                 }
 
                 let comparisonData = fetcher.fetchWorkoutsForComparison()
@@ -521,6 +751,11 @@ struct AISummaryView: View {
                     userWeight: userWeight,
                     weightUnit: weightUnit
                 )
+
+                // Update cache age after successful generation
+                await MainActor.run {
+                    cacheAge = AISummaryCache.shared.getCacheAgeString()
+                }
             } catch {
                 await MainActor.run {
                     summarizer.error = error
