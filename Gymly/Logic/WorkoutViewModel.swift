@@ -377,6 +377,7 @@ final class WorkoutViewModel: ObservableObject {
         debugPrint("💾 WORKOUT SAVE: Found \(completedExercises.count) completed exercises out of \(day.exercises?.count ?? 0) total")
 
         let todaysDate = formattedDateString(from: Date())
+        debugPrint("📅 WORKOUT SAVE: Today's date is '\(todaysDate)'")
 
         // First, check if there's already a DayStorage for today and remove it
         let existingPredicate = #Predicate<DayStorage> { storage in
@@ -388,10 +389,26 @@ final class WorkoutViewModel: ObservableObject {
             let existingStorages = try context.fetch(existingDescriptor)
             debugPrint("🔍 SAVE: Found \(existingStorages.count) existing DayStorage entries for date '\(todaysDate)'")
 
-            // Delete old DayStorage entries only (DO NOT delete Day objects to avoid deleting template days)
+            // Delete old DayStorage entries AND their associated Day objects
             for storage in existingStorages {
+                debugPrint("🗑️ SAVE: Deleting DayStorage id: \(storage.id), dayId: \(storage.dayId), date: '\(storage.date)'")
+
+                // Also delete the associated Day object to prevent orphans
+                let dayIdToDelete = storage.dayId
+                let dayToDeletePredicate = #Predicate<Day> { day in
+                    day.id == dayIdToDelete
+                }
+                let dayToDeleteDescriptor = FetchDescriptor<Day>(predicate: dayToDeletePredicate)
+                if let dayToDelete = try context.fetch(dayToDeleteDescriptor).first {
+                    context.delete(dayToDelete)
+                    debugPrint("🗑️ SAVE: Also deleted associated Day object id: \(dayToDelete.id)")
+                }
+
                 context.delete(storage)
-                debugPrint("🗑️ SAVE: Deleted old DayStorage for date '\(todaysDate)'")
+            }
+
+            if existingStorages.count > 0 {
+                debugPrint("✅ SAVE: Deleted \(existingStorages.count) old workout(s) for '\(todaysDate)'")
             }
         } catch {
             debugPrint("⚠️ SAVE: Error checking existing storage: \(error)")
@@ -406,11 +423,12 @@ final class WorkoutViewModel: ObservableObject {
 
         // Insert the Day object first so it gets persisted with an ID
         context.insert(newDay)
-        debugPrint("📝 SAVE: Inserted Day with id: \(newDay.id), name: '\(newDay.name)'")
+        debugPrint("📝 SAVE: Inserted NEW Day with id: \(newDay.id), name: '\(newDay.name)', exercises: \(completedExercises.count)")
 
         let dayStorage = DayStorage(id: UUID(), day: newDay, date: todaysDate)
         context.insert(dayStorage)
-        debugPrint("📝 SAVE: Created DayStorage for date '\(todaysDate)' referencing Day id: \(newDay.id)")
+        debugPrint("📝 SAVE: Created NEW DayStorage for date '\(todaysDate)' referencing Day id: \(newDay.id)")
+        debugPrint("🎯 SAVE: This workout should REPLACE any previous workout for '\(todaysDate)'")
 
         // Only add to daysRecorded if not already present
         if !config.daysRecorded.contains(todaysDate) {

@@ -65,7 +65,10 @@ class WorkoutDataFetcher {
 
             #if DEBUG
             print("🔍 AI Fetch: Found \(dayStorages.count) DayStorage entries in date range")
-
+            // Log each DayStorage entry to check for duplicates
+            for storage in dayStorages {
+                print("   📋 DayStorage: date='\(storage.date)', dayName='\(storage.dayName)', dayId=\(storage.dayId)")
+            }
             #endif
 
             var completedWorkouts: [CompletedWorkout] = []
