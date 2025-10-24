@@ -8,72 +8,70 @@
 import Foundation
 import SwiftData
 
-@MainActor
+// Removed @MainActor - database fetching should NOT block UI thread
 class WorkoutDataFetcher {
     private let context: ModelContext
+
+    // Static DateFormatter for performance (expensive to create)
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM yyyy"
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        return formatter
+    }()
 
     init(context: ModelContext) {
         self.context = context
     }
 
-    func fetchWeeklyWorkouts() -> [CompletedWorkout] {
+    nonisolated func fetchWeeklyWorkouts() -> [CompletedWorkout] {
         return fetchWorkouts(weeksBack: 0, numberOfWeeks: 1)
     }
 
-    func fetchWorkoutsForComparison() -> (thisWeek: [CompletedWorkout], lastWeek: [CompletedWorkout]) {
+    nonisolated func fetchWorkoutsForComparison() -> (thisWeek: [CompletedWorkout], lastWeek: [CompletedWorkout]) {
         let thisWeek = fetchWorkouts(weeksBack: 0, numberOfWeeks: 1)
         let lastWeek = fetchWorkouts(weeksBack: 1, numberOfWeeks: 1)
         return (thisWeek, lastWeek)
     }
 
-    private func fetchWorkouts(weeksBack: Int, numberOfWeeks: Int) -> [CompletedWorkout] {
+    nonisolated private func fetchWorkouts(weeksBack: Int, numberOfWeeks: Int) -> [CompletedWorkout] {
         let calendar = Calendar.current
         let endDate = calendar.date(byAdding: .weekOfYear, value: -weeksBack, to: Date()) ?? Date()
         guard let startDate = calendar.date(byAdding: .day, value: -(numberOfWeeks * 7), to: endDate) else {
+            #if DEBUG
             print("🔍 AI Fetch: Failed to create start date")
+            #endif
             return []
         }
 
-        // Use the correct date format that matches your DayStorage entries
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "d MMMM yyyy"
-        dateFormatter.locale = Locale(identifier: "en_US_POSIX")
-        let startDateString = dateFormatter.string(from: startDate)
-        let endDateString = dateFormatter.string(from: endDate)
+        let startDateString = Self.dateFormatter.string(from: startDate)
+        let endDateString = Self.dateFormatter.string(from: endDate)
 
+        #if DEBUG
         print("🔍 AI Fetch: Looking for workouts between '\(startDateString)' and '\(endDateString)'")
+        #endif
 
-        // Fetch all DayStorage and filter in-memory since string date comparison is unreliable
+        // Optimized: Fetch only DayStorage entries in date range using predicate
         let dayStorageDescriptor = FetchDescriptor<DayStorage>(
+            predicate: #Predicate<DayStorage> { storage in
+                storage.date >= startDateString && storage.date <= endDateString
+            },
             sortBy: [SortDescriptor(\.date, order: .forward)]
         )
 
         do {
-            // Fetch all DayStorage entries
-            let allDayStorages = try context.fetch(dayStorageDescriptor)
-            print("🔍 AI Fetch: Total DayStorage entries in database: \(allDayStorages.count)")
+            // Fetch only relevant DayStorage entries (much faster!)
+            let dayStorages = try context.fetch(dayStorageDescriptor)
 
-            // Filter in-memory by converting date strings to Date objects for proper comparison
-            let dayStorages = allDayStorages.filter { storage in
-                guard let storageDate = dateFormatter.date(from: storage.date) else {
-                    print("⚠️ AI Fetch: Could not parse date '\(storage.date)'")
-                    return false
-                }
-                let isInRange = storageDate >= startDate && storageDate <= endDate
-                if isInRange {
-                    print("✅ AI Fetch: Including \(storage.dayName) on '\(storage.date)'")
-                }
-                return isInRange
-            }
+            #if DEBUG
+            print("🔍 AI Fetch: Found \(dayStorages.count) DayStorage entries in date range")
 
-            print("🔍 AI Fetch: Found \(dayStorages.count) DayStorage entries in date range \(startDateString) to \(endDateString)")
+            #endif
 
             var completedWorkouts: [CompletedWorkout] = []
 
             for dayStorage in dayStorages {
-                print("🔍 AI Fetch: Processing \(dayStorage.dayName) with dayId: \(dayStorage.dayId)")
-
-                // Fetch Day directly by ID (MUCH faster than loading all Days!)
+                // Fetch Day directly by ID
                 let dayId = dayStorage.dayId
                 let dayDescriptor = FetchDescriptor<Day>(
                     predicate: #Predicate<Day> { day in
@@ -82,23 +80,18 @@ class WorkoutDataFetcher {
                 )
 
                 guard let day = try context.fetch(dayDescriptor).first else {
+                    #if DEBUG
                     print("❌ AI Fetch: No Day found with id \(dayId)")
+                    #endif
                     continue
                 }
-
-                print("🔍 AI Fetch: Found Day: \(day.name)")
 
                 guard let exercises = day.exercises, !exercises.isEmpty else {
-                    print("❌ AI Fetch: Day \(day.name) has no exercises")
                     continue
                 }
-
-                print("🔍 AI Fetch: Day \(day.name) has \(exercises.count) exercises")
 
                 // Separate completed and incomplete exercises
                 let completedExercises = exercises.compactMap { exercise -> CompletedExercise? in
-                    print("🔍 AI Fetch: Exercise \(exercise.name) - done: \(exercise.done), sets: \(exercise.sets?.count ?? 0)")
-
                     guard exercise.done,
                           let sets = exercise.sets,
                           !sets.isEmpty else {
@@ -115,8 +108,6 @@ class WorkoutDataFetcher {
                         )
                     }
 
-                    print("✅ AI Fetch: Exercise \(exercise.name) completed with \(completedSets.count) sets")
-
                     return CompletedExercise(
                         name: exercise.name,
                         muscleGroup: exercise.muscleGroup,
@@ -128,8 +119,6 @@ class WorkoutDataFetcher {
                 let incompleteExercises = exercises.compactMap { exercise -> IncompleteExercise? in
                     guard !exercise.done else { return nil }
 
-                    print("⚠️ AI Fetch: Exercise \(exercise.name) was skipped")
-
                     return IncompleteExercise(
                         name: exercise.name,
                         muscleGroup: exercise.muscleGroup
@@ -137,11 +126,10 @@ class WorkoutDataFetcher {
                 }
 
                 guard !completedExercises.isEmpty else {
-                    print("❌ AI Fetch: No completed exercises found for \(dayStorage.dayName)")
                     continue
                 }
 
-                let workoutDate = dateFormatter.date(from: dayStorage.date) ?? Date()
+                let workoutDate = Self.dateFormatter.date(from: dayStorage.date) ?? Date()
                 let duration = calculateDuration(from: completedExercises)
 
                 completedWorkouts.append(
@@ -153,26 +141,29 @@ class WorkoutDataFetcher {
                         incompleteExercises: incompleteExercises
                     )
                 )
-
-                print("✅ AI Fetch: Added workout \(dayStorage.dayName) with \(completedExercises.count) exercises")
             }
 
+            #if DEBUG
             print("🔍 AI Fetch: Final result: \(completedWorkouts.count) completed workouts found")
+            #endif
+
             return completedWorkouts.sorted { $0.date < $1.date }
         } catch {
+            #if DEBUG
             print("❌ AI Fetch Error: \(error)")
+            #endif
             return []
         }
     }
 
-    private func calculateDuration(from exercises: [CompletedExercise]) -> Int {
+    nonisolated private func calculateDuration(from exercises: [CompletedExercise]) -> Int {
         let totalSets = exercises.reduce(0) { $0 + $1.sets.count }
         let estimatedMinutesPerSet = 3
         let restTimeMinutes = 2
         return (totalSets * estimatedMinutesPerSet) + (totalSets * restTimeMinutes)
     }
 
-    func fetchHistoricalData(for exerciseName: String, weeks: Int = 4) -> [ExerciseHistory] {
+    nonisolated func fetchHistoricalData(for exerciseName: String, weeks: Int = 4) -> [ExerciseHistory] {
         let descriptor = FetchDescriptor<Exercise>(
             predicate: #Predicate<Exercise> { exercise in
                 exercise.name == exerciseName && exercise.done == true

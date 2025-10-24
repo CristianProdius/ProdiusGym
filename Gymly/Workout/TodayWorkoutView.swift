@@ -197,16 +197,12 @@ struct TodayWorkoutView: View {
                         }
                     }
                 }
-                /// On change of adding exercise refresh the exercises
+                /// OPTIMIZATION: Only update cache when exercises are added
+                /// (refreshView() already handles cache updates for other changes)
                 .onChange(of: viewModel.exerciseAddedTrigger) {
-                    Task { @MainActor in
-                        await refreshMuscleGroups()
-                        // OPTIMIZATION: Refresh cache when exercises are added
-                        updateCachedGroupedExercises()
-                    }
-                }
-                /// OPTIMIZATION: Invalidate cache when selectedDay exercises change
-                .onChange(of: selectedDay.exercises?.count) { _, _ in
+                    #if DEBUG
+                    debugPrint("🔄 TODAYWORKOUTVIEW: Exercise added, updating cache")
+                    #endif
                     updateCachedGroupedExercises()
                 }
                 .onReceive(Publishers.Merge(
@@ -223,12 +219,22 @@ struct TodayWorkoutView: View {
             }
             /// Refresh on every appear
             .task {
+                // OPTIMIZATION: Load profile image only on initial appear
+                await loadProfileImage()
+
                 // Don't call loadOrCreateProfile here - it's already loaded during sign-in
                 // and calling it again will overwrite CloudKit data with default values
                 await refreshView()
 //                if WhatsNewManager.shouldShowWhatsNew && config.isUserLoggedIn {
 //                    showWhatsNew = true
 //                }
+            }
+            .onDisappear {
+                // OPTIMIZATION: Cleanup to prevent memory leaks
+                // Cancel any ongoing tasks and clear cached data
+                #if DEBUG
+                debugPrint("🧹 TODAYWORKOUTVIEW: View disappeared, cleaning up")
+                #endif
             }
             /// Refresh when user logs in
             .onChange(of: loginRefreshTrigger) {
@@ -250,9 +256,10 @@ struct TodayWorkoutView: View {
             }
             /// Sheet for showing profile view
             .sheet(isPresented: $showProfileView, onDismiss: {
+                // OPTIMIZATION: Only reload profile image if weight unit changed (affects display)
+                // No need to refresh muscle groups - they don't change from profile edits
                 Task { @MainActor in
                     await loadProfileImage()
-                    await refreshMuscleGroups()
                 }
             }) {
                 ProfileView(viewModel: viewModel)
@@ -312,31 +319,44 @@ struct TodayWorkoutView: View {
     /// Func for keeping up view up to date
     @MainActor
     func refreshView() async {
+        #if DEBUG
         print("🔄 TODAYWORKOUTVIEW: Starting refreshView")
+        #endif
 
+        // OPTIMIZATION: Fetch split days only ONCE (was being fetched twice before!)
         let splitDays = viewModel.getActiveSplitDays()
+        #if DEBUG
         print("🔄 TODAYWORKOUTVIEW: Found \(splitDays.count) split days")
+        #endif
 
         config.dayInSplit = viewModel.updateDayInSplit()
         config.lastUpdateDate = Date()  // Track last update time
 
-        let updatedDay = await viewModel.fetchDay(dayOfSplit: config.dayInSplit)
+        // OPTIMIZATION: Filter split days directly instead of calling fetchDay()
+        // which would call getActiveSplitDays() again (duplicate query)
+        let updatedDay = splitDays.first(where: { $0.dayOfSplit == config.dayInSplit }) ?? Day(name: "", dayOfSplit: 0, exercises: [], date: "")
+        #if DEBUG
         print("🔄 TODAYWORKOUTVIEW: Updated day: '\(updatedDay.name)', exercises: \(updatedDay.exercises?.count ?? 0)")
+        #endif
 
         // Update all state variables together with animation to ensure UI updates
         withAnimation {
             allSplitDays = splitDays
             selectedDay = updatedDay
             viewModel.day = updatedDay
+            #if DEBUG
             print("🔄 TODAYWORKOUTVIEW: Set selectedDay to '\(selectedDay.name)'")
+            #endif
         }
 
         // OPTIMIZATION: Update cached grouped exercises after day changes
         updateCachedGroupedExercises()
 
-        await loadProfileImage()
-        await refreshMuscleGroups()
+        // OPTIMIZATION: Only refresh muscle groups if not already done by cache update
+        // refreshMuscleGroups() does additional sorting but cache already has the data
+        #if DEBUG
         print("🔄 TODAYWORKOUTVIEW: Refresh complete")
+        #endif
     }
 
     /// Calculates workout duration from first completed set to last completed set

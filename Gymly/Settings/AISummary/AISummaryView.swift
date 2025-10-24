@@ -738,12 +738,16 @@ struct AISummaryView: View {
                     cacheAge = nil
                 }
 
-                let comparisonData = fetcher.fetchWorkoutsForComparison()
-                // Retrieve fitness profile from config
-                let fitnessProfile = config.fitnessProfile
-                // Retrieve user weight data from profile
-                let userWeight = userProfileManager.currentProfile?.weight
-                let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                // Fetch data on background thread to avoid blocking UI
+                let comparisonData = await Task.detached {
+                    fetcher.fetchWorkoutsForComparison()
+                }.value
+
+                // Retrieve fitness profile from config on main thread
+                let fitnessProfile = await MainActor.run { config.fitnessProfile }
+                let userWeight = await MainActor.run { userProfileManager.currentProfile?.weight }
+                let weightUnit = await MainActor.run { userProfileManager.currentProfile?.weightUnit ?? "Kg" }
+
                 try await summarizer.generateWeeklySummary(
                     thisWeek: comparisonData.thisWeek,
                     lastWeek: comparisonData.lastWeek,

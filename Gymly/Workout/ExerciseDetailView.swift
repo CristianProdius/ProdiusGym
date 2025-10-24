@@ -117,13 +117,14 @@ struct ExerciseDetailView: View {
                 updateCachedSortedSets()
             }
             .onChange(of: exercise.sets?.count) { _, _ in
-                // OPTIMIZATION: Update cache when set count changes
+                // OPTIMIZATION: Update cache only when set count changes (add/delete)
+                // No need to update on every sheet dismiss since SwiftData auto-updates
+                #if DEBUG
+                debugPrint("🔄 EXERCISEDETAILVIEW: Set count changed, updating cache")
+                #endif
                 updateCachedSortedSets()
             }
-            .sheet(isPresented: $showSetEditSheet, onDismiss: {
-                // OPTIMIZATION: Update cache when set edit sheet closes (in case set data changed)
-                updateCachedSortedSets()
-            }) {
+            .sheet(isPresented: $showSetEditSheet) {
                 if let selectedSet = selectedSet {
                     EditExerciseSetView(
                         targetSet: selectedSet,
