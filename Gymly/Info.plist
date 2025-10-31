@@ -6,6 +6,12 @@
     <string>We use your health data to sync your weight and height.</string>
     <key>NSHealthUpdateUsageDescription</key>
     <string>We use your health data to update your weight and height when you edit them in the app.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Take progress photos to track your transformation over time.</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>Save your progress photos to your photo library.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Access your photo library to add existing photos to your progress timeline.</string>
     <key>NSUbiquitousContainers</key>
     <dict>
         <key>iCloud.com.gymly.app</key>

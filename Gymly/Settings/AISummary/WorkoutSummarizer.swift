@@ -21,6 +21,7 @@ enum WorkoutSummaryError: LocalizedError {
     }
 }
 
+@available(iOS 26, *)
 @MainActor
 final class WorkoutSummarizer: ObservableObject {
     @Published private(set) var workoutSummary: WorkoutSummary.PartiallyGenerated?

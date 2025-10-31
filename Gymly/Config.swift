@@ -102,6 +102,12 @@ class Config:ObservableObject {
         }
     }
 
+    @Published var isPremium: Bool {
+        didSet {
+            UserDefaults.standard.set(isPremium, forKey: "isPremium")
+        }
+    }
+
     // MARK: - Fitness Profile Properties
 
     @Published var hasCompletedFitnessProfile: Bool {
@@ -184,6 +190,7 @@ class Config:ObservableObject {
         self.isCloudKitEnabled = UserDefaults.standard.object(forKey: "isCloudKitEnabled") as? Bool ?? false
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
         self.isHealtKitEnabled = UserDefaults.standard.object(forKey: "isHealtKitEnabled") as? Bool ?? false
+        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? true  // Default true for now (testing)
 
         // Fitness Profile initialization
         self.hasCompletedFitnessProfile = UserDefaults.standard.object(forKey: "hasCompletedFitnessProfile") as? Bool ?? false

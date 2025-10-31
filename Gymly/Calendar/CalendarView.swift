@@ -22,28 +22,29 @@ struct CalendarView: View {
                 FloatingClouds(theme: CloudsTheme.graphite(scheme))
                     .ignoresSafeArea()
                 GeometryReader { geometry in
-                    VStack {
-                        HStack {
-                            Button(action: {
-                                currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
-                            }) {
-                                Image(systemName: "chevron.left")
-                                    .bold()
-                                    .foregroundStyle(appearanceManager.accentColor.color)
+                    ScrollView {
+                        VStack {
+                            HStack {
+                                Button(action: {
+                                    currentMonth = calendar.date(byAdding: .month, value: -1, to: currentMonth) ?? currentMonth
+                                }) {
+                                    Image(systemName: "chevron.left")
+                                        .bold()
+                                        .foregroundStyle(appearanceManager.accentColor.color)
+                                }
+                                Spacer()
+                                Text(viewModel.monthAndYearString(from: currentMonth))
+                                    .font(.title)
+                                Spacer()
+                                Button(action: {
+                                    currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
+                                }) {
+                                    Image(systemName: "chevron.right")
+                                        .bold()
+                                        .foregroundStyle(appearanceManager.accentColor.color)
+                                }
                             }
-                            Spacer()
-                            Text(viewModel.monthAndYearString(from: currentMonth))
-                                .font(.title)
-                            Spacer()
-                            Button(action: {
-                                currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
-                            }) {
-                                Image(systemName: "chevron.right")
-                                    .bold()
-                                    .foregroundStyle(appearanceManager.accentColor.color)
-                            }
-                        }
-                        .padding()
+                            .padding()
 
                         VStack {
                             HStack {
@@ -127,9 +128,18 @@ struct CalendarView: View {
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
                             .listRowBackground(Color.black.opacity(0.1))
-                            Spacer()
+
+                            // Progress Photos Timeline
+                            if config.isPremium {
+                                ProgressPhotoTimelineView()
+                                    .frame(minHeight: 400)
+                            } else {
+                                ProgressPhotosLockedView()
+                                    .frame(minHeight: 400)
+                            }
                         }
                         .frame(maxWidth: geometry.size.width * 0.92)
+                        }
                     }
                     .navigationTitle("Calendar")
                     .onAppear() {

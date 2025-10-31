@@ -45,6 +45,9 @@ class UserProfile {
     var createdAt: Date = Date()
     var updatedAt: Date = Date()
 
+    // Relationships
+    @Relationship(deleteRule: .cascade) var progressPhotos: [ProgressPhoto]?
+
     // Computed Properties
     var profileImage: UIImage? {
         guard let data = profileImageData else { return nil }

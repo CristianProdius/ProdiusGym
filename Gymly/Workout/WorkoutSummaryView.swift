@@ -13,6 +13,7 @@ struct WorkoutSummaryView: View {
     @EnvironmentObject var config: Config
     @Environment(\.colorScheme) var scheme
     @EnvironmentObject var userProfileManager: UserProfileManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
 
     let completedExercises: [Exercise]
     let workoutDurationMinutes: Int
@@ -22,7 +23,7 @@ struct WorkoutSummaryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.green(scheme))
+                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
                     .ignoresSafeArea()
 
                 ScrollView {

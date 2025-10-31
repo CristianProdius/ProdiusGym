@@ -194,17 +194,19 @@ struct ProfileView: View {
 
                     // AI Insights Section
                     Section("AI Insights") {
-                        NavigationLink(destination: AISummaryView()) {
-                            HStack {
-                                Image(systemName: "apple.intelligence")
-                                Text("Week AI Summary")
-                                Spacer()
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                    .font(.caption)
+                        if #available(iOS 18.1, *) {
+                            NavigationLink(destination: AISummaryView()) {
+                                HStack {
+                                    Image(systemName: "apple.intelligence")
+                                    Text("Week AI Summary")
+                                    Spacer()
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                        .font(.caption)
+                                }
                             }
+                            .frame(width: 300)
                         }
-                        .frame(width: 300)
                     }
                     .listRowBackground(Color.black.opacity(0.05))
 
@@ -261,8 +263,9 @@ struct ProfileView: View {
                     EditUserView(viewModel: viewModel)
                 }
                 .sheet(isPresented: $showBmiDetail) {
-                    let (color, status) = getBmiStyle(bmi: userProfileManager.currentProfile?.bmi ?? 0.0)
-                    BmiDetailView(viewModel: viewModel, bmiColor: color, bmiText: status)
+                    let bmiValue = userProfileManager.currentProfile?.bmi ?? 0.0
+                    let (color, status) = getBmiStyle(bmi: bmiValue)
+                    BmiDetailView(viewModel: viewModel, bmi: bmiValue, bmiColor: color, bmiText: status)
                 }
                 .sheet(isPresented: $showWeightDetail, onDismiss: {
                     DispatchQueue.main.async {

@@ -45,6 +45,11 @@
 		EC9A6A602E716FC20081E390 /* GraphEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9A6A5F2E716FC20081E390 /* GraphEntry.swift */; };
 		EC9BE76C2EAD3F5F00EBEA0B /* GymWorkflowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE76B2EAD3F5F00EBEA0B /* GymWorkflowTests.swift */; };
 		EC9BE9A72EAEA7FC00EBEA0B /* SplitTemplate.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9A62EAEA7FC00EBEA0B /* SplitTemplate.swift */; };
+		EC9BE9AB2EAF864100EBEA0B /* ProgressPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9AA2EAF864100EBEA0B /* ProgressPhoto.swift */; };
+		EC9BE9AD2EAF868000EBEA0B /* PhotoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9AC2EAF868000EBEA0B /* PhotoManager.swift */; };
+		EC9BE9B22EAF86DE00EBEA0B /* CameraViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9B02EAF86DE00EBEA0B /* CameraViewModel.swift */; };
+		EC9BE9B42EAF86EC00EBEA0B /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9B32EAF86EC00EBEA0B /* CameraPreview.swift */; };
+		EC9BE9B62EAF870D00EBEA0B /* PoseGuideOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9BE9B52EAF870D00EBEA0B /* PoseGuideOverlay.swift */; };
 		ECA5D1442BF20CF100DCC9F8 /* GymlyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D1432BF20CF100DCC9F8 /* GymlyApp.swift */; };
 		ECA5D1482BF20CF500DCC9F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ECA5D1472BF20CF500DCC9F8 /* Assets.xcassets */; };
 		ECA5D14B2BF20CF500DCC9F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = ECA5D14A2BF20CF500DCC9F8 /* Preview Assets.xcassets */; };
@@ -114,6 +119,11 @@
 		EC9A6A5F2E716FC20081E390 /* GraphEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GraphEntry.swift; sourceTree = "<group>"; };
 		EC9BE76B2EAD3F5F00EBEA0B /* GymWorkflowTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GymWorkflowTests.swift; sourceTree = "<group>"; };
 		EC9BE9A62EAEA7FC00EBEA0B /* SplitTemplate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitTemplate.swift; sourceTree = "<group>"; };
+		EC9BE9AA2EAF864100EBEA0B /* ProgressPhoto.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProgressPhoto.swift; sourceTree = "<group>"; };
+		EC9BE9AC2EAF868000EBEA0B /* PhotoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoManager.swift; sourceTree = "<group>"; };
+		EC9BE9B02EAF86DE00EBEA0B /* CameraViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewModel.swift; sourceTree = "<group>"; };
+		EC9BE9B32EAF86EC00EBEA0B /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		EC9BE9B52EAF870D00EBEA0B /* PoseGuideOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoseGuideOverlay.swift; sourceTree = "<group>"; };
 		ECA5D1402BF20CF100DCC9F8 /* Gymly.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Gymly.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECA5D1432BF20CF100DCC9F8 /* GymlyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GymlyApp.swift; sourceTree = "<group>"; };
 		ECA5D1472BF20CF500DCC9F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -185,6 +195,7 @@
 				EC629C652C9CAE2300009902 /* MuscleGroup.swift */,
 				EC317F382EA2473D000DFB1E /* FitnessProfile.swift */,
 				EC9BE9A62EAEA7FC00EBEA0B /* SplitTemplate.swift */,
+				EC9BE9AA2EAF864100EBEA0B /* ProgressPhoto.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -194,6 +205,7 @@
 			children = (
 				EC06F1682E7CA3DA00E42CCF /* UserProfileManager.swift */,
 				EC317F4A2EA63235000DFB1E /* AppearanceManager.swift */,
+				EC9BE9AC2EAF868000EBEA0B /* PhotoManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -223,6 +235,16 @@
 				EC66F6A42D949D410086D625 /* WeightChart.swift */,
 			);
 			path = Cells;
+			sourceTree = "<group>";
+		};
+		EC9BE9B12EAF86DE00EBEA0B /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				EC9BE9B02EAF86DE00EBEA0B /* CameraViewModel.swift */,
+				EC9BE9B32EAF86EC00EBEA0B /* CameraPreview.swift */,
+				EC9BE9B52EAF870D00EBEA0B /* PoseGuideOverlay.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		ECA5D1372BF20CF100DCC9F8 = {
@@ -271,6 +293,7 @@
 				EC66F69A2D92FD750086D625 /* WhatsNewManager.swift */,
 				ECDE63102D48D27B00C2DA94 /* SignInView.swift */,
 				ECA5D16D2BF20D0F00DCC9F8 /* ToolBar.swift */,
+				EC9BE9B12EAF86DE00EBEA0B /* Components */,
 				EC06F1692E7CA3DA00E42CCF /* Managers */,
 				EC3BEC3C2C76624600C9DF0B /* Config.swift */,
 				ECA5D1472BF20CF500DCC9F8 /* Assets.xcassets */,
@@ -465,15 +488,20 @@
 				EC66F6A72D949DBB0086D625 /* WeightPoint.swift in Sources */,
 				EC9BE9A72EAEA7FC00EBEA0B /* SplitTemplate.swift in Sources */,
 				EC06F16A2E7CA3DA00E42CCF /* UserProfileManager.swift in Sources */,
+				EC9BE9B22EAF86DE00EBEA0B /* CameraViewModel.swift in Sources */,
+				EC9BE9B42EAF86EC00EBEA0B /* CameraPreview.swift in Sources */,
 				EC66F6A52D949D410086D625 /* WeightChart.swift in Sources */,
 				EC4FD1582C4EE0A600D1A4A6 /* onFirstAppear.swift in Sources */,
 				EC59224E2D7A407C00EB39B2 /* SetTypeCell.swift in Sources */,
+				EC9BE9B62EAF870D00EBEA0B /* PoseGuideOverlay.swift in Sources */,
 				EC5922462D79A81000EB39B2 /* ImageExtension.swift in Sources */,
 				EC5922542D7B1BE100EB39B2 /* ProfileImageCell.swift in Sources */,
 				EC06F15F2E7BC4FE00E42CCF /* CloudKitSyncStatus.swift in Sources */,
+				EC9BE9AB2EAF864100EBEA0B /* ProgressPhoto.swift in Sources */,
 				EC06F1602E7BC4FE00E42CCF /* CloudKitManager.swift in Sources */,
 				EC5922522D7B0A6200EB39B2 /* SetCell.swift in Sources */,
 				EC59224C2D7A3D6500EB39B2 /* SetWeightCell.swift in Sources */,
+				EC9BE9AD2EAF868000EBEA0B /* PhotoManager.swift in Sources */,
 				ECA5D1442BF20CF100DCC9F8 /* GymlyApp.swift in Sources */,
 				EC59224A2D7A3BF200EB39B2 /* SetRepetitionsCell.swift in Sources */,
 				EC5922502D7A414F00EB39B2 /* SetNoteCell.swift in Sources */,

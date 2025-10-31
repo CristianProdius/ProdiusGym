@@ -180,11 +180,13 @@ struct SettingsView: View {
                     .listRowBackground(Color.black.opacity(0.05))
 
                     Section("") {
-                        NavigationLink(destination: AISummaryView()) {
-                            Image(systemName: "apple.intelligence")
-                            Text("Week AI Summary")
+                        if #available(iOS 18.1, *) {
+                            NavigationLink(destination: AISummaryView()) {
+                                Image(systemName: "apple.intelligence")
+                                Text("Week AI Summary")
+                            }
+                            .frame(width: 300)
                         }
-                        .frame(width: 300)
                     }
                     .listRowBackground(Color.black.opacity(0.05))
                     Section("Preferences") {
@@ -279,8 +281,9 @@ struct SettingsView: View {
                     }
                     .sheet(isPresented: $showBmiDetail, onDismiss: {
                     }) {
-                        let (color, status) = getBmiStyle(bmi: userProfileManager.currentProfile?.bmi ?? 0.0)
-                        BmiDetailView(viewModel: viewModel, bmiColor: color, bmiText: status)
+                        let bmiValue = userProfileManager.currentProfile?.bmi ?? 0.0
+                        let (color, status) = getBmiStyle(bmi: bmiValue)
+                        BmiDetailView(viewModel: viewModel, bmi: bmiValue, bmiColor: color, bmiText: status)
                     }
                     .sheet(isPresented: $showWeightDetail, onDismiss: {
                         // Just update the UI with the current profile weight (already saved in WeightDetailView)

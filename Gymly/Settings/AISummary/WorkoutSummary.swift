@@ -9,6 +9,8 @@
 import Foundation
 import FoundationModels
 
+@available(iOS 26, *)
+@available(iOS 26, *)
 @Generable
 public struct WorkoutSummary: Codable, Sendable {
     public var version: String                // "1.0"
@@ -22,6 +24,8 @@ public struct WorkoutSummary: Codable, Sendable {
     public var recommendations: [Recommendation] // next-steps you can act on
 }
 
+@available(iOS 26, *)
+@available(iOS 26, *)
 @Generable
 public struct KeyStat: Codable, Sendable {
     public var name: String                   // "Total Volume"
@@ -30,6 +34,7 @@ public struct KeyStat: Codable, Sendable {
     public var emoji: String?                 // "📈"
 }
 
+@available(iOS 26, *)
 @Generable
 public struct SessionBreakdown: Codable, Sendable {
     public var durationMinutes: Int
@@ -37,6 +42,7 @@ public struct SessionBreakdown: Codable, Sendable {
     public var exercises: [ExerciseSummary]
 }
 
+@available(iOS 26, *)
 @Generable
 public struct ExerciseSummary: Codable, Sendable {
     public var name: String                   // "Barbell Bench Press"
@@ -47,6 +53,7 @@ public struct ExerciseSummary: Codable, Sendable {
     public var notes: String?                 // short, 1 sentence
 }
 
+@available(iOS 26, *)
 @Generable
 public struct Trend: Codable, Sendable {
     public var label: String                  // "Bench strength"
@@ -54,6 +61,7 @@ public struct Trend: Codable, Sendable {
     public var evidence: String               // "Top set +5 kg vs last week"
 }
 
+@available(iOS 26, *)
 @Generable
 public struct PersonalRecord: Codable, Sendable {
     public var exercise: String               // "Deadlift"
@@ -61,6 +69,7 @@ public struct PersonalRecord: Codable, Sendable {
     public var value: String                  // "180 kg (est 1RM)"
 }
 
+@available(iOS 26, *)
 @Generable
 public struct Issue: Codable, Sendable {
     public var category: String               // "Form" | "Pain" | "Consistency"
@@ -68,6 +77,7 @@ public struct Issue: Codable, Sendable {
     public var severity: String               // "low" | "medium" | "high"
 }
 
+@available(iOS 26, *)
 @Generable
 public struct Recommendation: Codable, Sendable {
     public var title: String                  // "Deload lower body volume by 10%"
