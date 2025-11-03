@@ -442,21 +442,15 @@ class UserProfileManager: ObservableObject {
         let lastWorkoutDay = calendar.startOfDay(for: lastWorkout)
         let daysSince = calendar.dateComponents([.day], from: lastWorkoutDay, to: today).day ?? 0
 
-        // If it's been more than one day, check if we need to reset or pause
+        // If it's been more than one day, check if we need to reset
         if daysSince > 1 {
             let shouldReset = shouldResetStreak(lastWorkoutDate: lastWorkoutDay, currentDate: today, restDaysPerWeek: profile.restDaysPerWeek)
 
             if shouldReset && !profile.streakPaused {
                 print("🔥 STREAK: Streak expired! Resetting to 0")
-                updateStreak(currentStreak: 0, paused: true)
-            } else if !shouldReset && !profile.streakPaused {
-                print("🔥 STREAK: Within rest days, pausing streak")
-                updateStreak(currentStreak: profile.currentStreak, paused: true)
+                updateStreak(currentStreak: 0, paused: false)
             }
-        } else if daysSince == 1 && profile.streakPaused {
-            // Unpause if user is back within consecutive day window
-            print("🔥 STREAK: Un-pausing streak")
-            updateStreak(currentStreak: profile.currentStreak, paused: false)
+            // Note: We no longer auto-pause streaks. User controls pause manually.
         }
     }
 }

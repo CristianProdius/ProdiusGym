@@ -23,6 +23,7 @@ struct ProfileView: View {
     @State private var editUser: Bool = false
     @State private var showBmiDetail: Bool = false
     @State private var showWeightDetail: Bool = false
+    @State private var showStreakDetail: Bool = false
     @State private var profileImage: UIImage?
     @State private var weightUpdatedTrigger = false
     @State private var showCalendar: Bool = false
@@ -67,29 +68,12 @@ struct ProfileView: View {
                             HStack {
                                 ProfileImageCell(profileImage: profileImage, frameSize: 80)
                                     .padding()
-
+                                
                                 VStack(spacing: 8) {
                                     Text("\(userProfileManager.currentProfile?.username ?? "User")")
                                         .bold()
                                         .font(.body)
-                                        .padding(.trailing)
 
-                                    HStack(spacing: 15) {
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "flame")
-                                            Text("\(userProfileManager.currentProfile?.currentStreak ?? 0)")
-                                        }
-                                        .font(.footnote)
-                                        .bold()
-
-                                        HStack(spacing: 4) {
-                                            Image(systemName: "clock")
-                                            Text("\(formattedWorkoutHours) h")
-                                        }
-                                        .font(.footnote)
-                                        .bold()
-                                        .padding(.trailing)
-                                    }
                                 }
                                 .foregroundStyle(Color.black)
                                 .frame(maxWidth: .infinity)
@@ -121,6 +105,21 @@ struct ProfileView: View {
                                         headerColor: appearanceManager.accentColor.color,
                                         additionalInfo: "Body weight",
                                         icon: "figure.mixed.cardio"
+                                    )
+                                }
+                                .foregroundStyle(Color.white)
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
+
+                                Button(action: {
+                                    showStreakDetail = true
+                                }) {
+                                    SettingUserInfoCell(
+                                        value: String(format: "%d", userProfileManager.currentProfile?.currentStreak ?? 0),
+                                        metric: "Days",
+                                        headerColor: .orange,
+                                        additionalInfo: "Streak 🔥",
+                                        icon: "flame.fill"
                                     )
                                 }
                                 .foregroundStyle(Color.white)
@@ -277,6 +276,9 @@ struct ProfileView: View {
                     }
                 }) {
                     WeightDetailView(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showStreakDetail) {
+                    StreakDetailView(viewModel: viewModel)
                 }
                 .sheet(isPresented: $showCalendar) {
                     CalendarView(viewModel: viewModel)

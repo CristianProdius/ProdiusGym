@@ -60,6 +60,7 @@
 		ECA5D1762BF22C2000DCC9F8 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D1752BF22C2000DCC9F8 /* Exercise.swift */; };
 		ECDE63112D48D27B00C2DA94 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE63102D48D27B00C2DA94 /* SignInView.swift */; };
 		ECFFCAAB2EB7F45A008D6FE7 /* claude.md in Resources */ = {isa = PBXBuildFile; fileRef = ECFFCAAA2EB7F45A008D6FE7 /* claude.md */; };
+		ECFFCAAF2EB8A501008D6FE7 /* WeeklyPatternChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */; };
 		FFAC563B3E4B4FC19EA8D17921266CFA /* WorkoutFlowPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347803F01A594112B3ABC56EE5F6566C /* WorkoutFlowPerformanceTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -140,6 +141,7 @@
 		ECDE63122D48D85A00C2DA94 /* Gymly.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gymly.entitlements; sourceTree = "<group>"; };
 		ECF621932D497912007B4C2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		ECFFCAAA2EB7F45A008D6FE7 /* claude.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = claude.md; sourceTree = "<group>"; };
+		ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyPatternChart.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -235,6 +237,7 @@
 				EC59224F2D7A414F00EB39B2 /* SetNoteCell.swift */,
 				EC66F6982D92CF380086D625 /* SettingUserInfoCell.swift */,
 				EC66F6A42D949D410086D625 /* WeightChart.swift */,
+				ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -490,6 +493,7 @@
 				EC71CA8A2D705986003EAB09 /* Split.swift in Sources */,
 				EC66F6992D92CF380086D625 /* SettingUserInfoCell.swift in Sources */,
 				EC66F6A72D949DBB0086D625 /* WeightPoint.swift in Sources */,
+				ECFFCAAF2EB8A501008D6FE7 /* WeeklyPatternChart.swift in Sources */,
 				EC9BE9A72EAEA7FC00EBEA0B /* SplitTemplate.swift in Sources */,
 				EC06F16A2E7CA3DA00E42CCF /* UserProfileManager.swift in Sources */,
 				EC9BE9B22EAF86DE00EBEA0B /* CameraViewModel.swift in Sources */,
