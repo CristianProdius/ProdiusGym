@@ -59,6 +59,7 @@
 		ECA5D16E2BF20D0F00DCC9F8 /* ToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D16D2BF20D0F00DCC9F8 /* ToolBar.swift */; };
 		ECA5D1762BF22C2000DCC9F8 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D1752BF22C2000DCC9F8 /* Exercise.swift */; };
 		ECDE63112D48D27B00C2DA94 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE63102D48D27B00C2DA94 /* SignInView.swift */; };
+		ECFFCAAB2EB7F45A008D6FE7 /* claude.md in Resources */ = {isa = PBXBuildFile; fileRef = ECFFCAAA2EB7F45A008D6FE7 /* claude.md */; };
 		FFAC563B3E4B4FC19EA8D17921266CFA /* WorkoutFlowPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347803F01A594112B3ABC56EE5F6566C /* WorkoutFlowPerformanceTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -138,6 +139,7 @@
 		ECDE63102D48D27B00C2DA94 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
 		ECDE63122D48D85A00C2DA94 /* Gymly.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gymly.entitlements; sourceTree = "<group>"; };
 		ECF621932D497912007B4C2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		ECFFCAAA2EB7F45A008D6FE7 /* claude.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = claude.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -299,6 +301,7 @@
 				ECA5D1472BF20CF500DCC9F8 /* Assets.xcassets */,
 				EC4FD1562C4EE0A600D1A4A6 /* Extensions */,
 				ECA5D1492BF20CF500DCC9F8 /* Preview Content */,
+				ECFFCAAA2EB7F45A008D6FE7 /* claude.md */,
 			);
 			path = Gymly;
 			sourceTree = "<group>";
@@ -447,6 +450,7 @@
 				EC317F6A2EA654D9000DFB1E /* AppIcon-Purple@3x.png in Resources */,
 				EC317F6B2EA654D9000DFB1E /* AppIcon-Orange@2x.png in Resources */,
 				EC317F6C2EA654D9000DFB1E /* AppIcon-Green@2x.png in Resources */,
+				ECFFCAAB2EB7F45A008D6FE7 /* claude.md in Resources */,
 				EC317F6D2EA654D9000DFB1E /* AppIcon-Blue@2x.png in Resources */,
 				EC317F6E2EA654D9000DFB1E /* AppIcon-Green@3x.png in Resources */,
 				EC317F6F2EA654D9000DFB1E /* AppIcon-Orange@3x.png in Resources */,

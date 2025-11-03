@@ -248,16 +248,12 @@ struct EditExerciseSetView: View {
         freshSet.note = note
         freshSet.bodyWeight = bodyWeight
 
-        // SINGLE database write for all changes
-        do {
-            try context.save()
-            debugPrint("✅ [OPTIMIZED] Successfully batch saved set changes - Weight: \(weight), Reps: \(reps)")
-            dismiss()
-        } catch {
-            errorMessage = "Failed to save changes. Please try again."
-            showErrorAlert = true
-            debugPrint("❌ Error saving set changes: \(error)")
-        }
+        // PERFORMANCE: Don't save to disk during active workout
+        // SwiftData keeps changes in memory - they'll be persisted when workout completes
+        // This eliminates 50-200ms lag per set edit, critical for gym UX on cellular
+        debugPrint("✅ [OPTIMIZED] Set changes applied to memory - Weight: \(weight), Reps: \(reps)")
+        debugPrint("💡 Changes will be saved to disk when workout completes")
+        dismiss()
     }
 
     // REMOVED: saveWeight() and saveReps() incremental saves

@@ -446,8 +446,14 @@ final class WorkoutViewModel: ObservableObject {
         }
 
         do {
+            // CRITICAL SAVE: This persists ALL workout changes to disk at once
+            // - All set edits (weight, reps, notes, types)
+            // - Exercise completion status
+            // - Workout metadata
+            // By batching all saves until workout completion, we eliminate lag during active workout
             try context.save()
-            debugPrint("Day saved with date: \(formattedDateString(from: Date()))")
+            debugPrint("✅ Day saved with date: \(formattedDateString(from: Date()))")
+            debugPrint("💾 All workout changes persisted to disk successfully")
             syncDayStorageToCloudKit(dayStorage)
 
             // Update streak when workout is saved

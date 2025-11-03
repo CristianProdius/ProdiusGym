@@ -175,38 +175,34 @@ struct ExerciseDetailView: View {
     /// Quick mark set as done via swipe action
     private func markSetAsDone(_ targetSet: Exercise.Set) {
         Task { @MainActor in
-            do {
-                // Fetch fresh exercise to ensure we have latest data
-                let exerciseId = exercise.id
-                let freshExercise = await viewModel.fetchExercise(id: exerciseId)
+            // Fetch fresh exercise to ensure we have latest data
+            let exerciseId = exercise.id
+            let freshExercise = await viewModel.fetchExercise(id: exerciseId)
 
-                guard let freshSets = freshExercise.sets,
-                      let setIndex = freshSets.firstIndex(where: { $0.id == targetSet.id }) else {
-                    debugPrint("❌ Set not found in exercise")
-                    return
-                }
-
-                // Get fresh set reference
-                let freshSet = freshSets[setIndex]
-
-                // Mark as done by setting timestamp
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "H:mm"
-                freshSet.time = dateFormatter.string(from: Date()).lowercased()
-
-                // Save to database
-                try context.save()
-
-                debugPrint("✅ Quick marked set as done - Weight: \(freshSet.weight), Reps: \(freshSet.reps), Time: \(freshSet.time)")
-
-                // Update local exercise reference
-                exercise = freshExercise
-
-                // Update cache to reflect changes
-                updateCachedSortedSets()
-            } catch {
-                debugPrint("❌ Error marking set as done: \(error)")
+            guard let freshSets = freshExercise.sets,
+                  let setIndex = freshSets.firstIndex(where: { $0.id == targetSet.id }) else {
+                debugPrint("❌ Set not found in exercise")
+                return
             }
+
+            // Get fresh set reference
+            let freshSet = freshSets[setIndex]
+
+            // Mark as done by setting timestamp
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "H:mm"
+            freshSet.time = dateFormatter.string(from: Date()).lowercased()
+
+            // PERFORMANCE: Don't save to disk during active workout
+            // SwiftData keeps changes in memory - they'll be persisted when workout completes
+            debugPrint("✅ Quick marked set as done - Weight: \(freshSet.weight), Reps: \(freshSet.reps), Time: \(freshSet.time)")
+            debugPrint("💡 Changes in memory, will save when workout completes")
+
+            // Update local exercise reference
+            exercise = freshExercise
+
+            // Update cache to reflect changes
+            updateCachedSortedSets()
         }
     }
 }
