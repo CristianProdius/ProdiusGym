@@ -28,6 +28,10 @@ struct ExerciseDetailView: View {
     // OPTIMIZATION: Cached sorted sets to avoid recomputing on every render
     @State private var cachedSortedSets: [(index: Int, set: Exercise.Set)] = []
 
+    // PR tracking
+    @State private var personalRecords: ExercisePR?
+    @StateObject private var prManager = PRManager.shared
+
     var body: some View {
         ZStack {
             FloatingClouds(theme: CloudsTheme.graphite(scheme))
@@ -44,6 +48,47 @@ struct ExerciseDetailView: View {
                         .foregroundStyle(appearanceManager.accentColor.color)
                         .padding()
                         .bold()
+                }
+
+                /// PR Display Header
+                if let pr = personalRecords, pr.hasPRs, let display = pr.displayPR {
+                    HStack(spacing: 8) {
+                        Image(systemName: "star.fill")
+                            .foregroundStyle(Color.yellow)
+                            .font(.caption)
+
+                        Text("Best:")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+
+                        let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                        let displayWeight = weightUnit == "Kg" ? display.value : display.value * 2.20462262
+
+                        Text("\(String(format: "%.1f", displayWeight)) \(weightUnit)")
+                            .font(.caption)
+                            .bold()
+
+                        Text("×")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+
+                        Text("\(display.reps) reps")
+                            .font(.caption)
+                            .bold()
+
+                        Spacer()
+
+                        if let date = pr.bestWeightDate {
+                            Text(date, style: .date)
+                                .font(.caption2)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 8)
+                    .background(Color.yellow.opacity(0.1))
+                    .cornerRadius(8)
+                    .padding(.horizontal)
                 }
                 Form {
                     /// List of exercise sets - OPTIMIZATION: Use cached sorted sets
@@ -126,6 +171,11 @@ struct ExerciseDetailView: View {
 
                 // Disable CloudKit sync during active workout to prevent lag
                 CloudKitManager.shared.setWorkoutSessionActive(true)
+
+                // Load PR for this exercise
+                Task {
+                    personalRecords = await prManager.getPR(for: exercise.name)
+                }
             }
             .onDisappear {
                 // Re-enable CloudKit sync when leaving workout view

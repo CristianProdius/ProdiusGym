@@ -161,7 +161,7 @@ struct StreakDetailView: View {
 
             // Get first and last workout dates
             guard let firstDate = parseDate(allWorkouts.first?.date ?? ""),
-                  let lastDate = parseDate(allWorkouts.last?.date ?? "") else {
+                  let _ = parseDate(allWorkouts.last?.date ?? "") else {
                 return 0.0
             }
 

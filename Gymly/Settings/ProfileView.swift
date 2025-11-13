@@ -27,6 +27,7 @@ struct ProfileView: View {
     @State private var profileImage: UIImage?
     @State private var weightUpdatedTrigger = false
     @State private var showCalendar: Bool = false
+    @State private var showPremiumSheet: Bool = false
 
     @State var graphSorting: [String] = ["Today","Week ⭐","Month ⭐","All Time ⭐"]
     @State var graphSortingSelected: String = "Today"
@@ -127,15 +128,28 @@ struct ProfileView: View {
                                 .listRowSeparator(.hidden)
 
                                 Button(action: {
-                                    showBmiDetail = true
+                                    if config.isPremium {
+                                        showBmiDetail = true
+                                    } else {
+                                        showPremiumSheet = true
+                                    }
                                 }) {
-                                    SettingUserInfoCell(
-                                        value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
-                                        metric: "BMI",
-                                        headerColor: bmiColor,
-                                        additionalInfo: bmiStatus,
-                                        icon: "dumbbell.fill"
-                                    )
+                                    ZStack(alignment: .topTrailing) {
+                                        SettingUserInfoCell(
+                                            value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
+                                            metric: "BMI",
+                                            headerColor: bmiColor,
+                                            additionalInfo: bmiStatus,
+                                            icon: "dumbbell.fill"
+                                        )
+
+                                        if !config.isPremium {
+                                            Image(systemName: "star.fill")
+                                                .foregroundColor(.yellow)
+                                                .font(.caption)
+                                                .padding(8)
+                                        }
+                                    }
                                 }
                                 .foregroundStyle(Color.white)
                                 .listRowBackground(Color.clear)
@@ -282,6 +296,9 @@ struct ProfileView: View {
                 }
                 .sheet(isPresented: $showCalendar) {
                     CalendarView(viewModel: viewModel)
+                }
+                .sheet(isPresented: $showPremiumSheet) {
+                    PremiumSubscriptionView()
                 }
             }
         }

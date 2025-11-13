@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		EC04B7762EC65EDC00232DDE /* terms-of-service.md in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7732EC65EDC00232DDE /* terms-of-service.md */; };
+		EC04B7772EC65EDC00232DDE /* about.md in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7702EC65EDC00232DDE /* about.md */; };
+		EC04B7782EC65EDC00232DDE /* privacy-policy.md in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7722EC65EDC00232DDE /* privacy-policy.md */; };
+		EC04B7792EC65EDC00232DDE /* faq.md in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7712EC65EDC00232DDE /* faq.md */; };
+		EC04B77E2EC6608700232DDE /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC04B77D2EC6608700232DDE /* MarkdownText.swift */; };
 		EC06F15F2E7BC4FE00E42CCF /* CloudKitSyncStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F15D2E7BC4FE00E42CCF /* CloudKitSyncStatus.swift */; };
 		EC06F1602E7BC4FE00E42CCF /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F15C2E7BC4FE00E42CCF /* CloudKitManager.swift */; };
 		EC06F1622E7BCCC900E42CCF /* ExerciseExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC06F1612E7BCCC900E42CCF /* ExerciseExtensions.swift */; };
@@ -61,6 +66,8 @@
 		ECDE63112D48D27B00C2DA94 /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE63102D48D27B00C2DA94 /* SignInView.swift */; };
 		ECFFCAAB2EB7F45A008D6FE7 /* claude.md in Resources */ = {isa = PBXBuildFile; fileRef = ECFFCAAA2EB7F45A008D6FE7 /* claude.md */; };
 		ECFFCAAF2EB8A501008D6FE7 /* WeeklyPatternChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */; };
+		ECFFCAB12EB8B25A008D6FE7 /* PersonalRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFFCAB02EB8B25A008D6FE7 /* PersonalRecord.swift */; };
+		ECFFCAB32EB8B336008D6FE7 /* PRManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECFFCAB22EB8B336008D6FE7 /* PRManager.swift */; };
 		FFAC563B3E4B4FC19EA8D17921266CFA /* WorkoutFlowPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 347803F01A594112B3ABC56EE5F6566C /* WorkoutFlowPerformanceTests.swift */; };
 /* End PBXBuildFile section */
 
@@ -83,6 +90,11 @@
 
 /* Begin PBXFileReference section */
 		347803F01A594112B3ABC56EE5F6566C /* WorkoutFlowPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutFlowPerformanceTests.swift; sourceTree = "<group>"; };
+		EC04B7702EC65EDC00232DDE /* about.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = about.md; sourceTree = "<group>"; };
+		EC04B7712EC65EDC00232DDE /* faq.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = faq.md; sourceTree = "<group>"; };
+		EC04B7722EC65EDC00232DDE /* privacy-policy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "privacy-policy.md"; sourceTree = "<group>"; };
+		EC04B7732EC65EDC00232DDE /* terms-of-service.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "terms-of-service.md"; sourceTree = "<group>"; };
+		EC04B77D2EC6608700232DDE /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
 		EC06F15C2E7BC4FE00E42CCF /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; sourceTree = "<group>"; };
 		EC06F15D2E7BC4FE00E42CCF /* CloudKitSyncStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncStatus.swift; sourceTree = "<group>"; };
 		EC06F1612E7BCCC900E42CCF /* ExerciseExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExerciseExtensions.swift; sourceTree = "<group>"; };
@@ -142,6 +154,8 @@
 		ECF621932D497912007B4C2E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		ECFFCAAA2EB7F45A008D6FE7 /* claude.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = claude.md; sourceTree = "<group>"; };
 		ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyPatternChart.swift; sourceTree = "<group>"; };
+		ECFFCAB02EB8B25A008D6FE7 /* PersonalRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersonalRecord.swift; sourceTree = "<group>"; };
+		ECFFCAB22EB8B336008D6FE7 /* PRManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PRManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -177,6 +191,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		EC04B7742EC65EDC00232DDE /* Legal */ = {
+			isa = PBXGroup;
+			children = (
+				EC04B7702EC65EDC00232DDE /* about.md */,
+				EC04B7712EC65EDC00232DDE /* faq.md */,
+				EC04B7722EC65EDC00232DDE /* privacy-policy.md */,
+				EC04B7732EC65EDC00232DDE /* terms-of-service.md */,
+			);
+			path = Legal;
+			sourceTree = "<group>";
+		};
+		EC04B7752EC65EDC00232DDE /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				EC04B7742EC65EDC00232DDE /* Legal */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		EC04B77B2EC65FDF00232DDE /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				EC04B77D2EC6608700232DDE /* MarkdownText.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
 		EC06F15E2E7BC4FE00E42CCF /* CloudKit */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,6 +241,7 @@
 				EC317F382EA2473D000DFB1E /* FitnessProfile.swift */,
 				EC9BE9A62EAEA7FC00EBEA0B /* SplitTemplate.swift */,
 				EC9BE9AA2EAF864100EBEA0B /* ProgressPhoto.swift */,
+				ECFFCAB02EB8B25A008D6FE7 /* PersonalRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -210,6 +252,7 @@
 				EC06F1682E7CA3DA00E42CCF /* UserProfileManager.swift */,
 				EC317F4A2EA63235000DFB1E /* AppearanceManager.swift */,
 				EC9BE9AC2EAF868000EBEA0B /* PhotoManager.swift */,
+				ECFFCAB22EB8B336008D6FE7 /* PRManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -259,6 +302,8 @@
 				ECA5D1532BF20CF500DCC9F8 /* GymlyTests */,
 				ECA5D15D2BF20CF500DCC9F8 /* GymlyUITests */,
 				ECA5D1412BF20CF100DCC9F8 /* Products */,
+				EC04B7752EC65EDC00232DDE /* Resources */,
+				EC04B77B2EC65FDF00232DDE /* Helpers */,
 			);
 			sourceTree = "<group>";
 		};
@@ -453,6 +498,10 @@
 				EC317F6A2EA654D9000DFB1E /* AppIcon-Purple@3x.png in Resources */,
 				EC317F6B2EA654D9000DFB1E /* AppIcon-Orange@2x.png in Resources */,
 				EC317F6C2EA654D9000DFB1E /* AppIcon-Green@2x.png in Resources */,
+				EC04B7762EC65EDC00232DDE /* terms-of-service.md in Resources */,
+				EC04B7772EC65EDC00232DDE /* about.md in Resources */,
+				EC04B7782EC65EDC00232DDE /* privacy-policy.md in Resources */,
+				EC04B7792EC65EDC00232DDE /* faq.md in Resources */,
 				ECFFCAAB2EB7F45A008D6FE7 /* claude.md in Resources */,
 				EC317F6D2EA654D9000DFB1E /* AppIcon-Blue@2x.png in Resources */,
 				EC317F6E2EA654D9000DFB1E /* AppIcon-Green@3x.png in Resources */,
@@ -494,8 +543,10 @@
 				EC66F6992D92CF380086D625 /* SettingUserInfoCell.swift in Sources */,
 				EC66F6A72D949DBB0086D625 /* WeightPoint.swift in Sources */,
 				ECFFCAAF2EB8A501008D6FE7 /* WeeklyPatternChart.swift in Sources */,
+				ECFFCAB12EB8B25A008D6FE7 /* PersonalRecord.swift in Sources */,
 				EC9BE9A72EAEA7FC00EBEA0B /* SplitTemplate.swift in Sources */,
 				EC06F16A2E7CA3DA00E42CCF /* UserProfileManager.swift in Sources */,
+				EC04B77E2EC6608700232DDE /* MarkdownText.swift in Sources */,
 				EC9BE9B22EAF86DE00EBEA0B /* CameraViewModel.swift in Sources */,
 				EC9BE9B42EAF86EC00EBEA0B /* CameraPreview.swift in Sources */,
 				EC66F6A52D949D410086D625 /* WeightChart.swift in Sources */,
@@ -513,6 +564,7 @@
 				ECA5D1442BF20CF100DCC9F8 /* GymlyApp.swift in Sources */,
 				EC59224A2D7A3BF200EB39B2 /* SetRepetitionsCell.swift in Sources */,
 				EC5922502D7A414F00EB39B2 /* SetNoteCell.swift in Sources */,
+				ECFFCAB32EB8B336008D6FE7 /* PRManager.swift in Sources */,
 				EC8C15112C80A94D008E4152 /* DayStorage.swift in Sources */,
 				EC317F4B2EA63235000DFB1E /* AppearanceManager.swift in Sources */,
 				EC66F6A12D94213D0086D625 /* BMIGaugeView.swift in Sources */,

@@ -15,6 +15,7 @@ struct ToolBar: View {
     @State private var loginRefreshTrigger = false
     @StateObject private var userProfileManager = UserProfileManager.shared
     @StateObject private var appearanceManager = AppearanceManager.shared
+    @StateObject private var prManager = PRManager.shared
     @State private var todayViewModel: WorkoutViewModel?
     @State private var calendarViewModel: WorkoutViewModel?
     @State private var settingsViewModel: WorkoutViewModel?
@@ -75,6 +76,9 @@ struct ToolBar: View {
         .task {
             // Initialize UserProfileManager with SwiftData context
             userProfileManager.setup(modelContext: context)
+
+            // Initialize PRManager with SwiftData context
+            prManager.setup(modelContext: context, userProfileManager: userProfileManager)
 
             // Initialize WorkoutViewModels and connect userProfileManager
             let todayVM = WorkoutViewModel(config: config, context: context)

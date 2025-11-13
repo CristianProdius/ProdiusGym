@@ -19,13 +19,13 @@ struct GymlyApp: App {
                     handleIncomingFile(url, config: config)
                 }
         }
-        .modelContainer(for: [Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self])
+        .modelContainer(for: [Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self])
     }
     
     private func handleIncomingFile(_ url: URL, config: Config) {
         print("Opened file: \(url)")
 
-        if let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self) {
+        if let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self) {
             let context = modelContainer.mainContext
             let viewModel = WorkoutViewModel(config: config, context: context)
             

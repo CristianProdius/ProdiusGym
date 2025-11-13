@@ -12,6 +12,8 @@ struct PremiumSubscriptionView: View {
     @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var selectedPlan: SubscriptionPlan = .monthly
+    @State private var showTermsOfService = false
+    @State private var showPrivacyPolicy = false
 
     enum SubscriptionPlan {
         case monthly
@@ -67,12 +69,6 @@ struct PremiumSubscriptionView: View {
                         // Features List
                         VStack(spacing: 16) {
                             FeatureRow(
-                                icon: "brain.head.profile",
-                                title: "Smart Progression Coach",
-                                description: "AI suggests optimal weight increases"
-                            )
-
-                            FeatureRow(
                                 icon: "trophy.fill",
                                 title: "Automatic PR Tracking",
                                 description: "Never miss a personal record"
@@ -82,12 +78,6 @@ struct PremiumSubscriptionView: View {
                                 icon: "camera.fill",
                                 title: "Progress Photo Timeline",
                                 description: "Track your visual transformation"
-                            )
-
-                            FeatureRow(
-                                icon: "chart.line.uptrend.xyaxis",
-                                title: "Extended Analytics",
-                                description: "Week, month, and all-time graphs"
                             )
 
                             FeatureRow(
@@ -109,9 +99,9 @@ struct PremiumSubscriptionView: View {
                             )
 
                             FeatureRow(
-                                icon: "square.and.arrow.up",
-                                title: "Export Your Data",
-                                description: "CSV/PDF reports anytime"
+                                icon: "figure.arms.open",
+                                title: "BMI Tracking & Analysis",
+                                description: "Monitor your body composition"
                             )
 
                             FeatureRow(
@@ -182,19 +172,19 @@ struct PremiumSubscriptionView: View {
 
                             HStack(spacing: 16) {
                                 Button("Terms of Service") {
-                                    // TODO: Open terms
+                                    showTermsOfService = true
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
 
                                 Button("Privacy Policy") {
-                                    // TODO: Open privacy
+                                    showPrivacyPolicy = true
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
 
                                 Button("Restore Purchase") {
-                                    // TODO: Restore purchase
+                                    // TODO: Restore purchase - requires StoreKit 2 implementation
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
@@ -205,6 +195,12 @@ struct PremiumSubscriptionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .sheet(isPresented: $showTermsOfService) {
+                LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
+            }
+            .sheet(isPresented: $showPrivacyPolicy) {
+                LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")
+            }
         }
     }
 }

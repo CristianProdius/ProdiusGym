@@ -382,7 +382,7 @@ struct AISummaryView: View {
     }
     
     @available(iOS 26, *)
-    private func personalRecordsCard(_ prs: [PersonalRecord].PartiallyGenerated) -> some View {
+    private func personalRecordsCard(_ prs: [PersonalRecords].PartiallyGenerated) -> some View {
         VStack(alignment: .leading, spacing: 12) {
             Label("Personal Records", systemImage: "trophy.fill")
                 .font(.headline)

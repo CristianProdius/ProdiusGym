@@ -579,17 +579,47 @@ final class WorkoutViewModel: ObservableObject {
     @MainActor func updateDayInSplit() -> Int {
         let calendar = Calendar.current
 
+        #if DEBUG
+        print("🔧 updateDayInSplit: current config.dayInSplit = \(config.dayInSplit)")
+        print("🔧 updateDayInSplit: lastUpdateDate = \(config.lastUpdateDate)")
+        print("🔧 updateDayInSplit: isDateInToday = \(calendar.isDateInToday(config.lastUpdateDate))")
+        #endif
+
         if !calendar.isDateInToday(config.lastUpdateDate) {
             let daysPassed = numberOfDaysBetween(start: config.lastUpdateDate, end: Date())
 
             let totalDays = config.dayInSplit + daysPassed
+
+            #if DEBUG
+            print("🔧 updateDayInSplit: daysPassed = \(daysPassed), totalDays = \(totalDays)")
+            #endif
 
             guard let activeSplit = getActiveSplit() else {
                 print("No active split found, returning current day in split")
                 return config.dayInSplit
             }
 
-            let newDayInSplit = (totalDays - 1) % (activeSplit.days?.count ?? 1) + 1
+            let splitDaysCount = activeSplit.days?.count ?? 1
+            var newDayInSplit = (totalDays - 1) % splitDaysCount + 1
+
+            #if DEBUG
+            print("🔧 updateDayInSplit: splitDaysCount = \(splitDaysCount), raw calculation = \(newDayInSplit)")
+            #endif
+
+            // Fix negative day numbers (can happen with time travel or clock changes)
+            if newDayInSplit <= 0 {
+                newDayInSplit = ((newDayInSplit % splitDaysCount) + splitDaysCount) % splitDaysCount + 1
+                #if DEBUG
+                print("🔧 updateDayInSplit: Fixed negative to = \(newDayInSplit)")
+                #endif
+            }
+
+            // Ensure day is within valid range (1 to splitDaysCount)
+            newDayInSplit = max(1, min(newDayInSplit, splitDaysCount))
+
+            #if DEBUG
+            print("🔧 updateDayInSplit: Final newDayInSplit = \(newDayInSplit)")
+            #endif
 
             config.dayInSplit = newDayInSplit
             config.lastUpdateDate = Date()
@@ -597,6 +627,9 @@ final class WorkoutViewModel: ObservableObject {
 
             return config.dayInSplit
         } else {
+            #if DEBUG
+            print("🔧 updateDayInSplit: Date is today, returning existing dayInSplit = \(config.dayInSplit)")
+            #endif
             return config.dayInSplit
         }
     }

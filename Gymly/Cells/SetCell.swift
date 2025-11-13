@@ -20,6 +20,10 @@ struct SetCell: View {
     var onSetTap: ((Exercise.Set) -> Void)? = nil
     @State private var showEditSheet = false
 
+    // PR tracking
+    @State private var isPR: Bool = false
+    @StateObject private var prManager = PRManager.shared
+
     // Computed properties to break down complex expressions
     private var weightUnit: String {
         userProfileManager.currentProfile?.weightUnit ?? "Kg"
@@ -92,6 +96,12 @@ struct SetCell: View {
                                 .foregroundStyle(Color.blue)
                                 .offset(x: -5)
                         }
+                        if isPR && !set.warmUp {
+                            Image(systemName: "star.fill")
+                                .foregroundStyle(Color.yellow)
+                                .font(.caption)
+                                .offset(x: -5)
+                        }
                     }
                     Spacer()
                     Text("\(set.time)")
@@ -124,6 +134,16 @@ struct SetCell: View {
         .onChange(of: showEditSheet) { oldValue, newValue in
             if onSetTap == nil {
                 print("📱 showEditSheet changed to: \(newValue) for set \(index + 1)")
+            }
+        }
+        .task {
+            // Check if this set is a PR (only for completed sets with time)
+            if !set.time.isEmpty && !set.warmUp {
+                isPR = await prManager.isSetPR(
+                    exerciseName: exercise.name,
+                    weight: set.weight,
+                    reps: set.reps
+                )
             }
         }
         .scrollContentBackground(.hidden)

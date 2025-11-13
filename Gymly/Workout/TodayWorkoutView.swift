@@ -339,6 +339,11 @@ struct TodayWorkoutView: View {
         config.dayInSplit = viewModel.updateDayInSplit()
         config.lastUpdateDate = Date()  // Track last update time
 
+        #if DEBUG
+        print("🔧 TODAYWORKOUTVIEW: config.dayInSplit = \(config.dayInSplit)")
+        print("🔧 TODAYWORKOUTVIEW: Available days: \(splitDays.map { "Day \($0.dayOfSplit): \($0.name)" }.joined(separator: ", "))")
+        #endif
+
         // OPTIMIZATION: Filter split days directly instead of calling fetchDay()
         // which would call getActiveSplitDays() again (duplicate query)
         let updatedDay = splitDays.first(where: { $0.dayOfSplit == config.dayInSplit }) ?? Day(name: "", dayOfSplit: 0, exercises: [], date: "")

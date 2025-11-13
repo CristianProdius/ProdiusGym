@@ -20,6 +20,11 @@ struct WorkoutSummaryView: View {
     let startTime: String
     let endTime: String
 
+    // PR tracking
+    @State private var achievedPRs: [PRNotification] = []
+    @StateObject private var prManager = PRManager.shared
+    @Environment(\.modelContext) private var context
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -182,6 +187,67 @@ struct WorkoutSummaryView: View {
                         .padding()
                         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
 
+                        // Personal Records Achieved
+                        if !achievedPRs.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                    Text("Personal Records Achieved!")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
+                                    Spacer()
+                                }
+
+                                ForEach(achievedPRs) { pr in
+                                    HStack(spacing: 12) {
+                                        Image(systemName: pr.type.icon)
+                                            .foregroundColor(.yellow)
+                                            .font(.title3)
+                                            .frame(width: 30)
+
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(pr.exerciseName)
+                                                .font(.subheadline)
+                                                .foregroundColor(.white)
+                                                .bold()
+
+                                            HStack(spacing: 4) {
+                                                Text(pr.type.displayName)
+                                                    .font(.caption2)
+                                                    .foregroundColor(.yellow)
+                                                Text("•")
+                                                    .font(.caption2)
+                                                    .foregroundColor(.white.opacity(0.4))
+
+                                                if let reps = pr.reps {
+                                                    let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                                                    let displayWeight = weightUnit == "Kg" ? pr.value : pr.value * 2.20462262
+                                                    Text("\(String(format: "%.1f", displayWeight)) \(weightUnit) × \(reps) reps")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.white.opacity(0.8))
+                                                } else if let sets = pr.sets {
+                                                    let weightUnit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                                                    let displayWeight = weightUnit == "Kg" ? pr.value : pr.value * 2.20462262
+                                                    Text("\(String(format: "%.0f", displayWeight)) \(weightUnit) total (\(sets) sets)")
+                                                        .font(.caption2)
+                                                        .foregroundColor(.white.opacity(0.8))
+                                                }
+                                            }
+                                        }
+
+                                        Spacer()
+                                    }
+                                    .padding(.vertical, 8)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.yellow.opacity(0.1))
+                                    .cornerRadius(8)
+                                }
+                            }
+                            .padding()
+                            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 12))
+                        }
+
                         // Exercises Completed
                         VStack(alignment: .leading, spacing: 12) {
                             HStack {
@@ -222,6 +288,19 @@ struct WorkoutSummaryView: View {
                     }
                     .foregroundColor(.white)
                     .bold()
+                }
+            }
+            .task {
+                // Analyze workout for PRs
+                let workoutID = UUID() // Generate ID for this workout
+                achievedPRs = await prManager.analyzeWorkoutForPRs(
+                    exercises: completedExercises,
+                    workoutDate: Date(),
+                    workoutID: workoutID
+                )
+
+                if !achievedPRs.isEmpty {
+                    print("🏆 WORKOUT SUMMARY: Achieved \(achievedPRs.count) PRs!")
                 }
             }
         }

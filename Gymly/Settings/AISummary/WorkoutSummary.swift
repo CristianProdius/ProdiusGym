@@ -19,7 +19,7 @@ public struct WorkoutSummary: Codable, Sendable {
     public var keyStats: [KeyStat]            // compact, UI-friendly metrics
     public var session: SessionBreakdown      // per-exercise rollup
     public var trends: [Trend]                // short-term patterns (1–4 weeks)
-    public var prs: [PersonalRecord]          // any PRs detected
+    public var prs: [PersonalRecords]          // any PRs detected
     public var issues: [Issue]                // injuries, form flags, anomalies
     public var recommendations: [Recommendation] // next-steps you can act on
 }
@@ -63,7 +63,7 @@ public struct Trend: Codable, Sendable {
 
 @available(iOS 26, *)
 @Generable
-public struct PersonalRecord: Codable, Sendable {
+public struct PersonalRecords: Codable, Sendable {
     public var exercise: String               // "Deadlift"
     public var type: String                   // "1RM est" | "rep PR" | "volume PR"
     public var value: String                  // "180 kg (est 1RM)"

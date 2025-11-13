@@ -107,13 +107,13 @@ struct NewSettingsView: View {
 
                     // Support Section
                     Section("Support") {
-                        NavigationLink(destination: Text("Help & FAQ (Coming Soon)")) {
+                        NavigationLink(destination: HelpFAQView()) {
                             Image(systemName: "questionmark.circle")
                             Text("Help & FAQ")
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("Contact Support (Coming Soon)")) {
+                        NavigationLink(destination: ContactSupportView()) {
                             Image(systemName: "envelope.fill")
                             Text("Contact Support")
                         }
@@ -143,19 +143,19 @@ struct NewSettingsView: View {
 
                     // Legal Section
                     Section("Legal") {
-                        NavigationLink(destination: Text("Privacy Policy (Coming Soon)")) {
+                        NavigationLink(destination: LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")) {
                             Image(systemName: "lock.shield")
                             Text("Privacy Policy")
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("Terms of Service (Coming Soon)")) {
+                        NavigationLink(destination: LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")) {
                             Image(systemName: "doc.text")
                             Text("Terms of Service")
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("About Gymly (Coming Soon)")) {
+                        NavigationLink(destination: AboutGymlyView()) {
                             Image(systemName: "info.circle")
                             Text("About Gymly")
                         }
