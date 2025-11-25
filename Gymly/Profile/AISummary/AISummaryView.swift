@@ -729,10 +729,10 @@ struct AISummaryView: View {
     }
 
     private func setupDataFetcher() {
-        dataFetcher = WorkoutDataFetcher(context: context)
+        dataFetcher = WorkoutDataFetcher(modelContainer: context.container)
         summarizer.prewarm()
     }
-    
+
     private func generateSummary() {
         guard let fetcher = dataFetcher else { return }
 
@@ -746,10 +746,8 @@ struct AISummaryView: View {
                     cacheAge = nil
                 }
 
-                // Fetch data on background thread to avoid blocking UI
-                let comparisonData = await Task.detached {
-                    fetcher.fetchWorkoutsForComparison()
-                }.value
+                // Fetch data using actor - automatically runs on background thread
+                let comparisonData = await fetcher.fetchWorkoutsForComparison()
 
                 // Retrieve fitness profile from config on main thread
                 let fitnessProfile = await MainActor.run { config.fitnessProfile }
