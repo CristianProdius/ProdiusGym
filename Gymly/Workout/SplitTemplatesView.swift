@@ -25,7 +25,7 @@ struct SplitTemplatesView: View {
                     .ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 20) {
+                    LazyVStack(spacing: 20) {
                         // Header
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Workout Templates")
@@ -41,7 +41,7 @@ struct SplitTemplatesView: View {
                         .padding(.horizontal)
                         .padding(.top)
 
-                        // Templates List
+                        // Templates List - Now with lazy loading
                         ForEach(SplitTemplate.allTemplates) { template in
                             TemplateCard(template: template) {
                                 selectedTemplate = template
@@ -155,7 +155,12 @@ struct TemplateCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
 
     var body: some View {
-        Button(action: onTap) {
+        Button(action: {
+            // Haptic feedback for better UX
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+            onTap()
+        }) {
             VStack(alignment: .leading, spacing: 12) {
                 // Header
                 HStack {
@@ -248,7 +253,8 @@ struct TemplateDetailView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+                // Removed duplicate FloatingClouds - parent view already renders it
+                Color.clear
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -287,7 +293,7 @@ struct TemplateDetailView: View {
                         )
 
                         // Days Breakdown
-                        VStack(alignment: .leading, spacing: 16) {
+                        LazyVStack(alignment: .leading, spacing: 16, pinnedViews: []) {
                             Text("Split Breakdown")
                                 .font(.title2)
                                 .bold()
@@ -397,34 +403,9 @@ struct DayCard: View {
             .buttonStyle(PlainButtonStyle())
 
             if isExpanded {
-                VStack(alignment: .leading, spacing: 8) {
+                LazyVStack(alignment: .leading, spacing: 8) {
                     ForEach(day.exercises) { exercise in
-                        HStack {
-                            Circle()
-                                .fill(appearanceManager.accentColor.color)
-                                .frame(width: 6, height: 6)
-
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text(exercise.name)
-                                    .font(.subheadline)
-                                    .foregroundColor(.white)
-
-                                Text("\(exercise.sets) sets × \(exercise.reps) reps")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.6))
-                            }
-
-                            Spacer()
-
-                            Text(exercise.muscleGroup)
-                                .font(.caption)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.white.opacity(0.1))
-                                .foregroundColor(.white.opacity(0.8))
-                                .cornerRadius(6)
-                        }
-                        .padding(.horizontal)
+                        ExerciseRow(exercise: exercise)
                     }
                 }
                 .padding(.vertical, 8)
@@ -437,3 +418,38 @@ struct DayCard: View {
     }
 }
 
+// MARK: - Exercise Row Component (Extracted for Performance)
+
+struct ExerciseRow: View {
+    let exercise: SplitTemplateExercise
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    var body: some View {
+        HStack {
+            Circle()
+                .fill(appearanceManager.accentColor.color)
+                .frame(width: 6, height: 6)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(exercise.name)
+                    .font(.subheadline)
+                    .foregroundColor(.white)
+
+                Text("\(exercise.sets) sets × \(exercise.reps) reps")
+                    .font(.caption)
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+
+            Text(exercise.muscleGroup)
+                .font(.caption)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(Color.white.opacity(0.1))
+                .foregroundColor(.white.opacity(0.8))
+                .cornerRadius(6)
+        }
+        .padding(.horizontal)
+    }
+}
