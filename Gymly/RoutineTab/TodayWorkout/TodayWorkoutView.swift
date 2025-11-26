@@ -296,9 +296,6 @@ struct TodayWorkoutView: View {
                     .presentationDetents([.medium])
                 
             })
-            .sheet(isPresented: $showWhatsNew) {
-                WhatsNewView(isPresented: $showWhatsNew)
-            }
             .sheet(isPresented: $showWorkoutSummary) {
                 if let summaryData = workoutSummaryData {
                     WorkoutSummaryView(

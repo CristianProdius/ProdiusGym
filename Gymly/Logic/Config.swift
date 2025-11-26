@@ -108,6 +108,44 @@ class Config:ObservableObject {
         }
     }
 
+    // MARK: - Notification Settings
+
+    @Published var notificationsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
+        }
+    }
+
+    @Published var streakNotificationsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(streakNotificationsEnabled, forKey: "streakNotificationsEnabled")
+        }
+    }
+
+    @Published var workoutReminderEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(workoutReminderEnabled, forKey: "workoutReminderEnabled")
+        }
+    }
+
+    @Published var workoutReminderTime: Date {
+        didSet {
+            UserDefaults.standard.set(workoutReminderTime, forKey: "workoutReminderTime")
+        }
+    }
+
+    @Published var progressMilestonesEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(progressMilestonesEnabled, forKey: "progressMilestonesEnabled")
+        }
+    }
+
+    @Published var inactivityRemindersEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(inactivityRemindersEnabled, forKey: "inactivityRemindersEnabled")
+        }
+    }
+
     // MARK: - Fitness Profile Properties
 
     @Published var hasCompletedFitnessProfile: Bool {
@@ -191,6 +229,21 @@ class Config:ObservableObject {
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
         self.isHealtKitEnabled = UserDefaults.standard.object(forKey: "isHealtKitEnabled") as? Bool ?? false
         self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? true  // Default true for now (testing)
+
+        // Notification Settings initialization
+        self.notificationsEnabled = UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? false
+        self.streakNotificationsEnabled = UserDefaults.standard.object(forKey: "streakNotificationsEnabled") as? Bool ?? true
+        self.workoutReminderEnabled = UserDefaults.standard.object(forKey: "workoutReminderEnabled") as? Bool ?? true
+        // Default reminder time: 6 PM
+        if let savedTime = UserDefaults.standard.object(forKey: "workoutReminderTime") as? Date {
+            self.workoutReminderTime = savedTime
+        } else {
+            let calendar = Calendar.current
+            let defaultTime = calendar.date(bySettingHour: 18, minute: 0, second: 0, of: Date()) ?? Date()
+            self.workoutReminderTime = defaultTime
+        }
+        self.progressMilestonesEnabled = UserDefaults.standard.object(forKey: "progressMilestonesEnabled") as? Bool ?? true
+        self.inactivityRemindersEnabled = UserDefaults.standard.object(forKey: "inactivityRemindersEnabled") as? Bool ?? true
 
         // Fitness Profile initialization
         self.hasCompletedFitnessProfile = UserDefaults.standard.object(forKey: "hasCompletedFitnessProfile") as? Bool ?? false

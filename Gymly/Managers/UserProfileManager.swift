@@ -374,6 +374,10 @@ class UserProfileManager: ObservableObject {
             let newStreak = profile.currentStreak + 1
             print("🔥 STREAK: Consecutive day! Incrementing streak to \(newStreak)")
             updateStreak(currentStreak: newStreak, longestStreak: newStreak, lastWorkoutDate: today, paused: false)
+
+            // Notify streak notification manager
+            StreakNotificationManager.shared.sendStreakSavedNotification(newStreak: newStreak)
+            StreakNotificationManager.shared.sendStreakMilestoneNotification(streak: newStreak)
         } else if daysSinceLastWorkout > 1 {
             // Check if streak should be reset or just paused based on rest days
             let shouldReset = shouldResetStreak(lastWorkoutDate: lastWorkoutDay, currentDate: today, restDaysPerWeek: profile.restDaysPerWeek)
@@ -386,6 +390,10 @@ class UserProfileManager: ObservableObject {
                 let newStreak = profile.currentStreak + 1
                 print("🔥 STREAK: Within rest days allowance! Continuing streak at \(newStreak)")
                 updateStreak(currentStreak: newStreak, longestStreak: newStreak, lastWorkoutDate: today, paused: false)
+
+                // Notify streak notification manager (streak was saved!)
+                StreakNotificationManager.shared.sendStreakSavedNotification(newStreak: newStreak)
+                StreakNotificationManager.shared.sendStreakMilestoneNotification(streak: newStreak)
             }
         }
     }

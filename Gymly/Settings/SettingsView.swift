@@ -52,8 +52,9 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("Notifications (Coming Soon)")) {
-                            NotificationsView()
+                        NavigationLink(destination: NotificationsView()) {
+                            Image(systemName: "bell")
+                            Text("Notifications")
                         }
                         .frame(width: 300)
 

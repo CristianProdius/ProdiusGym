@@ -16,11 +16,14 @@ struct ToolBar: View {
     @StateObject private var userProfileManager = UserProfileManager.shared
     @StateObject private var appearanceManager = AppearanceManager.shared
     @StateObject private var prManager = PRManager.shared
+    @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var streakNotificationManager = StreakNotificationManager.shared
     @State private var todayViewModel: WorkoutViewModel?
     @State private var calendarViewModel: WorkoutViewModel?
     @State private var settingsViewModel: WorkoutViewModel?
     @State private var signInViewModel: WorkoutViewModel?
     @State private var showFitnessProfileSetup = false
+    @State private var hasRequestedNotificationPermission = false
 
     var body: some View {
         Group {
@@ -56,6 +59,16 @@ struct ToolBar: View {
                             showFitnessProfileSetup = true
                         }
                     }
+                    .onChange(of: config.isUserLoggedIn) { _, isLoggedIn in
+                        // Request notification permission after first login
+                        if isLoggedIn && !hasRequestedNotificationPermission {
+                            Task {
+                                // Small delay to let UI settle after login
+                                try? await Task.sleep(for: .seconds(1))
+                                await requestNotificationPermissionIfNeeded()
+                            }
+                        }
+                    }
                     .onAppear {
                         // Check if profile needs to be shown on initial load
                         if !config.hasCompletedFitnessProfile {
@@ -79,6 +92,9 @@ struct ToolBar: View {
 
             // Initialize PRManager with SwiftData context
             prManager.setup(modelContext: context, userProfileManager: userProfileManager)
+
+            // Initialize StreakNotificationManager
+            streakNotificationManager.setup(userProfileManager: userProfileManager, config: config)
 
             // Initialize WorkoutViewModels and connect userProfileManager
             let todayVM = WorkoutViewModel(config: config, context: context)
@@ -133,9 +149,46 @@ struct ToolBar: View {
 
                 // Check streak status on app launch
                 userProfileManager.checkStreakStatus()
+
+                // Schedule streak protection notifications
+                streakNotificationManager.scheduleStreakProtection()
             }
         }
     }
 
+    // MARK: - Helper Functions
 
+    /// Request notification permission on first login
+    private func requestNotificationPermissionIfNeeded() async {
+        // Check if permission has already been determined
+        await notificationManager.checkAuthorizationStatus()
+
+        // Only request if not yet determined (first time)
+        if notificationManager.authorizationStatus == .notDetermined {
+            do {
+                try await notificationManager.requestAuthorization()
+                hasRequestedNotificationPermission = true
+
+                // Enable notifications by default if granted
+                if notificationManager.isAuthorized {
+                    await MainActor.run {
+                        config.notificationsEnabled = true
+                    }
+                    #if DEBUG
+                    print("✅ TOOLBAR: Notification permission granted on first login")
+                    #endif
+                }
+            } catch {
+                #if DEBUG
+                print("⚠️ TOOLBAR: Failed to request notification permission: \(error)")
+                #endif
+            }
+        } else {
+            hasRequestedNotificationPermission = true
+            #if DEBUG
+            print("🔔 TOOLBAR: Notification permission already determined: \(notificationManager.authorizationStatus.rawValue)")
+            #endif
+        }
+    }
 }
+
