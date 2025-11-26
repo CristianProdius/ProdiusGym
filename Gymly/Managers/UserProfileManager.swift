@@ -378,6 +378,9 @@ class UserProfileManager: ObservableObject {
             // Notify streak notification manager
             StreakNotificationManager.shared.sendStreakSavedNotification(newStreak: newStreak)
             StreakNotificationManager.shared.sendStreakMilestoneNotification(streak: newStreak)
+
+            // Update workout reminders with new pattern data
+            WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
         } else if daysSinceLastWorkout > 1 {
             // Check if streak should be reset or just paused based on rest days
             let shouldReset = shouldResetStreak(lastWorkoutDate: lastWorkoutDay, currentDate: today, restDaysPerWeek: profile.restDaysPerWeek)
@@ -394,8 +397,14 @@ class UserProfileManager: ObservableObject {
                 // Notify streak notification manager (streak was saved!)
                 StreakNotificationManager.shared.sendStreakSavedNotification(newStreak: newStreak)
                 StreakNotificationManager.shared.sendStreakMilestoneNotification(streak: newStreak)
+
+                // Update workout reminders with new pattern data
+                WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
             }
         }
+
+        // Cancel today's workout reminder (already completed)
+        WorkoutReminderManager.shared.cancelTodayReminderIfWorkoutCompleted()
     }
 
     /// Check if streak should be reset based on missed days per calendar week

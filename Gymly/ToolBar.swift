@@ -18,6 +18,7 @@ struct ToolBar: View {
     @StateObject private var prManager = PRManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var streakNotificationManager = StreakNotificationManager.shared
+    @StateObject private var workoutReminderManager = WorkoutReminderManager.shared
     @State private var todayViewModel: WorkoutViewModel?
     @State private var calendarViewModel: WorkoutViewModel?
     @State private var settingsViewModel: WorkoutViewModel?
@@ -96,6 +97,9 @@ struct ToolBar: View {
             // Initialize StreakNotificationManager
             streakNotificationManager.setup(userProfileManager: userProfileManager, config: config)
 
+            // Initialize WorkoutReminderManager
+            workoutReminderManager.setup(modelContext: context, config: config)
+
             // Initialize WorkoutViewModels and connect userProfileManager
             let todayVM = WorkoutViewModel(config: config, context: context)
             let settingsVM = WorkoutViewModel(config: config, context: context)
@@ -152,6 +156,9 @@ struct ToolBar: View {
 
                 // Schedule streak protection notifications
                 streakNotificationManager.scheduleStreakProtection()
+
+                // Schedule smart workout reminders
+                workoutReminderManager.scheduleSmartWorkoutReminders()
             }
         }
     }

@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct NotificationsView: View {
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.modelContext) private var modelContext
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
     @StateObject private var notificationManager = NotificationManager.shared
@@ -197,6 +199,30 @@ struct NotificationsView: View {
                         }
                         .listRowBackground(Color.black.opacity(0.05))
                     }
+
+                    Section(header: Text("🏋️ Workout Reminders")) {
+                        Button("Test Monday Workout Reminder") {
+                            Task {
+                                await testWorkoutReminder(weekday: 2, dayName: "Monday")
+                            }
+                        }
+                        .listRowBackground(Color.black.opacity(0.05))
+
+                        Button("Test Rest Day Reminder") {
+                            Task {
+                                await testRestDayReminder()
+                            }
+                        }
+                        .listRowBackground(Color.black.opacity(0.05))
+
+                        Button("Analyze Workout Patterns") {
+                            Task {
+                                await WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
+                                print("✅ TEST: Reanalyzed workout patterns and rescheduled reminders")
+                            }
+                        }
+                        .listRowBackground(Color.black.opacity(0.05))
+                    }
                 }
                 #endif
             }
@@ -240,6 +266,98 @@ struct NotificationsView: View {
             }
         }
     }
+
+    #if DEBUG
+    // MARK: - Test Functions
+
+    private func testWorkoutReminder(weekday: Int, dayName: String) async {
+        // Get actual workout name for the test
+        let (isRestDay, workoutName) = await getWorkoutNameForTesting(weekday: weekday)
+
+        let title = isRestDay ? "Rest Day Today 💤" : "Time to Crush Your Workout! 💪"
+        let body: String
+
+        if isRestDay {
+            body = "Take time to recover and rebuild your muscles!"
+        } else if let workout = workoutName {
+            body = "It's \(workout) day. Your muscles are ready. Let's get stronger!"
+        } else {
+            body = "Your muscles are ready. Let's get stronger today!"
+        }
+
+        do {
+            try await notificationManager.scheduleNotification(
+                id: "test_workout_reminder",
+                title: title,
+                body: body,
+                timeInterval: 5,
+                categoryIdentifier: NotificationManager.NotificationCategory.workoutReminder,
+                userInfo: ["type": "test", "weekday": weekday]
+            )
+            print("✅ TEST: \(dayName) workout reminder scheduled in 5 seconds - '\(body)'")
+        } catch {
+            print("❌ TEST: Failed to schedule workout reminder - \(error)")
+        }
+    }
+
+    private func getWorkoutNameForTesting(weekday: Int) async -> (isRestDay: Bool, workoutName: String?) {
+        // Calculate which day in split corresponds to this weekday
+        let calendar = Calendar.current
+        let today = Date()
+        let currentWeekday = calendar.component(.weekday, from: today)
+
+        var daysUntilTarget = weekday - currentWeekday
+        if daysUntilTarget < 0 {
+            daysUntilTarget += 7
+        }
+
+        // Get current day in split and project forward
+        let currentDayInSplit = config.dayInSplit
+
+        do {
+            let descriptor = FetchDescriptor<Split>(
+                predicate: #Predicate<Split> { split in
+                    split.isActive
+                }
+            )
+            let splits = try modelContext.fetch(descriptor)
+
+            guard let activeSplit = splits.first,
+                  let days = activeSplit.days,
+                  !days.isEmpty else {
+                return (false, nil)
+            }
+
+            let targetDayInSplit = ((currentDayInSplit - 1 + daysUntilTarget) % days.count) + 1
+
+            guard let day = days.first(where: { $0.dayOfSplit == targetDayInSplit }) else {
+                return (false, nil)
+            }
+
+            let isRestDay = day.name.lowercased().contains("rest")
+            return (isRestDay, isRestDay ? nil : day.name)
+        } catch {
+            print("❌ TEST: Failed to fetch split info - \(error)")
+            return (false, nil)
+        }
+    }
+
+    private func testRestDayReminder() async {
+        do {
+            try await notificationManager.scheduleNotification(
+                id: "test_rest_day",
+                title: "Rest Day Today 💤",
+                body: "Take time to recover and rebuild your muscles!",
+                timeInterval: 5,
+                categoryIdentifier: NotificationManager.NotificationCategory.workoutReminder,
+                userInfo: ["type": "test", "rest_day": true]
+            )
+            print("✅ TEST: Rest day reminder scheduled in 5 seconds")
+        } catch {
+            print("❌ TEST: Failed to schedule rest day reminder - \(error)")
+        }
+    }
+    #endif
 }
 
 #Preview {

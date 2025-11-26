@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		EC022DBF2ED6F17A0051ED1B /* StreakNotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC022DBE2ED6F17A0051ED1B /* StreakNotificationManager.swift */; };
 		EC022DC12ED6F2240051ED1B /* NotificationTestHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC022DC02ED6F2240051ED1B /* NotificationTestHelper.swift */; };
+		EC022DC32ED6F58F0051ED1B /* WorkoutReminderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC022DC22ED6F58F0051ED1B /* WorkoutReminderManager.swift */; };
 		EC04B77E2EC6608700232DDE /* MarkdownText.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC04B77D2EC6608700232DDE /* MarkdownText.swift */; };
 		EC04B78B2EC718AD00232DDE /* AppIcon-Green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7812EC718AD00232DDE /* AppIcon-Green@2x.png */; };
 		EC04B78C2EC718AD00232DDE /* AppIcon-Pink@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = EC04B7862EC718AD00232DDE /* AppIcon-Pink@3x.png */; };
@@ -90,6 +91,7 @@
 		347803F01A594112B3ABC56EE5F6566C /* WorkoutFlowPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutFlowPerformanceTests.swift; sourceTree = "<group>"; };
 		EC022DBE2ED6F17A0051ED1B /* StreakNotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StreakNotificationManager.swift; sourceTree = "<group>"; };
 		EC022DC02ED6F2240051ED1B /* NotificationTestHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationTestHelper.swift; sourceTree = "<group>"; };
+		EC022DC22ED6F58F0051ED1B /* WorkoutReminderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutReminderManager.swift; sourceTree = "<group>"; };
 		EC04B77D2EC6608700232DDE /* MarkdownText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarkdownText.swift; sourceTree = "<group>"; };
 		EC04B7812EC718AD00232DDE /* AppIcon-Green@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Green@2x.png"; sourceTree = "<group>"; };
 		EC04B7822EC718AD00232DDE /* AppIcon-Green@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "AppIcon-Green@3x.png"; sourceTree = "<group>"; };
@@ -236,6 +238,7 @@
 				ECE71F372ED65EB8005AA330 /* NotificationManager.swift */,
 				EC022DBE2ED6F17A0051ED1B /* StreakNotificationManager.swift */,
 				EC022DC02ED6F2240051ED1B /* NotificationTestHelper.swift */,
+				EC022DC22ED6F58F0051ED1B /* WorkoutReminderManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -512,6 +515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				ECA5D16E2BF20D0F00DCC9F8 /* ToolBar.swift in Sources */,
+				EC022DC32ED6F58F0051ED1B /* WorkoutReminderManager.swift in Sources */,
 				EC06F1622E7BCCC900E42CCF /* ExerciseExtensions.swift in Sources */,
 				EC4FD1532C4ED88300D1A4A6 /* Day.swift in Sources */,
 				EC629C662C9CAE2300009902 /* MuscleGroup.swift in Sources */,

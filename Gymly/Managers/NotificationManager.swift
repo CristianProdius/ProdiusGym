@@ -113,6 +113,50 @@ class NotificationManager: NSObject, ObservableObject {
         }
     }
 
+    /// Schedule a notification with custom DateComponents (for repeating weekday notifications)
+    func scheduleNotification(
+        id: String,
+        title: String,
+        body: String,
+        dateComponents: DateComponents,
+        repeats: Bool = false,
+        categoryIdentifier: String? = nil,
+        userInfo: [String: Any] = [:]
+    ) async throws {
+        guard isAuthorized else {
+            #if DEBUG
+            print("⚠️ Cannot schedule notification - not authorized")
+            #endif
+            return
+        }
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+
+        if let category = categoryIdentifier {
+            content.categoryIdentifier = category
+        }
+
+        content.userInfo = userInfo
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: repeats)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+
+        do {
+            try await center.add(request)
+            #if DEBUG
+            print("✅ Scheduled notification '\(id)' with date components (repeats: \(repeats))")
+            #endif
+        } catch {
+            #if DEBUG
+            print("❌ Failed to schedule notification '\(id)': \(error)")
+            #endif
+            throw error
+        }
+    }
+
     /// Schedule a notification after a time interval
     func scheduleNotification(
         id: String,
@@ -273,6 +317,7 @@ extension NotificationManager {
     enum NotificationCategory {
         static let streak = "STREAK_CATEGORY"
         static let workout = "WORKOUT_CATEGORY"
+        static let workoutReminder = "WORKOUT_REMINDER_CATEGORY"
         static let progress = "PROGRESS_CATEGORY"
         static let inactivity = "INACTIVITY_CATEGORY"
     }
