@@ -102,8 +102,6 @@ class WorkoutReminderManager: ObservableObject {
 
     /// Get the time of the first set logged on a specific date
     private func getFirstSetTimeForDate(_ date: Date, context: ModelContext) -> Date? {
-        let calendar = Calendar.current
-
         // Format date string to match DayStorage format (e.g., "28 November 2025")
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "d MMMM yyyy"

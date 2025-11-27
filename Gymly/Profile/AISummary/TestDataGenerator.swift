@@ -45,7 +45,7 @@ class TestDataGenerator {
                 }
             )
 
-            if let existing = try? context.fetch(checkDescriptor).first {
+            if (try? context.fetch(checkDescriptor).first) != nil {
                 print("🧪 TEST DATA: Skipping \(dateString) - already exists")
                 continue
             }

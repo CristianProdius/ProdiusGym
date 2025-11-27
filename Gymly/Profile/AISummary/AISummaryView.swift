@@ -29,26 +29,25 @@ struct AISummaryView: View {
             headline: "Great Progress This Week!",
             overview: "You've completed 4 workouts with consistent performance. Your overall training volume increased by 12% compared to last week, showing excellent progressive overload.",
             keyStats: [
-                KeyStat(id: UUID(), name: "Total Volume", value: "24,500 kg", delta: "+12%"),
-                KeyStat(id: UUID(), name: "Workouts Completed", value: "4", delta: nil),
-                KeyStat(id: UUID(), name: "Average Duration", value: "68 min", delta: "+5 min")
+                CachedKeyStat(name: "Total Volume", value: "24,500 kg", delta: "+12%"),
+                CachedKeyStat(name: "Workouts Completed", value: "4", delta: nil),
+                CachedKeyStat(name: "Average Duration", value: "68 min", delta: "+5 min")
             ],
             trends: [
-                Trend(id: UUID(), direction: "up", label: "Upper Body Strength", evidence: "Bench press volume up 15%"),
-                Trend(id: UUID(), direction: "up", label: "Workout Consistency", evidence: "4 workouts this week vs 3 last week")
+                CachedTrend(label: "Upper Body Strength", direction: "up", evidence: "Bench press volume up 15%"),
+                CachedTrend(label: "Workout Consistency", direction: "up", evidence: "4 workouts this week vs 3 last week")
             ],
             prs: [
-                PersonalRecords(id: UUID(), exercise: "Bench Press", type: "Weight", value: "100kg × 5 reps"),
-                PersonalRecords(id: UUID(), exercise: "Squat", type: "Volume", value: "8,500kg total")
+                CachedPR(exercise: "Bench Press", type: "Weight", value: "100kg × 5 reps"),
+                CachedPR(exercise: "Squat", type: "Volume", value: "8,500kg total")
             ],
             issues: [
-                Issue(id: UUID(), severity: "medium", category: "Recovery", detail: "Consider adding a rest day between leg workouts")
+                CachedIssue(category: "Recovery", detail: "Consider adding a rest day between leg workouts", severity: "medium")
             ],
             recommendations: [
-                Recommendation(id: UUID(), title: "Increase Progressive Overload", rationale: "Your strength gains are plateauing on isolation exercises", action: "Add 2.5kg to dumbbell exercises next session"),
-                Recommendation(id: UUID(), title: "Focus on Back Training", rationale: "Back volume is 20% lower than chest", action: "Add an extra row variation to pull days")
-            ],
-            generatedAt: Date()
+                CachedRecommendation(title: "Increase Progressive Overload", rationale: "Your strength gains are plateauing on isolation exercises", action: "Add 2.5kg to dumbbell exercises next session"),
+                CachedRecommendation(title: "Focus on Back Training", rationale: "Back volume is 20% lower than chest", action: "Add an extra row variation to pull days")
+            ]
         )
     }
 

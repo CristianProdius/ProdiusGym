@@ -217,7 +217,7 @@ struct NotificationsView: View {
 
                         Button("Analyze Workout Patterns") {
                             Task {
-                                await WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
+                                WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
                                 print("✅ TEST: Reanalyzed workout patterns and rescheduled reminders")
                             }
                         }
