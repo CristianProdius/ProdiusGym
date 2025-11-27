@@ -29,8 +29,16 @@ struct ProfileView: View {
     @State private var showCalendar: Bool = false
     @State private var showPremiumSheet: Bool = false
 
-    @State var graphSorting: [String] = ["Today","Week ⭐","Month ⭐","All Time ⭐"]
     @State var graphSortingSelected: String = "Today"
+
+    // Graph filtering options - locked for free users
+    private var graphSorting: [String] {
+        if config.isPremium {
+            return ["Today","Week ⭐","Month ⭐","All Time ⭐"]
+        } else {
+            return ["Today"]
+        }
+    }
 
     private var selectedTimeRange: ContentViewGraph.TimeRange {
         switch graphSortingSelected {
@@ -213,6 +221,31 @@ struct ProfileView: View {
                             }
                             .frame(width: 300, height: 300)
                             .animation(.easeInOut(duration: 0.3), value: selectedTimeRange)
+
+                            // Premium banner for graph filters
+                            if !config.isPremium {
+                                Button(action: {
+                                    showPremiumSheet = true
+                                }) {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "lock.fill")
+                                            .foregroundStyle(.yellow)
+                                            .font(.caption)
+                                        Text("Upgrade to unlock Week, Month & All Time views")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                        Spacer()
+                                        Image(systemName: "arrow.right")
+                                            .foregroundStyle(.secondary)
+                                            .font(.caption2)
+                                    }
+                                    .padding(.horizontal, 12)
+                                    .padding(.vertical, 8)
+                                    .background(Color.black.opacity(0.2))
+                                    .cornerRadius(8)
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                     }
                     .listRowBackground(Color.clear)
