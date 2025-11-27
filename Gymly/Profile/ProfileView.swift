@@ -207,12 +207,23 @@ struct ProfileView: View {
 
                     // Personal Records Section
                     Section("Personal Records") {
-                        NavigationLink(destination: PRHistoryView()) {
+                        NavigationLink(destination: Group {
+                            if config.isPremium {
+                                PRHistoryView()
+                            } else {
+                                PRHistoryLockedView()
+                            }
+                        }) {
                             HStack {
                                 Image(systemName: "trophy.fill")
                                     .foregroundStyle(.yellow)
                                 Text("View All Records")
                                 Spacer()
+                                if !config.isPremium {
+                                    Image(systemName: "lock.fill")
+                                        .font(.caption)
+                                        .foregroundStyle(.yellow)
+                                }
                                 Image(systemName: "chevron.right")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)

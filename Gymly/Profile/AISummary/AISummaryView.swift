@@ -21,7 +21,37 @@ struct AISummaryView: View {
     @State private var hasStartedGeneration = false
     @State private var cacheAge: String?
     @State private var cachedData: CachedSummaryData?
-    
+    @State private var showPremiumSheet = false
+
+    // Example summary for free users
+    private var exampleSummary: CachedSummaryData {
+        CachedSummaryData(
+            headline: "Great Progress This Week!",
+            overview: "You've completed 4 workouts with consistent performance. Your overall training volume increased by 12% compared to last week, showing excellent progressive overload.",
+            keyStats: [
+                KeyStat(id: UUID(), name: "Total Volume", value: "24,500 kg", delta: "+12%"),
+                KeyStat(id: UUID(), name: "Workouts Completed", value: "4", delta: nil),
+                KeyStat(id: UUID(), name: "Average Duration", value: "68 min", delta: "+5 min")
+            ],
+            trends: [
+                Trend(id: UUID(), direction: "up", label: "Upper Body Strength", evidence: "Bench press volume up 15%"),
+                Trend(id: UUID(), direction: "up", label: "Workout Consistency", evidence: "4 workouts this week vs 3 last week")
+            ],
+            prs: [
+                PersonalRecords(id: UUID(), exercise: "Bench Press", type: "Weight", value: "100kg × 5 reps"),
+                PersonalRecords(id: UUID(), exercise: "Squat", type: "Volume", value: "8,500kg total")
+            ],
+            issues: [
+                Issue(id: UUID(), severity: "medium", category: "Recovery", detail: "Consider adding a rest day between leg workouts")
+            ],
+            recommendations: [
+                Recommendation(id: UUID(), title: "Increase Progressive Overload", rationale: "Your strength gains are plateauing on isolation exercises", action: "Add 2.5kg to dumbbell exercises next session"),
+                Recommendation(id: UUID(), title: "Focus on Back Training", rationale: "Back volume is 20% lower than chest", action: "Add an extra row variation to pull days")
+            ],
+            generatedAt: Date()
+        )
+    }
+
     var body: some View {
         ZStack {
             FloatingClouds(theme: CloudsTheme.appleIntelligence(scheme))
@@ -30,11 +60,19 @@ struct AISummaryView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     headerView
-                    
+
+                    // Show premium banner for free users
+                    if !config.isPremium {
+                        premiumBannerView
+                    }
+
                     if summarizer.isGenerating && !hasStartedGeneration {
                         loadingView
                     } else if hasStartedGeneration || summarizer.workoutSummary != nil {
                         streamingContent
+                    } else if !config.isPremium {
+                        // Show example for free users
+                        cachedSummaryContent(exampleSummary)
                     } else {
                         emptyStateView
                     }
@@ -68,10 +106,17 @@ struct AISummaryView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(hasStartedGeneration ? "Regenerate" : "Generate") {
-                    generateSummary()
+                    if config.isPremium {
+                        generateSummary()
+                    } else {
+                        showPremiumSheet = true
+                    }
                 }
                 .disabled(summarizer.isGenerating)
             }
+        }
+        .sheet(isPresented: $showPremiumSheet) {
+            PremiumSubscriptionView()
         }
     }
     
@@ -523,6 +568,48 @@ struct AISummaryView: View {
             }
         }
         .padding()
+    }
+
+    private var premiumBannerView: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "star.fill")
+                .foregroundStyle(.yellow)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Example Summary")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+
+                Text("Upgrade to Pro to generate personalized summaries from your workout data")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button {
+                showPremiumSheet = true
+            } label: {
+                Text("Upgrade")
+                    .font(.caption)
+                    .fontWeight(.bold)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(.blue)
+                    .foregroundStyle(.white)
+                    .cornerRadius(8)
+            }
+        }
+        .padding()
+        .background(
+            LinearGradient(
+                colors: [Color.yellow.opacity(0.15), Color.orange.opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
     }
 
     @ViewBuilder
