@@ -55,14 +55,6 @@ struct PremiumSubscriptionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button("Done") {
-                        dismiss()
-                    }
-                    .foregroundStyle(.white)
-                }
-            }
             .sheet(isPresented: $showTermsOfService) {
                 LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
             }
@@ -78,15 +70,9 @@ struct PremiumSubscriptionView: View {
             VStack(spacing: 32) {
                 // Success Header
                 VStack(spacing: 20) {
-                    ZStack {
-                        Circle()
-                            .fill(appearanceManager.accentColor.color.opacity(0.2))
-                            .frame(width: 120, height: 120)
-
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 80))
-                            .foregroundStyle(appearanceManager.accentColor.color)
-                    }
+                    Image(.shadowPremium)
+                        .resizable()
+                        .frame(width: 300, height: 300)
 
                     VStack(spacing: 8) {
                         Text("You're Premium!")
@@ -98,7 +84,7 @@ struct PremiumSubscriptionView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
-                .padding(.top, 60)
+                .padding(.top, 40)
 
                 // Features List with Checkmarks
                 VStack(alignment: .leading, spacing: 16) {
@@ -282,8 +268,8 @@ struct PremiumSubscriptionView: View {
                 }
             }
         }
-    }
-}
+    
+
 
 // MARK: - Premium Feature Row (Simple checkmark row for premium users)
 struct PremiumFeatureRow: View {
