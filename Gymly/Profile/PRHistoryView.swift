@@ -52,6 +52,20 @@ struct PRHistoryView: View {
         return count
     }
 
+    // Total workouts tracked
+    private var totalWorkouts: Int {
+        allPRs.reduce(0) { $0 + $1.totalWorkouts }
+    }
+
+    // Strongest lift (highest 1RM)
+    private var strongestLift: (name: String, weight: Double)? {
+        let sorted = allPRs.compactMap { pr -> (String, Double)? in
+            guard let oneRM = pr.best1RM else { return nil }
+            return (pr.exerciseName, oneRM)
+        }.sorted { $0.1 > $1.1 }
+        return sorted.first
+    }
+
     var body: some View {
         ZStack {
             FloatingClouds(theme: CloudsTheme.graphite(scheme))
@@ -84,33 +98,170 @@ struct PRHistoryView: View {
                 }
             } else {
                 List {
-                    // Header Stats
+                    // Hero Section
                     Section {
-                        VStack(spacing: 8) {
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text("\(allPRs.count)")
-                                        .font(.title)
-                                        .bold()
-                                    Text("Exercises")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                        VStack(spacing: 20) {
+                            // Main stats grid
+                            VStack(spacing: 16) {
+                                // Top row - Feature stats
+                                HStack(spacing: 16) {
+                                    // Total PRs - Main highlight
+                                    VStack(alignment: .leading, spacing: 8) {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: "trophy.fill")
+                                                .font(.title2)
+                                                .foregroundStyle(
+                                                    LinearGradient(
+                                                        colors: [.yellow, .orange],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                )
+
+                                            Text("\(totalPRCount)")
+                                                .font(.system(size: 42, weight: .black, design: .rounded))
+                                                .foregroundStyle(
+                                                    LinearGradient(
+                                                        colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color.opacity(0.7)],
+                                                        startPoint: .topLeading,
+                                                        endPoint: .bottomTrailing
+                                                    )
+                                                )
+                                        }
+
+                                        Text("Personal Records")
+                                            .font(.subheadline)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .frame(maxWidth: .infinity, minHeight: 110, alignment: .leading)
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(appearanceManager.accentColor.color.opacity(0.1))
+                                    )
+
+                                    // Recent PRs (30 days)
+                                    VStack(alignment: .center, spacing: 8) {
+                                        Image(systemName: "flame.fill")
+                                            .font(.title3)
+                                            .foregroundStyle(.orange)
+
+                                        Text("\(recentPRs.count)")
+                                            .font(.system(size: 34, weight: .heavy, design: .rounded))
+                                            .foregroundStyle(.primary)
+
+                                        Text("This Month")
+                                            .font(.caption)
+                                            .fontWeight(.medium)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .frame(maxWidth: .infinity, minHeight: 110)
+                                    .padding()
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color.orange.opacity(0.1))
+                                    )
                                 }
 
-                                Spacer()
+                                // Bottom row - Secondary stats
+                                HStack(spacing: 16) {
+                                    // Exercises tracked
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "dumbbell.fill")
+                                            .font(.title3)
+                                            .foregroundStyle(appearanceManager.accentColor.color)
+                                            .frame(width: 32)
 
-                                VStack(alignment: .trailing, spacing: 4) {
-                                    Text("\(totalPRCount)")
-                                        .font(.title)
-                                        .bold()
-                                    Text("Total PRs")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("\(allPRs.count)")
+                                                .font(.title3)
+                                                .fontWeight(.bold)
+                                            Text("Exercises")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 14)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.black.opacity(0.05))
+                                    )
+
+                                    // Total workouts
+                                    HStack(spacing: 12) {
+                                        Image(systemName: "chart.line.uptrend.xyaxis")
+                                            .font(.title3)
+                                            .foregroundStyle(.green)
+                                            .frame(width: 32)
+
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("\(totalWorkouts)")
+                                                .font(.title3)
+                                                .fontWeight(.bold)
+                                            Text("Workouts")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    .padding(.vertical, 12)
+                                    .padding(.horizontal, 14)
+                                    .background(
+                                        RoundedRectangle(cornerRadius: 12)
+                                            .fill(Color.black.opacity(0.05))
+                                    )
                                 }
+                            }
+
+                            // Strongest lift callout (if available)
+                            if let strongest = strongestLift {
+                                HStack(spacing: 12) {
+                                    Image(systemName: "star.circle.fill")
+                                        .font(.title2)
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [.yellow, .orange],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Strongest Lift")
+                                            .font(.caption)
+                                            .fontWeight(.semibold)
+                                            .foregroundStyle(.secondary)
+
+                                        let displayWeight = userProfileManager.currentProfile?.weightUnit == "Kg" ? strongest.weight : strongest.weight * 2.20462262
+                                        let unit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+
+                                        Text("\(strongest.name.capitalized) - \(String(format: "%.1f", displayWeight)) \(unit)")
+                                            .font(.subheadline)
+                                            .fontWeight(.bold)
+                                            .lineLimit(1)
+                                    }
+
+                                    Spacer()
+                                }
+                                .padding()
+                                .background(
+                                    RoundedRectangle(cornerRadius: 12)
+                                        .fill(
+                                            LinearGradient(
+                                                colors: [Color.yellow.opacity(0.2), Color.orange.opacity(0.1)],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+                                )
                             }
                         }
                         .padding(.vertical, 8)
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets())
                     }
 
                     // Recent Achievements (Last 30 Days)
