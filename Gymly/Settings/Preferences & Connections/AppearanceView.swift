@@ -10,9 +10,11 @@ import SwiftUI
 struct AppearanceView: View {
     @StateObject private var appearanceManager = AppearanceManager.shared
     @Environment(\.colorScheme) private var scheme
+    @EnvironmentObject var config: Config
     @State private var showColorChangeAnimation = false
     @State private var selectedColor: AccentColorOption
     @State private var showSaveButton = false
+    @State private var showPremiumSheet = false
 
     init() {
         _selectedColor = State(initialValue: AppearanceManager.shared.accentColor)
@@ -74,13 +76,19 @@ struct AppearanceView: View {
                             GridItem(.flexible())
                         ], spacing: 16) {
                             ForEach(AccentColorOption.allCases) { colorOption in
+                                let isLocked = !config.isPremium && colorOption != .red
                                 ColorPickerButton(
                                     colorOption: colorOption,
-                                    isSelected: selectedColor == colorOption
+                                    isSelected: selectedColor == colorOption,
+                                    isLocked: isLocked
                                 ) {
-                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                        selectedColor = colorOption
-                                        showSaveButton = selectedColor != appearanceManager.accentColor
+                                    if isLocked {
+                                        showPremiumSheet = true
+                                    } else {
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                                            selectedColor = colorOption
+                                            showSaveButton = selectedColor != appearanceManager.accentColor
+                                        }
                                     }
                                 }
                             }
@@ -144,6 +152,9 @@ struct AppearanceView: View {
         }
         .navigationTitle("Appearance")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showPremiumSheet) {
+            PremiumSubscriptionView()
+        }
     }
 }
 
@@ -239,6 +250,7 @@ struct LivePreviewCard: View {
 struct ColorPickerButton: View {
     let colorOption: AccentColorOption
     let isSelected: Bool
+    let isLocked: Bool
     let action: () -> Void
 
     var body: some View {
@@ -248,8 +260,13 @@ struct ColorPickerButton: View {
                     Circle()
                         .fill(colorOption.color)
                         .frame(width: 60, height: 60)
+                        .opacity(isLocked ? 0.4 : 1.0)
 
-                    if isSelected {
+                    if isLocked {
+                        Image(systemName: "lock.fill")
+                            .font(.title3)
+                            .foregroundColor(.white)
+                    } else if isSelected {
                         Circle()
                             .stroke(Color.white, lineWidth: 3)
                             .frame(width: 60, height: 60)
@@ -265,12 +282,13 @@ struct ColorPickerButton: View {
                 Text(colorOption.displayName)
                     .font(.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(isSelected ? colorOption.color : .secondary)
+                    .foregroundColor(isLocked ? .secondary : (isSelected ? colorOption.color : .secondary))
             }
         }
         .buttonStyle(.plain)
         .scaleEffect(isSelected ? 1.05 : 1.0)
         .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
+        .disabled(isLocked && !isSelected)
     }
 }
 
