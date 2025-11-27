@@ -469,11 +469,71 @@ final class WorkoutViewModel: ObservableObject {
                 debugPrint("🏆 WORKOUT COMPLETE: Detected \(volumePRs.count) volume PR(s)!")
             }
             debugPrint("✅ WORKOUT COMPLETE: PR analysis complete, updated workout counters")
+
+            // Cleanup old workouts for free users (1.5 month history limit)
+            if !config.isPremium {
+                await cleanupOldWorkoutsForFreeUsers()
+            }
         } catch {
             debugPrint(error)
         }
     }
-    
+
+    /// Deletes DayStorage entries older than 1.5 months for free users
+    private func cleanupOldWorkoutsForFreeUsers() async {
+        let calendar = Calendar.current
+        guard let cutoffDate = calendar.date(byAdding: .day, value: -45, to: Date()) else {
+            debugPrint("⚠️ FREE USER CLEANUP: Failed to calculate cutoff date")
+            return
+        }
+
+        let cutoffDateString = formattedDateString(from: cutoffDate)
+        debugPrint("🧹 FREE USER CLEANUP: Deleting workouts older than \(cutoffDateString) (1.5 months)")
+
+        do {
+            // Fetch all DayStorage entries older than cutoff
+            let oldEntriesPredicate = #Predicate<DayStorage> { storage in
+                storage.date < cutoffDateString
+            }
+            let descriptor = FetchDescriptor<DayStorage>(predicate: oldEntriesPredicate)
+            let oldEntries = try context.fetch(descriptor)
+
+            if oldEntries.isEmpty {
+                debugPrint("✅ FREE USER CLEANUP: No old workouts to delete")
+                return
+            }
+
+            debugPrint("🗑️ FREE USER CLEANUP: Found \(oldEntries.count) workouts to delete")
+
+            // Delete each old entry and its associated Day
+            for storage in oldEntries {
+                // Delete associated Day object
+                let dayIdToDelete = storage.dayId
+                let dayPredicate = #Predicate<Day> { day in
+                    day.id == dayIdToDelete
+                }
+                let dayDescriptor = FetchDescriptor<Day>(predicate: dayPredicate)
+                if let dayToDelete = try context.fetch(dayDescriptor).first {
+                    context.delete(dayToDelete)
+                }
+
+                // Delete DayStorage
+                context.delete(storage)
+
+                // Remove from daysRecorded array
+                if let index = config.daysRecorded.firstIndex(of: storage.date) {
+                    config.daysRecorded.remove(at: index)
+                }
+            }
+
+            // Save changes
+            try context.save()
+            debugPrint("✅ FREE USER CLEANUP: Deleted \(oldEntries.count) old workouts successfully")
+        } catch {
+            debugPrint("❌ FREE USER CLEANUP: Error deleting old workouts - \(error)")
+        }
+    }
+
     @MainActor
     func copyWorkout(from: Day, to: Day) {
         to.exercises?.removeAll()
