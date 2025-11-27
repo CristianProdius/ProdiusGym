@@ -75,7 +75,7 @@ struct PremiumSubscriptionView: View {
                         .frame(width: 300, height: 300)
 
                     VStack(spacing: 8) {
-                        Text("You're Premium!")
+                        Text("You're Pro!")
                             .font(.largeTitle)
                             .fontWeight(.bold)
 
@@ -88,7 +88,7 @@ struct PremiumSubscriptionView: View {
 
                 // Features List with Checkmarks
                 VStack(alignment: .leading, spacing: 16) {
-                    Text("Your Premium Features")
+                    Text("Your Pro Features")
                         .font(.title2)
                         .fontWeight(.semibold)
                         .padding(.horizontal, 24)

@@ -356,14 +356,17 @@ struct WeightDetailView: View {
         }
         
         print("💾 Saving weight: \(inputWeight) \(weightUnit) = \(weightInKg) kg")
-        
-        // Save to HealthKit (always in kg)
+        print("💾 Current profile weight before save: \(userProfileManager.currentProfile?.weight ?? 0) kg")
+
+        // Save to HealthKit FIRST (always in kg)
         healthKitManager.saveWeight(weightInKg)
-        
+
         // Update user profile directly (always store in kg internally)
         if let profile = userProfileManager.currentProfile {
             profile.weight = weightInKg
+            print("💾 Updated profile weight to: \(profile.weight) kg")
             profile.updateBMI()
+            print("💾 Updated BMI to: \(profile.bmi)")
             profile.markAsUpdated()
             
             // Create or update WeightPoint for today
