@@ -64,9 +64,11 @@ struct SettingsView: View {
                                 Image(systemName: "paintbrush.fill")
                                 Text("Appearance")
                                 Spacer()
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                    .font(.caption)
+                                if !config.isPremium {
+                                    Image(systemName: "star.fill")
+                                        .foregroundColor(.yellow)
+                                        .font(.caption)
+                                }
                             }
 
                         }

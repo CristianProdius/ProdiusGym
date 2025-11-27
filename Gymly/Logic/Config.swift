@@ -228,7 +228,7 @@ class Config:ObservableObject {
         self.isCloudKitEnabled = UserDefaults.standard.object(forKey: "isCloudKitEnabled") as? Bool ?? false
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
         self.isHealtKitEnabled = UserDefaults.standard.object(forKey: "isHealtKitEnabled") as? Bool ?? false
-        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? true  // Default true for now (testing)
+        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? false  // Default true for now (testing)
 
         // Notification Settings initialization
         self.notificationsEnabled = UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? false

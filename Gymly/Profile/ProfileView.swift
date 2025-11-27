@@ -34,7 +34,7 @@ struct ProfileView: View {
     // Graph filtering options - locked for free users
     private var graphSorting: [String] {
         if config.isPremium {
-            return ["Today","Week ⭐","Month ⭐","All Time ⭐"]
+            return ["Today","Week","Month","All Time"]
         } else {
             return ["Today"]
         }
@@ -43,9 +43,9 @@ struct ProfileView: View {
     private var selectedTimeRange: ContentViewGraph.TimeRange {
         switch graphSortingSelected {
         case "Today": return .day
-        case "Week ⭐": return .week
-        case "Month ⭐": return .month
-        case "All Time ⭐": return .all
+        case "Week": return .week
+        case "Month": return .month
+        case "All Time": return .all
         default: return .month
         }
     }
@@ -127,22 +127,13 @@ struct ProfileView: View {
                                         showPremiumSheet = true
                                     }
                                 }) {
-                                    HStack {
-                                        SettingUserInfoCell(
-                                            value: String(format: "%d", userProfileManager.currentProfile?.currentStreak ?? 0),
+                                    SettingUserInfoCell(
+                                        value: String(format: "%d", userProfileManager.currentProfile?.currentStreak ?? 0),
                                         metric: "Days",
                                         headerColor: .orange,
                                         additionalInfo: "Streak 🔥",
                                         icon: "flame.fill"
                                     )
-
-                                        if !config.isPremium {
-                                            Spacer()
-                                            Image(systemName: "lock.fill")
-                                                .foregroundStyle(.orange)
-                                                .font(.caption)
-                                        }
-                                    }
                                 }
                                 .foregroundStyle(Color.white)
                                 .listRowBackground(Color.clear)
@@ -155,22 +146,13 @@ struct ProfileView: View {
                                         showPremiumSheet = true
                                     }
                                 }) {
-                                    ZStack(alignment: .topTrailing) {
-                                        SettingUserInfoCell(
-                                            value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
-                                            metric: "BMI",
-                                            headerColor: bmiColor,
-                                            additionalInfo: bmiStatus,
-                                            icon: "dumbbell.fill"
-                                        )
-
-                                        if !config.isPremium {
-                                            Image(systemName: "star.fill")
-                                                .foregroundColor(.yellow)
-                                                .font(.caption)
-                                                .padding(8)
-                                        }
-                                    }
+                                    SettingUserInfoCell(
+                                        value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
+                                        metric: "BMI",
+                                        headerColor: bmiColor,
+                                        additionalInfo: bmiStatus,
+                                        icon: "dumbbell.fill"
+                                    )
                                 }
                                 .foregroundStyle(Color.white)
                                 .listRowBackground(Color.clear)
@@ -269,10 +251,11 @@ struct ProfileView: View {
                                     Image(systemName: "lock.fill")
                                         .font(.caption)
                                         .foregroundStyle(.yellow)
+                                } else {
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
                                 }
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
                             }
                         }
                         .frame(width: 300)
@@ -287,9 +270,11 @@ struct ProfileView: View {
                                     Image(systemName: "apple.intelligence")
                                     Text("Week AI Summary")
                                     Spacer()
-                                    Image(systemName: "star.fill")
-                                        .foregroundColor(.yellow)
-                                        .font(.caption)
+                                    if !config.isPremium {
+                                        Image(systemName: "star.fill")
+                                            .foregroundColor(.yellow)
+                                            .font(.caption)
+                                    }
                                 }
                             }
                             .frame(width: 300)

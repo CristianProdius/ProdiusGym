@@ -191,10 +191,6 @@ struct TemplateCard: View {
                         Image(systemName: "lock.fill")
                             .foregroundColor(.yellow)
                             .font(.title3)
-                    } else if template.isPremium {
-                        Image(systemName: "star.fill")
-                            .foregroundColor(.yellow)
-                            .font(.title3)
                     }
                 }
 
@@ -282,12 +278,6 @@ struct TemplateDetailView: View {
                                     .foregroundColor(.white)
 
                                 Spacer()
-
-                                if template.isPremium {
-                                    Image(systemName: "star.fill")
-                                        .foregroundColor(.yellow)
-                                        .font(.title)
-                                }
                             }
 
                             Text(template.description)
