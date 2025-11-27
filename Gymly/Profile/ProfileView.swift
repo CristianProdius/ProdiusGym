@@ -251,10 +251,6 @@ struct ProfileView: View {
                                     Image(systemName: "lock.fill")
                                         .font(.caption)
                                         .foregroundStyle(.yellow)
-                                } else {
-                                    Image(systemName: "chevron.right")
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
                                 }
                             }
                         }
@@ -268,10 +264,15 @@ struct ProfileView: View {
                             NavigationLink(destination: AISummaryView()) {
                                 HStack {
                                     Image(systemName: "apple.intelligence")
+                                        .foregroundStyle(.linearGradient(
+                                            colors: [.purple, .blue],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        ))
                                     Text("Week AI Summary")
                                     Spacer()
                                     if !config.isPremium {
-                                        Image(systemName: "star.fill")
+                                        Image(systemName: "lock.fill")
                                             .foregroundColor(.yellow)
                                             .font(.caption)
                                     }
@@ -287,6 +288,7 @@ struct ProfileView: View {
                         NavigationLink(destination: FitnessProfileDetailView(config: config)) {
                             HStack {
                                 Image(systemName: "figure.strengthtraining.traditional")
+                                    .foregroundStyle(.green)
                                 Text("Your Fitness Profile")
                             }
                         }

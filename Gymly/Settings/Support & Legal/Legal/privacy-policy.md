@@ -1,13 +1,13 @@
 # Privacy Policy
 
-**Last Updated: November 13, 2024**
-**Effective Date: November 13, 2024**
+**Last Updated: November 27, 2025**
+**Effective Date: November 27, 2025**
 
 ---
 
 ## Introduction
 
-Welcome to Gymly ("we," "us," or "our"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how Gymly Fitness collects, uses, shares, and protects information when you use our fitness tracking application and related services (collectively, the "Service").
+Welcome to ShadowLift ("we," "us," or "our"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how ShadowLift Fitness collects, uses, shares, and protects information when you use our fitness tracking application and related services (collectively, the "Service").
 
 **Key Points:**
 - We collect minimal data necessary for app functionality
@@ -16,7 +16,7 @@ Welcome to Gymly ("we," "us," or "our"). We respect your privacy and are committ
 - We never sell your personal information
 - You can delete your data at any time
 
-By using Gymly, you agree to the collection and use of information in accordance with this policy. If you do not agree with our practices, please do not use the Service.
+By using ShadowLift, you agree to the collection and use of information in accordance with this policy. If you do not agree with our practices, please do not use the Service.
 
 ---
 
@@ -138,7 +138,7 @@ We implement industry-standard security measures:
 
 ### We Do NOT Sell Your Data
 
-Gymly Fitness does not and will never sell your personal information to third parties.
+ShadowLift Fitness does not and will never sell your personal information to third parties.
 
 ### Limited Data Sharing
 
@@ -167,7 +167,7 @@ You can access all your data at any time within the app:
 - Export data (Premium feature)
 - Review profile information in Settings
 
-**Data Export:** Email privacy@gymly.app to request a complete copy of your data in machine-readable format (JSON).
+**Data Export:** Email privacy@shadowLift.app to request a complete copy of your data in machine-readable format (JSON).
 
 ### Delete Your Data
 
@@ -178,13 +178,13 @@ You can access all your data at any time within the app:
 
 **Delete Your Account:**
 - Go to Settings → Account → Delete Account
-- Or email privacy@gymly.app with subject "Delete My Account"
+- Or email privacy@shadowLift.app with subject "Delete My Account"
 - All data will be permanently deleted within 30 days
 
 ### Control Data Syncing
 
 - **iCloud:** Toggle on/off in Settings → Connections
-- **Apple Health:** Manage permissions in iOS Settings → Health → Apps → Gymly
+- **Apple Health:** Manage permissions in iOS Settings → Health → Apps → ShadowLift
 
 ### GDPR Rights (EU Users)
 
@@ -194,7 +194,7 @@ If you're in the European Union, you have additional rights:
 - **Right to Erasure:** Delete your data ("right to be forgotten")
 - **Right to Data Portability:** Receive your data in a portable format
 
-Email privacy@gymly.app to exercise these rights.
+Email privacy@shadowLift.app to exercise these rights.
 
 ### CCPA Rights (California Users)
 
@@ -204,13 +204,13 @@ California residents have rights under CCPA:
 - Delete personal information
 - Opt-out of sale of personal information (we don't sell data)
 
-Email privacy@gymly.app with subject "CCPA Request" to exercise these rights.
+Email privacy@shadowLift.app with subject "CCPA Request" to exercise these rights.
 
 ---
 
 ## Children's Privacy
 
-Gymly is not intended for children under 13 years of age.
+ShadowLift is not intended for children under 13 years of age.
 
 **We do not knowingly collect data from children:**
 - No directed marketing to children
@@ -218,19 +218,19 @@ Gymly is not intended for children under 13 years of age.
 - If we learn we've collected data from a child under 13, we will delete it immediately
 
 **Parents/Guardians:**
-If you believe your child has provided personal information to us, contact privacy@gymly.app immediately.
+If you believe your child has provided personal information to us, contact privacy@shadowLift.app immediately.
 
 ---
 
 ## International Data Transfers
 
-Gymly is operated from the United States.
+ShadowLift is operated from the United States.
 
 **Primary Storage:**
 - Your device (local storage)
 - iCloud storage (your iCloud account region)
 
-If you're using Gymly from outside the United States, your data may be transferred to and processed in the United States.
+If you're using ShadowLift from outside the United States, your data may be transferred to and processed in the United States.
 
 ---
 
@@ -250,11 +250,11 @@ We may update this Privacy Policy to reflect changes in laws, regulations, or ou
 ## Contact Us
 
 **Privacy Officer:**
-Email: privacy@gymly.app
+Email: privacy@shadowLift.app
 Subject Line: "Privacy Inquiry"
 
 **Mailing Address:**
-Gymly Fitness
+ShadowLift Fitness
 Attn: Privacy Department
 [Your Address Here]
 
@@ -266,10 +266,10 @@ Attn: Privacy Department
 
 ### Acknowledgment
 
-By using Gymly, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
+By using ShadowLift, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
 
 **Your privacy is our priority.** We're committed to transparency, user control, and data protection.
 
 ---
 
-*Last reviewed and updated: November 13, 2024*
+*Last reviewed and updated: November 27, 2025*

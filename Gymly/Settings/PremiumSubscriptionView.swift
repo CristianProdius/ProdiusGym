@@ -11,6 +11,7 @@ struct PremiumSubscriptionView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @EnvironmentObject var config: Config
     @State private var selectedPlan: SubscriptionPlan = .monthly
     @State private var showTermsOfService = false
     @State private var showPrivacyPolicy = false
@@ -47,24 +48,104 @@ struct PremiumSubscriptionView: View {
                 FloatingClouds(theme: CloudsTheme.premium(scheme))
                     .ignoresSafeArea()
 
-                ScrollView {
-                    VStack(spacing: 24) {
-                        // Header
-                        VStack(spacing: 12) {
-                            Image(.shadowPremium)
-                                .resizable()
-                                .frame(width: 300, height: 300)
+                if config.isPremium {
+                    premiumUserView
+                } else {
+                    upgradeView
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button("Done") {
+                        dismiss()
+                    }
+                    .foregroundStyle(.white)
+                }
+            }
+            .sheet(isPresented: $showTermsOfService) {
+                LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
+            }
+            .sheet(isPresented: $showPrivacyPolicy) {
+                LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")
+            }
+        }
+    }
 
-                            Text("ShadowLift Pro")
-                                .font(.largeTitle)
-                                .fontWeight(.bold)
+    // MARK: - Premium User View
+    private var premiumUserView: some View {
+        ScrollView {
+            VStack(spacing: 32) {
+                // Success Header
+                VStack(spacing: 20) {
+                    ZStack {
+                        Circle()
+                            .fill(appearanceManager.accentColor.color.opacity(0.2))
+                            .frame(width: 120, height: 120)
 
-                            Text("Unlock your full potential")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
-                        .padding(.top, 40)
-                        .padding(.bottom, 20)
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 80))
+                            .foregroundStyle(appearanceManager.accentColor.color)
+                    }
+
+                    VStack(spacing: 8) {
+                        Text("You're Premium!")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
+
+                        Text("Enjoy all features unlocked")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(.top, 60)
+
+                // Features List with Checkmarks
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Your Premium Features")
+                        .font(.title2)
+                        .fontWeight(.semibold)
+                        .padding(.horizontal, 24)
+
+                    VStack(spacing: 12) {
+                        PremiumFeatureRow(icon: "trophy.fill", title: "Automatic PR Tracking")
+                        PremiumFeatureRow(icon: "camera.fill", title: "Progress Photo Timeline")
+                        PremiumFeatureRow(icon: "apple.intelligence", title: "AI Workout Summary")
+                        PremiumFeatureRow(icon: "book.fill", title: "Workout Templates")
+                        PremiumFeatureRow(icon: "flame.fill", title: "Advanced Streak Analytics")
+                        PremiumFeatureRow(icon: "figure.arms.open", title: "BMI Tracking & Analysis")
+                        PremiumFeatureRow(icon: "calendar", title: "Unlimited History")
+                        PremiumFeatureRow(icon: "paintbrush.fill", title: "Custom App Appearance")
+                        PremiumFeatureRow(icon: "chart.bar.fill", title: "Advanced Graph Statistics")
+                    }
+                    .padding(.horizontal, 24)
+                }
+
+                Spacer(minLength: 40)
+            }
+        }
+    }
+
+    // MARK: - Upgrade View
+    private var upgradeView: some View {
+        ScrollView {
+            VStack(spacing: 24) {
+                // Header
+                VStack(spacing: 12) {
+                    Image(.shadowPremium)
+                        .resizable()
+                        .frame(width: 300, height: 300)
+
+                    Text("ShadowLift Pro")
+                        .font(.largeTitle)
+                        .fontWeight(.bold)
+
+                    Text("Unlock your full potential")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.top, 40)
+                .padding(.bottom, 20)
 
                         // Features List
                         VStack(spacing: 16) {
@@ -200,14 +281,41 @@ struct PremiumSubscriptionView: View {
                     }
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $showTermsOfService) {
-                LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
-            }
-            .sheet(isPresented: $showPrivacyPolicy) {
-                LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")
-            }
         }
+    }
+}
+
+// MARK: - Premium Feature Row (Simple checkmark row for premium users)
+struct PremiumFeatureRow: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+    let icon: String
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(appearanceManager.accentColor.color.opacity(0.2))
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: icon)
+                    .foregroundStyle(appearanceManager.accentColor.color)
+            }
+
+            Text(title)
+                .font(.body)
+                .foregroundColor(.primary)
+
+            Spacer()
+
+            Image(systemName: "checkmark.circle.fill")
+                .foregroundStyle(appearanceManager.accentColor.color)
+                .font(.title3)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
+        .background(Color.black.opacity(0.2))
+        .cornerRadius(12)
     }
 }
 
