@@ -3,6 +3,7 @@
 **ShadowLift** is a production-ready iOS fitness tracking app built with 100% native Apple technologies. This sophisticated, performance-optimized workout logging and planning app delivers a complete training experience with AI-powered insights, HealthKit integration, and advanced analytics—all with zero external dependencies.
 
 > **🚀 Currently in TestFlight Beta** - Real users, real workouts, real results.
+  <img src="images/Screenshot 2025-11-28 at 16.10.44.png" alt="Hero section website">
 
 ## 📸 Screenshots
 
