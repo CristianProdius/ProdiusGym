@@ -105,6 +105,18 @@ class Config:ObservableObject {
     @Published var isPremium: Bool {
         didSet {
             UserDefaults.standard.set(isPremium, forKey: "isPremium")
+            print("💎 Config: isPremium updated to \(isPremium)")
+        }
+    }
+
+    // MARK: - StoreKit Integration
+
+    /// Update premium status from StoreManager
+    /// This should be called by StoreManager when subscription status changes
+    func updatePremiumStatus(from storeManager: Bool) {
+        if self.isPremium != storeManager {
+            print("💎 Config: Syncing premium status from StoreManager: \(storeManager)")
+            self.isPremium = storeManager
         }
     }
 
@@ -228,7 +240,16 @@ class Config:ObservableObject {
         self.isCloudKitEnabled = UserDefaults.standard.object(forKey: "isCloudKitEnabled") as? Bool ?? false
         self.cloudKitSyncDate = UserDefaults.standard.object(forKey: "cloudKitSyncDate") as? Date
         self.isHealtKitEnabled = UserDefaults.standard.object(forKey: "isHealtKitEnabled") as? Bool ?? false
-        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? true  // Default true for now (testing)
+
+        // Premium status - will be synced from StoreManager
+        // For testing: keep true in DEBUG, false in production (StoreManager will update)
+        #if DEBUG
+        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? true
+        print("💎 Config: DEBUG mode - isPremium defaults to true for testing")
+        #else
+        self.isPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? false
+        print("💎 Config: Production mode - isPremium defaults to false, waiting for StoreManager")
+        #endif
 
         // Notification Settings initialization
         self.notificationsEnabled = UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? false

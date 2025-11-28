@@ -176,8 +176,8 @@ struct ProfileView: View {
                             }
                         }
                     }
-                    .frame(width: 370)
-                    .padding(.horizontal, 4)
+                    .scrollClipDisabled(true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .listRowBackground(Color.clear)
                     .listRowSeparator(.hidden)
                     .id(weightUpdatedTrigger)

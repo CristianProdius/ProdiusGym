@@ -10,13 +10,20 @@ import SwiftData
 
 @main
 struct GymlyApp: App {
+    @StateObject private var config = Config()
+    @StateObject private var storeManager = StoreManager()
+
     var body: some Scene {
-        let config = Config()
         WindowGroup {
             ToolBar()
                 .environmentObject(config)
+                .environmentObject(storeManager)
                 .onOpenURL { url in
                     handleIncomingFile(url, config: config)
+                }
+                .onChange(of: storeManager.isPremium) { _, isPremium in
+                    // Sync premium status from StoreManager to Config
+                    config.updatePremiumStatus(from: isPremium)
                 }
         }
         .modelContainer(for: [Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self])

@@ -6,15 +6,18 @@
 //
 
 import SwiftUI
+import StoreKit
 
 struct PremiumSubscriptionView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
     @EnvironmentObject var config: Config
-    @State private var selectedPlan: SubscriptionPlan = .monthly
+    @StateObject private var storeManager = StoreManager()
+    @State private var selectedProduct: Product?
     @State private var showTermsOfService = false
     @State private var showPrivacyPolicy = false
+    @State private var showError = false
 
     enum SubscriptionPlan {
         case monthly
@@ -55,11 +58,30 @@ struct PremiumSubscriptionView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Error", isPresented: $showError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(storeManager.errorMessage ?? "An unknown error occurred")
+            }
             .sheet(isPresented: $showTermsOfService) {
                 LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
             }
             .sheet(isPresented: $showPrivacyPolicy) {
                 LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")
+            }
+            .task {
+                await storeManager.loadProducts()
+                // Auto-select yearly if available (better value)
+                if let yearlyProduct = storeManager.yearlyProduct {
+                    selectedProduct = yearlyProduct
+                } else if let monthlyProduct = storeManager.monthlyProduct {
+                    selectedProduct = monthlyProduct
+                }
+            }
+            .onChange(of: storeManager.isPremium) { _, isPremium in
+                if isPremium {
+                    dismiss()
+                }
             }
         }
     }
@@ -191,49 +213,64 @@ struct PremiumSubscriptionView: View {
                         }
                         .padding(.horizontal, 24)
 
-                        // Pricing Plans
+                        // Pricing Plans - REAL STOREKIT PRODUCTS
                         VStack(spacing: 12) {
                             Text("Choose Your Plan")
                                 .font(.headline)
                                 .padding(.top, 20)
 
-                            // Monthly Plan
-                            PlanCard(
-                                plan: .monthly,
-                                isSelected: selectedPlan == .monthly
-                            ) {
-                                selectedPlan = .monthly
-                            }
-
-                            // Yearly Plan
-                            PlanCard(
-                                plan: .yearly,
-                                isSelected: selectedPlan == .yearly
-                            ) {
-                                selectedPlan = .yearly
+                            if storeManager.products.isEmpty {
+                                ProgressView("Loading subscription options...")
+                                    .padding()
+                            } else {
+                                ForEach(storeManager.products) { product in
+                                    PlanCardReal(
+                                        product: product,
+                                        isSelected: selectedProduct?.id == product.id,
+                                        action: {
+                                            selectedProduct = product
+                                        }
+                                    )
+                                }
                             }
                         }
                         .padding(.horizontal, 24)
 
-                        // CTA Button
+                        // CTA Button - REAL PURCHASE
                         Button(action: {
-                            // TODO: Implement subscription purchase
-                            print("Starting subscription: \(selectedPlan)")
+                            guard let product = selectedProduct else { return }
+                            Task {
+                                await storeManager.purchase(product)
+                                if storeManager.errorMessage != nil {
+                                    showError = true
+                                }
+                            }
                         }) {
                             VStack(spacing: 8) {
-                                Text("Start 7-Day Free Trial")
-                                    .font(.headline)
-                                    .foregroundColor(.white)
+                                if storeManager.purchaseInProgress {
+                                    ProgressView()
+                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                        .scaleEffect(1.2)
+                                } else {
+                                    Text("Start 7-Day Free Trial")
+                                        .font(.headline)
+                                        .foregroundColor(.white)
 
-                                Text("Then \(selectedPlan.price)/\(selectedPlan.period)")
-                                    .font(.caption)
-                                    .foregroundColor(.white.opacity(0.8))
+                                    if let product = selectedProduct {
+                                        let period = product.subscription?.subscriptionPeriod.unit == .month ? "month" : "year"
+                                        Text("Then \(product.displayPrice)/\(period)")
+                                            .font(.caption)
+                                            .foregroundColor(.white.opacity(0.8))
+                                    }
+                                }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding()
+                            .frame(height: 56)
                             .background(appearanceManager.accentColor.color)
                             .cornerRadius(12)
                         }
+                        .disabled(storeManager.purchaseInProgress || selectedProduct == nil)
+                        .opacity((storeManager.purchaseInProgress || selectedProduct == nil) ? 0.6 : 1.0)
                         .padding(.horizontal, 24)
                         .padding(.top, 8)
 
@@ -257,10 +294,16 @@ struct PremiumSubscriptionView: View {
                                 .foregroundStyle(.secondary)
 
                                 Button("Restore Purchase") {
-                                    // TODO: Restore purchase - requires StoreKit 2 implementation
+                                    Task {
+                                        await storeManager.restorePurchases()
+                                        if storeManager.errorMessage != nil {
+                                            showError = true
+                                        }
+                                    }
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
+                                .disabled(storeManager.purchaseInProgress)
                             }
                         }
                         .padding(.bottom, 40)
@@ -335,7 +378,7 @@ struct FeatureRow: View {
     }
 }
 
-// MARK: - Plan Card Component
+// MARK: - Plan Card Component (Legacy - kept for fallback)
 struct PlanCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
     let plan: PremiumSubscriptionView.SubscriptionPlan
@@ -364,6 +407,66 @@ struct PlanCard: View {
                     }
 
                     Text("\(plan.price)/\(plan.period)")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 24))
+                        .foregroundColor(appearanceManager.accentColor.color)
+                }
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.3))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Plan Card Real (StoreKit Product)
+struct PlanCardReal: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+    let product: Product
+    let isSelected: Bool
+    let action: () -> Void
+
+    private var isYearly: Bool {
+        product.subscription?.subscriptionPeriod.unit == .year
+    }
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        Text(isYearly ? "Yearly" : "Monthly")
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        if isYearly {
+                            Text("Save 17%")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.green)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.green.opacity(0.2))
+                                .cornerRadius(6)
+                        }
+                    }
+
+                    Text(product.displayPrice)
                         .font(.title2)
                         .fontWeight(.bold)
                         .foregroundColor(.primary)

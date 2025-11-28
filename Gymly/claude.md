@@ -762,7 +762,7 @@ REFACTOR: Simplify GraphEntry calculation logic
 ## Development Workflow Best Practices
 
 ### Before Making Changes
-1. **Read WorkoutViewModel.swift first** - It's the brain of the app
+1. **Read WorkoutViewModel.swift first** - It's the brain of the app	
 2. **Check Config.swift** - Understand app state
 3. **Review SwiftData models** - Know the data structure
 4. **Run existing tests** - Ensure baseline performance
