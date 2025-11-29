@@ -129,13 +129,13 @@ struct SettingsView: View {
                         }) {
                             HStack {
                                 Image(systemName: "star.fill")
-                                Text("Rate Gymly")
+                                Text("Rate ShadowLift")
                                 Spacer()
                             }
                         }
                         .frame(width: 300)
 
-                        NavigationLink(destination: Text("Send Feedback (Coming Soon)")) {
+                        NavigationLink(destination: FeedbackView()) {
                             Image(systemName: "bubble.left.and.bubble.right")
                             Text("Send Feedback")
                         }
@@ -159,7 +159,7 @@ struct SettingsView: View {
 
                         NavigationLink(destination: AboutGymlyView()) {
                             Image(systemName: "info.circle")
-                            Text("About Gymly")
+                            Text("About ShadowLift")
                         }
                         .frame(width: 300)
                     }
