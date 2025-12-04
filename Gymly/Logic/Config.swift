@@ -105,7 +105,7 @@ class Config:ObservableObject {
     @Published var isPremium: Bool {
         didSet {
             UserDefaults.standard.set(isPremium, forKey: "isPremium")
-            print("💎 Config: isPremium updated to \(isPremium)")
+            debugLog("💎 Config: isPremium updated to \(isPremium)")
         }
     }
 
@@ -115,7 +115,7 @@ class Config:ObservableObject {
     /// This should be called by StoreManager when subscription status changes
     func updatePremiumStatus(from storeManager: Bool) {
         if self.isPremium != storeManager {
-            print("💎 Config: Syncing premium status from StoreManager: \(storeManager)")
+            debugLog("💎 Config: Syncing premium status from StoreManager: \(storeManager)")
             self.isPremium = storeManager
         }
     }
@@ -245,7 +245,7 @@ class Config:ObservableObject {
         // Load from UserDefaults, will be updated by StoreManager after initialization
         let loadedPremium = UserDefaults.standard.object(forKey: "isPremium") as? Bool ?? false
         self.isPremium = loadedPremium
-        print("💎 Config: isPremium loaded from UserDefaults: \(loadedPremium)")
+        debugLog("💎 Config: isPremium loaded from UserDefaults: \(loadedPremium)")
 
         // Notification Settings initialization
         self.notificationsEnabled = UserDefaults.standard.object(forKey: "notificationsEnabled") as? Bool ?? false

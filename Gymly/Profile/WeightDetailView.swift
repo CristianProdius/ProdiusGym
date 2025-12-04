@@ -56,11 +56,11 @@ struct WeightDetailView: View {
     
     private var allTimeChange: Double {
         guard let firstPoint = weightPoints.last else {
-            print("⚠️ WeightDetailView: No weight points for all-time calculation")
+            debugLog("⚠️ WeightDetailView: No weight points for all-time calculation")
             return 0
         }
         let change = (currentWeight - firstPoint.weight) * weightConversionFactor
-        print("✅ WeightDetailView: All-time change = \(change) (current: \(currentWeight)kg, oldest: \(firstPoint.weight)kg from \(firstPoint.date))")
+        debugLog("✅ WeightDetailView: All-time change = \(change) (current: \(currentWeight)kg, oldest: \(firstPoint.weight)kg from \(firstPoint.date))")
         return change
     }
     
@@ -85,11 +85,11 @@ struct WeightDetailView: View {
         
         guard daysDifference <= tolerance else {
             // Point is too far from target date, not enough data
-            print("⚠️ WeightDetailView: No data within \(tolerance) days of \(daysBack) days ago (closest was \(daysDifference) days away)")
+            debugLog("⚠️ WeightDetailView: No data within \(tolerance) days of \(daysBack) days ago (closest was \(daysDifference) days away)")
             return 0
         }
         
-        print("✅ WeightDetailView: \(daysBack)d change = \(currentWeight - point.weight)kg (from \(point.date))")
+        debugLog("✅ WeightDetailView: \(daysBack)d change = \(currentWeight - point.weight)kg (from \(point.date))")
         return (currentWeight - point.weight) * weightConversionFactor
     }
     
@@ -319,7 +319,7 @@ struct WeightDetailView: View {
         
         do {
             try context.save()
-            print("✅ Weight point deleted successfully")
+            debugLog("✅ Weight point deleted successfully")
             
             // Update user profile if we deleted today's weight
             if let profile = userProfileManager.currentProfile {
@@ -335,14 +335,14 @@ struct WeightDetailView: View {
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
         } catch {
-            print("❌ Failed to delete weight point: \(error)")
+            debugLog("❌ Failed to delete weight point: \(error)")
         }
     }
     
     // MARK: - Save Weight Function
     private func saveWeight() {
         guard let inputWeight = Double(bodyWeight), inputWeight > 0 else {
-            print("❌ Invalid weight input: \(bodyWeight)")
+            debugLog("❌ Invalid weight input: \(bodyWeight)")
             return
         }
         
@@ -355,8 +355,8 @@ struct WeightDetailView: View {
             weightInKg = inputWeight / 2.20462262
         }
         
-        print("💾 Saving weight: \(inputWeight) \(weightUnit) = \(weightInKg) kg")
-        print("💾 Current profile weight before save: \(userProfileManager.currentProfile?.weight ?? 0) kg")
+        debugLog("💾 Saving weight: \(inputWeight) \(weightUnit) = \(weightInKg) kg")
+        debugLog("💾 Current profile weight before save: \(userProfileManager.currentProfile?.weight ?? 0) kg")
 
         // Save to HealthKit FIRST (always in kg)
         healthKitManager.saveWeight(weightInKg)
@@ -364,9 +364,9 @@ struct WeightDetailView: View {
         // Update user profile directly (always store in kg internally)
         if let profile = userProfileManager.currentProfile {
             profile.weight = weightInKg
-            print("💾 Updated profile weight to: \(profile.weight) kg")
+            debugLog("💾 Updated profile weight to: \(profile.weight) kg")
             profile.updateBMI()
-            print("💾 Updated BMI to: \(profile.bmi)")
+            debugLog("💾 Updated BMI to: \(profile.bmi)")
             profile.markAsUpdated()
             
             // Create or update WeightPoint for today
@@ -385,18 +385,18 @@ struct WeightDetailView: View {
                     // Update existing point for today
                     existingPoint.weight = weightInKg
                     existingPoint.date = Date() // Update to current time
-                    print("📊 Updated existing WeightPoint for today: \(weightInKg) kg")
+                    debugLog("📊 Updated existing WeightPoint for today: \(weightInKg) kg")
                 } else {
                     // Create new point for today
                     let newPoint = WeightPoint(date: Date(), weight: weightInKg)
                     context.insert(newPoint)
-                    print("📊 Created new WeightPoint: \(weightInKg) kg")
+                    debugLog("📊 Created new WeightPoint: \(weightInKg) kg")
                 }
                 
                 // Save context
                 try context.save()
-                print("✅ Weight saved to database successfully: \(weightInKg) kg")
-                print("✅ Profile weight after save: \(profile.weight) kg")
+                debugLog("✅ Weight saved to database successfully: \(weightInKg) kg")
+                debugLog("✅ Profile weight after save: \(profile.weight) kg")
                 
                 // Trigger UserProfileManager to update and sync
                 userProfileManager.objectWillChange.send()
@@ -406,7 +406,7 @@ struct WeightDetailView: View {
                 generator.notificationOccurred(.success)
                 
             } catch {
-                print("❌ Failed to save weight to database: \(error)")
+                debugLog("❌ Failed to save weight to database: \(error)")
             }
         }
         

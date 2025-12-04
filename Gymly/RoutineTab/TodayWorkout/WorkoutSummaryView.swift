@@ -300,7 +300,7 @@ struct WorkoutSummaryView: View {
                 )
 
                 if !achievedPRs.isEmpty {
-                    print("🏆 WORKOUT SUMMARY: Achieved \(achievedPRs.count) PRs!")
+                    debugLog("🏆 WORKOUT SUMMARY: Achieved \(achievedPRs.count) PRs!")
                 }
             }
         }

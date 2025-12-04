@@ -59,7 +59,7 @@ final class WorkoutViewModel: ObservableObject {
         let calendar = Calendar.current
         let simulatedDate = calendar.date(byAdding: .day, value: -daysAgo, to: Date())!
 
-        print("🧪 TEST: Simulating workout \(daysAgo) days ago (date: \(formattedDateString(from: simulatedDate)))")
+        debugLog("🧪 TEST: Simulating workout \(daysAgo) days ago (date: \(formattedDateString(from: simulatedDate)))")
 
         userProfileManager?.calculateStreak(workoutDate: simulatedDate)
     }
@@ -68,69 +68,69 @@ final class WorkoutViewModel: ObservableObject {
     /// Create new split
     @MainActor
     func createNewSplit(name: String, numberOfDays: Int, startDate: Date, context: ModelContext) {
-        print("🔧 Starting createNewSplit with name: \(name), days: \(numberOfDays)")
+        debugLog("🔧 Starting createNewSplit with name: \(name), days: \(numberOfDays)")
 
         var days: [Day] = []
 
         for i in 1...numberOfDays {
             let day = Day(name: "Day \(i)", dayOfSplit: i, exercises: [], date: "")
             days.append(day)
-            print("🔧 Created day: \(day.name)")
+            debugLog("🔧 Created day: \(day.name)")
         }
 
-        print("🔧 Creating split with \(days.count) days")
+        debugLog("🔧 Creating split with \(days.count) days")
 
         let newSplit = Split(name: name, days: days.isEmpty ? [] : days, isActive: false, startDate: startDate)
-        print("🔧 Split created, inserting into context...")
+        debugLog("🔧 Split created, inserting into context...")
         context.insert(newSplit)
 
         // Also insert each day into the context
         for day in days {
-            print("🔧 Inserting day: \(day.name)")
+            debugLog("🔧 Inserting day: \(day.name)")
             context.insert(day)
         }
 
         do {
-            print("🔧 Attempting to save context...")
+            debugLog("🔧 Attempting to save context...")
             try context.save()
-            print("✅ New split '\(name)' created and saved.")
+            debugLog("✅ New split '\(name)' created and saved.")
 
             // Verify the split was actually saved
             let allSplitsAfterSave = getAllSplits()
-            print("🔧 After initial save: found \(allSplitsAfterSave.count) total splits")
+            debugLog("🔧 After initial save: found \(allSplitsAfterSave.count) total splits")
             for split in allSplitsAfterSave {
-                print("🔧 Found split: \(split.name), active: \(split.isActive)")
+                debugLog("🔧 Found split: \(split.name), active: \(split.isActive)")
             }
 
             // Now switch it to active AFTER it's been saved
-            print("🔧 Switching to active split...")
+            debugLog("🔧 Switching to active split...")
             switchActiveSplit(split: newSplit, context: context)
 
             // Verify the split is now active
-            print("🔧 Verifying active split...")
+            debugLog("🔧 Verifying active split...")
             if let activeSplit = getActiveSplit() {
-                print("✅ Verified active split: \(activeSplit.name)")
+                debugLog("✅ Verified active split: \(activeSplit.name)")
 
                 // Force UI refresh by triggering objectWillChange
                 DispatchQueue.main.async {
                     self.objectWillChange.send()
                 }
             } else {
-                print("❌ Failed to verify active split!")
+                debugLog("❌ Failed to verify active split!")
             }
 
             // Sync to CloudKit if enabled
             if config.isCloudKitEnabled {
-                print("🔧 CloudKit sync is enabled, syncing split...")
+                debugLog("🔧 CloudKit sync is enabled, syncing split...")
                 syncSplitToCloudKit(newSplit)
             } else {
-                print("🔧 CloudKit sync is disabled, skipping sync")
+                debugLog("🔧 CloudKit sync is disabled, skipping sync")
             }
         } catch {
-            print("❌ Error saving split: \(error)")
-            print("❌ Error details: \(error.localizedDescription)")
+            debugLog("❌ Error saving split: \(error)")
+            debugLog("❌ Error details: \(error.localizedDescription)")
             if let swiftDataError = error as? SwiftDataError {
-                print("❌ SwiftData specific error: \(swiftDataError)")
+                debugLog("❌ SwiftData specific error: \(swiftDataError)")
             }
         }
     }
@@ -141,16 +141,16 @@ final class WorkoutViewModel: ObservableObject {
         let fetchDescriptor = FetchDescriptor<Split>(predicate: #Predicate { $0.isActive })
         do {
             let activeSplits = try context.fetch(fetchDescriptor)
-            print("🔧 Found \(activeSplits.count) active splits")
+            debugLog("🔧 Found \(activeSplits.count) active splits")
             if let activeSplit = activeSplits.first {
-                print("🔧 Active split: \(activeSplit.name)")
+                debugLog("🔧 Active split: \(activeSplit.name)")
                 return activeSplit
             } else {
-                print("🔧 No active split found in database")
+                debugLog("🔧 No active split found in database")
                 return nil
             }
         } catch {
-            print("❌ Error fetching active split: \(error)")
+            debugLog("❌ Error fetching active split: \(error)")
             return nil
         }
     }
@@ -159,7 +159,7 @@ final class WorkoutViewModel: ObservableObject {
     @MainActor
     func getActiveSplitDays() -> [Day] {
         guard let activeSplit = getActiveSplit() else {
-            print("No active split found.")
+            debugLog("No active split found.")
             return []
         }
         return activeSplit.days ?? []
@@ -175,44 +175,44 @@ final class WorkoutViewModel: ObservableObject {
             }
             try context.save()
             objectWillChange.send() // Force UI to refresh
-            print("🔧 Deactivated \(splits.count) splits")
+            debugLog("🔧 Deactivated \(splits.count) splits")
         } catch {
-            print("❌ Error deactivating splits: \(error)")
+            debugLog("❌ Error deactivating splits: \(error)")
         }
     }
     
     /// Switch split from inactive to active
     @MainActor
     func switchActiveSplit(split: Split, context: ModelContext) {
-        print("🔧 Deactivating all splits...")
+        debugLog("🔧 Deactivating all splits...")
 
         // First deactivate all splits synchronously
         let allSplits = getAllSplits()
-        print("🔧 Found \(allSplits.count) total splits to deactivate")
+        debugLog("🔧 Found \(allSplits.count) total splits to deactivate")
         for existingSplit in allSplits {
-            print("🔧 Deactivating split: \(existingSplit.name)")
+            debugLog("🔧 Deactivating split: \(existingSplit.name)")
             existingSplit.isActive = false
         }
 
-        print("🔧 Setting split '\(split.name)' as active...")
+        debugLog("🔧 Setting split '\(split.name)' as active...")
         split.isActive = true
-        print("🔧 Split '\(split.name)' isActive = \(split.isActive)")
+        debugLog("🔧 Split '\(split.name)' isActive = \(split.isActive)")
 
         do {
-            print("🔧 Saving context in switchActiveSplit...")
+            debugLog("🔧 Saving context in switchActiveSplit...")
             try context.save()
-            print("✅ Context saved successfully in switchActiveSplit")
+            debugLog("✅ Context saved successfully in switchActiveSplit")
 
             // Immediately verify the save worked
             let activeSplitsAfterSave = getAllSplits().filter { $0.isActive }
-            print("🔧 After save: found \(activeSplitsAfterSave.count) active splits")
+            debugLog("🔧 After save: found \(activeSplitsAfterSave.count) active splits")
             for activeSplit in activeSplitsAfterSave {
-                print("🔧 Active split after save: \(activeSplit.name)")
+                debugLog("🔧 Active split after save: \(activeSplit.name)")
             }
 
             objectWillChange.send() // Manually notify SwiftUI of changes
         } catch {
-            print("❌ Error switching split: \(error)")
+            debugLog("❌ Error switching split: \(error)")
         }
     }
     
@@ -433,11 +433,11 @@ final class WorkoutViewModel: ObservableObject {
         // Only add to daysRecorded if not already present
         if !config.daysRecorded.contains(todaysDate) {
             config.daysRecorded.insert(todaysDate, at: 0)
-            print("🟢 CALENDAR: Added new date '\(todaysDate)' to daysRecorded. Array now has \(config.daysRecorded.count) dates")
+            debugLog("🟢 CALENDAR: Added new date '\(todaysDate)' to daysRecorded. Array now has \(config.daysRecorded.count) dates")
         } else {
-            print("🟡 CALENDAR: Date '\(todaysDate)' already exists in daysRecorded")
+            debugLog("🟡 CALENDAR: Date '\(todaysDate)' already exists in daysRecorded")
         }
-        print("📅 CALENDAR: Current daysRecorded: \(config.daysRecorded)")
+        debugLog("📅 CALENDAR: Current daysRecorded: \(config.daysRecorded)")
 
 
         // Force a UI update by triggering objectWillChange
@@ -651,9 +651,9 @@ final class WorkoutViewModel: ObservableObject {
         let calendar = Calendar.current
 
         #if DEBUG
-        print("🔧 updateDayInSplit: current config.dayInSplit = \(config.dayInSplit)")
-        print("🔧 updateDayInSplit: lastUpdateDate = \(config.lastUpdateDate)")
-        print("🔧 updateDayInSplit: isDateInToday = \(calendar.isDateInToday(config.lastUpdateDate))")
+        debugLog("🔧 updateDayInSplit: current config.dayInSplit = \(config.dayInSplit)")
+        debugLog("🔧 updateDayInSplit: lastUpdateDate = \(config.lastUpdateDate)")
+        debugLog("🔧 updateDayInSplit: isDateInToday = \(calendar.isDateInToday(config.lastUpdateDate))")
         #endif
 
         if !calendar.isDateInToday(config.lastUpdateDate) {
@@ -662,11 +662,11 @@ final class WorkoutViewModel: ObservableObject {
             let totalDays = config.dayInSplit + daysPassed
 
             #if DEBUG
-            print("🔧 updateDayInSplit: daysPassed = \(daysPassed), totalDays = \(totalDays)")
+            debugLog("🔧 updateDayInSplit: daysPassed = \(daysPassed), totalDays = \(totalDays)")
             #endif
 
             guard let activeSplit = getActiveSplit() else {
-                print("No active split found, returning current day in split")
+                debugLog("No active split found, returning current day in split")
                 return config.dayInSplit
             }
 
@@ -674,14 +674,14 @@ final class WorkoutViewModel: ObservableObject {
             var newDayInSplit = (totalDays - 1) % splitDaysCount + 1
 
             #if DEBUG
-            print("🔧 updateDayInSplit: splitDaysCount = \(splitDaysCount), raw calculation = \(newDayInSplit)")
+            debugLog("🔧 updateDayInSplit: splitDaysCount = \(splitDaysCount), raw calculation = \(newDayInSplit)")
             #endif
 
             // Fix negative day numbers (can happen with time travel or clock changes)
             if newDayInSplit <= 0 {
                 newDayInSplit = ((newDayInSplit % splitDaysCount) + splitDaysCount) % splitDaysCount + 1
                 #if DEBUG
-                print("🔧 updateDayInSplit: Fixed negative to = \(newDayInSplit)")
+                debugLog("🔧 updateDayInSplit: Fixed negative to = \(newDayInSplit)")
                 #endif
             }
 
@@ -689,7 +689,7 @@ final class WorkoutViewModel: ObservableObject {
             newDayInSplit = max(1, min(newDayInSplit, splitDaysCount))
 
             #if DEBUG
-            print("🔧 updateDayInSplit: Final newDayInSplit = \(newDayInSplit)")
+            debugLog("🔧 updateDayInSplit: Final newDayInSplit = \(newDayInSplit)")
             #endif
 
             config.dayInSplit = newDayInSplit
@@ -699,7 +699,7 @@ final class WorkoutViewModel: ObservableObject {
             return config.dayInSplit
         } else {
             #if DEBUG
-            print("🔧 updateDayInSplit: Date is today, returning existing dayInSplit = \(config.dayInSplit)")
+            debugLog("🔧 updateDayInSplit: Date is today, returning existing dayInSplit = \(config.dayInSplit)")
             #endif
             return config.dayInSplit
         }
@@ -924,7 +924,7 @@ final class WorkoutViewModel: ObservableObject {
             // Return just the filename, not the full path (for CloudKit compatibility across reinstalls)
             return filename
         } catch {
-            print("Error saving image: \(error)")
+            debugLog("Error saving image: \(error)")
             return nil
         }
     }
@@ -933,40 +933,76 @@ final class WorkoutViewModel: ObservableObject {
     
     private func handleSuccessfulLogin(with authorization: ASAuthorization) {
         if let userCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-            print(userCredential.user)
+            debugLog(userCredential.user)
             
             if userCredential.authorizedScopes.contains(.fullName) {
-                print(userCredential.fullName?.givenName ?? "No given name")
+                debugLog(userCredential.fullName?.givenName ?? "No given name")
             }
             
             if userCredential.authorizedScopes.contains(.email) {
-                print(userCredential.email ?? "No email")
+                debugLog(userCredential.email ?? "No email")
             }
         }
     }
     
     private func handleLoginError(with error: Error) {
-        print("Could not authenticate: \\(error.localizedDescription)")
+        debugLog("Could not authenticate: \\(error.localizedDescription)")
     }
     
     // MARK: Import export SPLIT functions
-    func importSplit(from url: URL) -> Split? {
+    func importSplit(from url: URL) throws -> Split {
         guard url.startAccessingSecurityScopedResource() else {
-            print("❌ Could not access security scoped resource.")
-            return nil
+            debugLog("❌ Could not access security scoped resource.")
+            throw ImportError.accessDenied
         }
         defer { url.stopAccessingSecurityScopedResource() }
 
-        do {
-            guard FileManager.default.fileExists(atPath: url.path) else {
-                print("❌ File not found at: \(url.path)")
-                return nil
-            }
+        // Validate file extension
+        guard url.pathExtension.lowercased() == "gymlysplit" else {
+            debugLog("❌ Invalid file extension: \(url.pathExtension)")
+            throw ImportError.invalidFileExtension
+        }
 
-            print("📂 Importing file from: \(url.path)")
-            let data = try Data(contentsOf: url)
+        // Check file exists
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            debugLog("❌ File not found at: \(url.path)")
+            throw ImportError.fileNotFound
+        }
+
+        debugLog("📂 Importing file from: \(url.path)")
+
+        // Read and decode file
+        let data: Data
+        do {
+            data = try Data(contentsOf: url)
+        } catch {
+            debugLog("❌ Failed to read file data: \(error.localizedDescription)")
+            throw ImportError.corruptData("Could not read file contents")
+        }
+
+        let decodedSplit: Split
+        do {
             let decoder = JSONDecoder()
-            let decodedSplit = try decoder.decode(Split.self, from: data)
+            decodedSplit = try decoder.decode(Split.self, from: data)
+        } catch let error as DecodingError {
+            let errorMessage = decodingErrorMessage(from: error)
+            debugLog("❌ Decoding failed: \(errorMessage)")
+            throw ImportError.decodingFailed(errorMessage)
+        } catch {
+            debugLog("❌ Unknown decoding error: \(error.localizedDescription)")
+            throw ImportError.decodingFailed(error.localizedDescription)
+        }
+
+        // Validate required fields
+        guard !decodedSplit.name.isEmpty else {
+            debugLog("❌ Split name is empty")
+            throw ImportError.missingRequiredData("split name")
+        }
+
+        guard let days = decodedSplit.days, !days.isEmpty else {
+            debugLog("❌ Split has no days")
+            throw ImportError.missingRequiredData("workout days")
+        }
 
             let newSplit = Split(
                 id: UUID(),
@@ -1012,7 +1048,7 @@ final class WorkoutViewModel: ObservableObject {
 
             context.insert(newSplit)
             try context.save()
-            print("✅ Split successfully saved: \(newSplit.name)")
+            debugLog("✅ Split successfully saved: \(newSplit.name)")
 
             // Force UI refresh
             DispatchQueue.main.async {
@@ -1020,10 +1056,21 @@ final class WorkoutViewModel: ObservableObject {
             }
 
             return newSplit
+    }
 
-        } catch {
-            print("❌ Error importing split: \(error.localizedDescription)")
-            return nil
+    /// Helper to create user-friendly messages from DecodingError
+    private func decodingErrorMessage(from error: DecodingError) -> String {
+        switch error {
+        case .keyNotFound(let key, _):
+            return "Missing field: \(key.stringValue)"
+        case .valueNotFound(let type, let context):
+            return "Missing value for \(type) at \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
+        case .typeMismatch(let type, let context):
+            return "Wrong data type for \(type) at \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
+        case .dataCorrupted(let context):
+            return "Data corrupted at \(context.codingPath.map { $0.stringValue }.joined(separator: "."))"
+        @unknown default:
+            return "Unknown decoding error"
         }
     }
     
@@ -1041,7 +1088,7 @@ final class WorkoutViewModel: ObservableObject {
             try data.write(to: fileURL, options: .atomic) // Ensure file is properly saved
             return fileURL
         } catch {
-            print("Error exporting split: \(error)")
+            debugLog("Error exporting split: \(error)")
             return nil
         }
     }

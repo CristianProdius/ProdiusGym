@@ -19,11 +19,11 @@ class CameraViewModel: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        print("🎥 CameraViewModel init")
+        debugLog("🎥 CameraViewModel init")
     }
 
     deinit {
-        print("🎥 CameraViewModel deinit - stopping session")
+        debugLog("🎥 CameraViewModel deinit - stopping session")
         // Stop session synchronously to prevent crashes
         if session.isRunning {
             session.stopRunning()
@@ -33,7 +33,7 @@ class CameraViewModel: NSObject, ObservableObject {
     }
 
     func stopCamera() {
-        print("🎥 Stopping camera session")
+        debugLog("🎥 Stopping camera session")
         if session.isRunning {
             session.stopRunning()
         }
@@ -61,7 +61,7 @@ class CameraViewModel: NSObject, ObservableObject {
     func setupCamera() {
         // Prevent multiple setups
         if session.isRunning {
-            print("⚠️ Camera already running, skipping setup")
+            debugLog("⚠️ Camera already running, skipping setup")
             return
         }
 
@@ -75,7 +75,7 @@ class CameraViewModel: NSObject, ObservableObject {
 
         // Add camera input
         guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: currentCamera) else {
-            print("❌ Camera not available")
+            debugLog("❌ Camera not available")
             session.commitConfiguration()
             return
         }
@@ -95,12 +95,12 @@ class CameraViewModel: NSObject, ObservableObject {
             // Start session
             DispatchQueue.global(qos: .userInitiated).async { [weak self] in
                 guard let self = self, !self.session.isRunning else { return }
-                print("🎥 Starting camera session")
+                debugLog("🎥 Starting camera session")
                 self.session.startRunning()
             }
 
         } catch {
-            print("❌ Camera setup failed: \(error)")
+            debugLog("❌ Camera setup failed: \(error)")
             session.commitConfiguration()
         }
     }
@@ -127,7 +127,7 @@ class CameraViewModel: NSObject, ObservableObject {
 extension CameraViewModel: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         if let error = error {
-            print("❌ Photo capture error: \(error)")
+            debugLog("❌ Photo capture error: \(error)")
             photoCompletion?(nil)
             return
         }

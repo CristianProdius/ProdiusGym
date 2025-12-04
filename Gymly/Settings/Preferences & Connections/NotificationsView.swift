@@ -218,7 +218,7 @@ struct NotificationsView: View {
                         Button("Analyze Workout Patterns") {
                             Task {
                                 WorkoutReminderManager.shared.scheduleSmartWorkoutReminders()
-                                print("✅ TEST: Reanalyzed workout patterns and rescheduled reminders")
+                                debugLog("✅ TEST: Reanalyzed workout patterns and rescheduled reminders")
                             }
                         }
                         .listRowBackground(Color.black.opacity(0.05))
@@ -350,9 +350,9 @@ struct NotificationsView: View {
                 categoryIdentifier: NotificationManager.NotificationCategory.workoutReminder,
                 userInfo: ["type": "test", "weekday": weekday]
             )
-            print("✅ TEST: \(dayName) workout reminder scheduled in 5 seconds - '\(body)'")
+            debugLog("✅ TEST: \(dayName) workout reminder scheduled in 5 seconds - '\(body)'")
         } catch {
-            print("❌ TEST: Failed to schedule workout reminder - \(error)")
+            debugLog("❌ TEST: Failed to schedule workout reminder - \(error)")
         }
     }
 
@@ -393,7 +393,7 @@ struct NotificationsView: View {
             let isRestDay = day.name.lowercased().contains("rest")
             return (isRestDay, isRestDay ? nil : day.name)
         } catch {
-            print("❌ TEST: Failed to fetch split info - \(error)")
+            debugLog("❌ TEST: Failed to fetch split info - \(error)")
             return (false, nil)
         }
     }
@@ -408,9 +408,9 @@ struct NotificationsView: View {
                 categoryIdentifier: NotificationManager.NotificationCategory.workoutReminder,
                 userInfo: ["type": "test", "rest_day": true]
             )
-            print("✅ TEST: Rest day reminder scheduled in 5 seconds")
+            debugLog("✅ TEST: Rest day reminder scheduled in 5 seconds")
         } catch {
-            print("❌ TEST: Failed to schedule rest day reminder - \(error)")
+            debugLog("❌ TEST: Failed to schedule rest day reminder - \(error)")
         }
     }
 
@@ -453,7 +453,7 @@ struct NotificationsView: View {
         }
 
         MilestoneNotificationManager.shared.sendPRNotification(prNotification: notification)
-        print("✅ TEST: Sent \(type) PR notification")
+        debugLog("✅ TEST: Sent \(type) PR notification")
     }
 
     private func testInactivityReminder(days: Int) async {
@@ -484,9 +484,9 @@ struct NotificationsView: View {
                 categoryIdentifier: NotificationManager.NotificationCategory.inactivity,
                 userInfo: ["type": "test", "days_since_workout": days]
             )
-            print("✅ TEST: Inactivity reminder (\(days) days) scheduled in 5 seconds")
+            debugLog("✅ TEST: Inactivity reminder (\(days) days) scheduled in 5 seconds")
         } catch {
-            print("❌ TEST: Failed to schedule inactivity reminder - \(error)")
+            debugLog("❌ TEST: Failed to schedule inactivity reminder - \(error)")
         }
     }
     #endif

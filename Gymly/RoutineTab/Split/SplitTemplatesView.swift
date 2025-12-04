@@ -149,9 +149,9 @@ struct SplitTemplatesView: View {
         // Save context
         do {
             try context.save()
-            print("✅ Template '\(template.name)' added to splits")
+            debugLog("✅ Template '\(template.name)' added to splits")
         } catch {
-            print("❌ Error saving template: \(error)")
+            debugLog("❌ Error saving template: \(error)")
         }
     }
 }

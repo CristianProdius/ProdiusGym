@@ -65,11 +65,11 @@ class MilestoneNotificationManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ MILESTONE: Sent PR notification - \(title)")
+                debugLog("✅ MILESTONE: Sent PR notification - \(title)")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ MILESTONE: Failed to send PR notification - \(error)")
+                debugLog("❌ MILESTONE: Failed to send PR notification - \(error)")
                 #endif
             }
         }
@@ -135,11 +135,11 @@ class MilestoneNotificationManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ MILESTONE: Sent workout count milestone - \(count) workouts")
+                debugLog("✅ MILESTONE: Sent workout count milestone - \(count) workouts")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ MILESTONE: Failed to send workout count milestone - \(error)")
+                debugLog("❌ MILESTONE: Failed to send workout count milestone - \(error)")
                 #endif
             }
         }

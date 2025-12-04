@@ -39,6 +39,8 @@
 		EC5922502D7A414F00EB39B2 /* SetNoteCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC59224F2D7A414F00EB39B2 /* SetNoteCell.swift */; };
 		EC5922522D7B0A6200EB39B2 /* SetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5922512D7B0A6200EB39B2 /* SetCell.swift */; };
 		EC5922542D7B1BE100EB39B2 /* ProfileImageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5922532D7B1BE100EB39B2 /* ProfileImageCell.swift */; };
+		EC5F6BD22EE1E31400AC2FEF /* DebugLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F6BD02EE1E31400AC2FEF /* DebugLogger.swift */; };
+		EC5F6BD42EE1E55A00AC2FEF /* ImportError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5F6BD32EE1E55A00AC2FEF /* ImportError.swift */; };
 		EC629C662C9CAE2300009902 /* MuscleGroup.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC629C652C9CAE2300009902 /* MuscleGroup.swift */; };
 		EC66F6992D92CF380086D625 /* SettingUserInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66F6982D92CF380086D625 /* SettingUserInfoCell.swift */; };
 		EC66F6A12D94213D0086D625 /* BMIGaugeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC66F6A02D94213D0086D625 /* BMIGaugeView.swift */; };
@@ -64,6 +66,7 @@
 		ECA5D16E2BF20D0F00DCC9F8 /* ToolBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D16D2BF20D0F00DCC9F8 /* ToolBar.swift */; };
 		ECA5D1762BF22C2000DCC9F8 /* Exercise.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECA5D1752BF22C2000DCC9F8 /* Exercise.swift */; };
 		ECD2E0F12EDB91DC00D605E8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = ECD2E0F02EDB91DC00D605E8 /* PrivacyInfo.xcprivacy */; };
+		ECD2E0F52EDB974700D605E8 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECD2E0F42EDB974700D605E8 /* AccountManager.swift */; };
 		ECE71EAE2ED5C8C1005AA330 /* iCloudSyncManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE71EAC2ED5C8C1005AA330 /* iCloudSyncManager.swift */; };
 		ECE71F082ED5C8C1005AA330 /* FloatingClouds.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE71EF02ED5C8C1005AA330 /* FloatingClouds.swift */; };
 		ECE71F092ED5C8C1005AA330 /* HealthKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECE71EF12ED5C8C1005AA330 /* HealthKitManager.swift */; };
@@ -126,6 +129,8 @@
 		EC59224F2D7A414F00EB39B2 /* SetNoteCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetNoteCell.swift; sourceTree = "<group>"; };
 		EC5922512D7B0A6200EB39B2 /* SetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetCell.swift; sourceTree = "<group>"; };
 		EC5922532D7B1BE100EB39B2 /* ProfileImageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileImageCell.swift; sourceTree = "<group>"; };
+		EC5F6BD02EE1E31400AC2FEF /* DebugLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugLogger.swift; sourceTree = "<group>"; };
+		EC5F6BD32EE1E55A00AC2FEF /* ImportError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportError.swift; sourceTree = "<group>"; };
 		EC629C652C9CAE2300009902 /* MuscleGroup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleGroup.swift; sourceTree = "<group>"; };
 		EC66F6982D92CF380086D625 /* SettingUserInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingUserInfoCell.swift; sourceTree = "<group>"; };
 		EC66F6A02D94213D0086D625 /* BMIGaugeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BMIGaugeView.swift; sourceTree = "<group>"; };
@@ -154,6 +159,7 @@
 		ECA5D16D2BF20D0F00DCC9F8 /* ToolBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ToolBar.swift; sourceTree = "<group>"; };
 		ECA5D1752BF22C2000DCC9F8 /* Exercise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Exercise.swift; sourceTree = "<group>"; };
 		ECD2E0F02EDB91DC00D605E8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		ECD2E0F42EDB974700D605E8 /* AccountManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
 		ECDE63122D48D85A00C2DA94 /* Gymly.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Gymly.entitlements; sourceTree = "<group>"; };
 		ECE71EAC2ED5C8C1005AA330 /* iCloudSyncManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncManager.swift; sourceTree = "<group>"; };
 		ECE71EF02ED5C8C1005AA330 /* FloatingClouds.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FloatingClouds.swift; sourceTree = "<group>"; };
@@ -234,6 +240,7 @@
 				EC9BE9A62EAEA7FC00EBEA0B /* SplitTemplate.swift */,
 				EC9BE9AA2EAF864100EBEA0B /* ProgressPhoto.swift */,
 				ECFFCAB02EB8B25A008D6FE7 /* PersonalRecord.swift */,
+				EC5F6BD32EE1E55A00AC2FEF /* ImportError.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -252,6 +259,7 @@
 				EC022DC42ED72C730051ED1B /* MilestoneNotificationManager.swift */,
 				EC022DC62ED72D110051ED1B /* InactivityReminderManager.swift */,
 				EC022DCE2ED9CBD30051ED1B /* StoreManager.swift */,
+				ECD2E0F42EDB974700D605E8 /* AccountManager.swift */,
 			);
 			path = Managers;
 			sourceTree = "<group>";
@@ -283,6 +291,14 @@
 				ECFFCAAE2EB8A501008D6FE7 /* WeeklyPatternChart.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		EC5F6BD12EE1E31400AC2FEF /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				EC5F6BD02EE1E31400AC2FEF /* DebugLogger.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		ECA5D1372BF20CF100DCC9F8 = {
@@ -330,6 +346,7 @@
 				ECE71F312ED5EE0E005AA330 /* AppIcons */,
 				ECA5D1492BF20CF500DCC9F8 /* Preview Content */,
 				ECFFCAAA2EB7F45A008D6FE7 /* claude.md */,
+				EC5F6BD12EE1E31400AC2FEF /* Utilities */,
 			);
 			path = Gymly;
 			sourceTree = "<group>";
@@ -543,6 +560,7 @@
 				EC66F6A72D949DBB0086D625 /* WeightPoint.swift in Sources */,
 				ECFFCAAF2EB8A501008D6FE7 /* WeeklyPatternChart.swift in Sources */,
 				ECFFCAB12EB8B25A008D6FE7 /* PersonalRecord.swift in Sources */,
+				EC5F6BD22EE1E31400AC2FEF /* DebugLogger.swift in Sources */,
 				EC022DC52ED72C730051ED1B /* MilestoneNotificationManager.swift in Sources */,
 				EC022DCF2ED9CBD40051ED1B /* StoreManager.swift in Sources */,
 				EC022DC12ED6F2240051ED1B /* NotificationTestHelper.swift in Sources */,
@@ -555,6 +573,8 @@
 				ECE71F092ED5C8C1005AA330 /* HealthKitManager.swift in Sources */,
 				EC06F16A2E7CA3DA00E42CCF /* UserProfileManager.swift in Sources */,
 				EC04B77E2EC6608700232DDE /* MarkdownText.swift in Sources */,
+				ECD2E0F52EDB974700D605E8 /* AccountManager.swift in Sources */,
+				EC5F6BD42EE1E55A00AC2FEF /* ImportError.swift in Sources */,
 				EC66F6A52D949D410086D625 /* WeightChart.swift in Sources */,
 				EC4FD1582C4EE0A600D1A4A6 /* onFirstAppear.swift in Sources */,
 				EC59224E2D7A407C00EB39B2 /* SetTypeCell.swift in Sources */,

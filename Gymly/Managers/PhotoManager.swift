@@ -51,13 +51,13 @@ class PhotoManager: ObservableObject {
         // Request permission first
         let hasPermission = await requestPhotoPermission()
         guard hasPermission else {
-            print("❌ Photo permission denied")
+            debugLog("❌ Photo permission denied")
             return nil
         }
 
         // Save to Photos library
         guard let assetID = await saveToPhotosLibrary(image: image) else {
-            print("❌ Failed to save to Photos library")
+            debugLog("❌ Failed to save to Photos library")
             return nil
         }
 
@@ -76,7 +76,7 @@ class PhotoManager: ObservableObject {
             userProfile: userProfile
         )
 
-        print("📸 Creating photo with ID: \(progressPhoto.id?.uuidString ?? "nil"), type: \(type.rawValue), userProfile: \(userProfile?.id.uuidString ?? "nil")")
+        debugLog("📸 Creating photo with ID: \(progressPhoto.id?.uuidString ?? "nil"), type: \(type.rawValue), userProfile: \(userProfile?.id.uuidString ?? "nil")")
 
         context.insert(progressPhoto)
 
@@ -86,29 +86,29 @@ class PhotoManager: ObservableObject {
                 profile.progressPhotos = []
             }
             profile.progressPhotos?.append(progressPhoto)
-            print("📸 Added photo to userProfile, total photos: \(profile.progressPhotos?.count ?? 0)")
+            debugLog("📸 Added photo to userProfile, total photos: \(profile.progressPhotos?.count ?? 0)")
         } else {
-            print("⚠️ No userProfile provided for photo!")
+            debugLog("⚠️ No userProfile provided for photo!")
         }
 
         do {
             try context.save()
-            print("✅ Progress photo saved: \(type.rawValue)")
+            debugLog("✅ Progress photo saved: \(type.rawValue)")
 
             // Sync to CloudKit if enabled
             Task {
                 do {
                     try await CloudKitManager.shared.saveProgressPhoto(progressPhoto, fullImage: image)
-                    print("✅ Progress photo synced to CloudKit")
+                    debugLog("✅ Progress photo synced to CloudKit")
                 } catch {
-                    print("⚠️ Failed to sync progress photo to CloudKit: \(error)")
+                    debugLog("⚠️ Failed to sync progress photo to CloudKit: \(error)")
                     // Don't fail the save if CloudKit sync fails
                 }
             }
 
             return progressPhoto
         } catch {
-            print("❌ Failed to save ProgressPhoto: \(error)")
+            debugLog("❌ Failed to save ProgressPhoto: \(error)")
             return nil
         }
     }
@@ -123,10 +123,10 @@ class PhotoManager: ObservableObject {
                 assetID = request.placeholderForCreatedAsset?.localIdentifier
             }) { success, error in
                 if success, let id = assetID {
-                    print("✅ Saved to Photos library: \(id)")
+                    debugLog("✅ Saved to Photos library: \(id)")
                     continuation.resume(returning: id)
                 } else {
-                    print("❌ Failed to save to Photos: \(error?.localizedDescription ?? "Unknown error")")
+                    debugLog("❌ Failed to save to Photos: \(error?.localizedDescription ?? "Unknown error")")
                     continuation.resume(returning: nil)
                 }
             }
@@ -150,12 +150,12 @@ class PhotoManager: ObservableObject {
 
             // If first attempt fails, wait a bit for Photos library to process
             if attempt < 3 {
-                print("⚠️ Asset not ready, retrying... (attempt \(attempt))")
+                debugLog("⚠️ Asset not ready, retrying... (attempt \(attempt))")
                 try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
             }
         }
 
-        print("❌ Asset not found after 3 attempts: \(assetID)")
+        debugLog("❌ Asset not found after 3 attempts: \(assetID)")
         return nil
     }
 
@@ -175,7 +175,7 @@ class PhotoManager: ObservableObject {
                 options: options
             ) { image, info in
                 if let error = info?[PHImageErrorKey] as? Error {
-                    print("❌ Photo loading error: \(error)")
+                    debugLog("❌ Photo loading error: \(error)")
                 }
                 continuation.resume(returning: image)
             }
@@ -224,29 +224,29 @@ class PhotoManager: ObservableObject {
 
     /// Delete progress photo from database (keeps in Photos library)
     func deletePhoto(_ photo: ProgressPhoto, context: ModelContext) {
-        print("🗑️ Deleting photo with ID: \(photo.id?.uuidString ?? "nil"), type: \(photo.photoType?.rawValue ?? "nil"), userProfile: \(photo.userProfile?.id.uuidString ?? "nil")")
+        debugLog("🗑️ Deleting photo with ID: \(photo.id?.uuidString ?? "nil"), type: \(photo.photoType?.rawValue ?? "nil"), userProfile: \(photo.userProfile?.id.uuidString ?? "nil")")
 
         let photoID = photo.id
         context.delete(photo)
 
         do {
             try context.save()
-            print("✅ Progress photo deleted")
+            debugLog("✅ Progress photo deleted")
 
             // Delete from CloudKit if enabled
             if let photoID = photoID {
                 Task {
                     do {
                         try await CloudKitManager.shared.deleteProgressPhoto(photoID)
-                        print("✅ Progress photo deleted from CloudKit")
+                        debugLog("✅ Progress photo deleted from CloudKit")
                     } catch {
-                        print("⚠️ Failed to delete progress photo from CloudKit: \(error)")
+                        debugLog("⚠️ Failed to delete progress photo from CloudKit: \(error)")
                         // Don't fail the delete if CloudKit sync fails
                     }
                 }
             }
         } catch {
-            print("❌ Failed to delete photo: \(error)")
+            debugLog("❌ Failed to delete photo: \(error)")
         }
     }
 
@@ -304,11 +304,11 @@ class PhotoManager: ObservableObject {
 
             // Skip if no asset ID
             guard let assetID = photo.photoAssetID else {
-                print("⚠️ Photo \(photo.id?.uuidString ?? "unknown") has no asset ID")
+                debugLog("⚠️ Photo \(photo.id?.uuidString ?? "unknown") has no asset ID")
                 continue
             }
 
-            print("🔄 Migrating thumbnail for photo: \(photo.id?.uuidString ?? "unknown")")
+            debugLog("🔄 Migrating thumbnail for photo: \(photo.id?.uuidString ?? "unknown")")
 
             // Load full image from Photos library
             if let fullImage = await loadImage(from: assetID) {
@@ -317,24 +317,24 @@ class PhotoManager: ObservableObject {
                    let thumbnailData = thumbnail.jpegData(compressionQuality: 0.7) {
                     photo.thumbnailData = thumbnailData
                     migratedCount += 1
-                    print("✅ Thumbnail created for photo: \(photo.id?.uuidString ?? "unknown")")
+                    debugLog("✅ Thumbnail created for photo: \(photo.id?.uuidString ?? "unknown")")
                 } else {
-                    print("❌ Failed to create thumbnail for photo: \(photo.id?.uuidString ?? "unknown")")
+                    debugLog("❌ Failed to create thumbnail for photo: \(photo.id?.uuidString ?? "unknown")")
                 }
             } else {
-                print("❌ Failed to load image from Photos library for: \(assetID)")
+                debugLog("❌ Failed to load image from Photos library for: \(assetID)")
             }
         }
 
         if migratedCount > 0 {
             do {
                 try context.save()
-                print("✅ Migrated \(migratedCount) thumbnails")
+                debugLog("✅ Migrated \(migratedCount) thumbnails")
             } catch {
-                print("❌ Failed to save migrated thumbnails: \(error)")
+                debugLog("❌ Failed to save migrated thumbnails: \(error)")
             }
         } else {
-            print("ℹ️ No thumbnails needed migration")
+            debugLog("ℹ️ No thumbnails needed migration")
         }
     }
 }

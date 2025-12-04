@@ -47,9 +47,9 @@ class UserProfileManager: ObservableObject {
 
             try context.save()
             currentProfile = nil
-            print("🗑️ DEBUG: Cleared all UserProfiles from database")
+            debugLog("🗑️ DEBUG: Cleared all UserProfiles from database")
         } catch {
-            print("❌ DEBUG: Failed to clear profiles - \(error)")
+            debugLog("❌ DEBUG: Failed to clear profiles - \(error)")
         }
     }
 
@@ -80,18 +80,18 @@ class UserProfileManager: ObservableObject {
 
             if let existingProfile = profiles.first {
                 currentProfile = existingProfile
-                print("✅ USER PROFILE: Loaded existing profile for \(existingProfile.username)")
+                debugLog("✅ USER PROFILE: Loaded existing profile for \(existingProfile.username)")
             } else {
                 // Create a temporary profile that will be replaced by CloudKit data if available
                 let tempProfile = UserProfile()
                 context.insert(tempProfile)
                 try context.save()
                 currentProfile = tempProfile
-                print("✅ USER PROFILE: Created temporary profile (will be replaced by CloudKit if available)")
+                debugLog("✅ USER PROFILE: Created temporary profile (will be replaced by CloudKit if available)")
             }
         } catch {
             self.error = "Failed to load user profile: \(error.localizedDescription)"
-            print("❌ USER PROFILE: \(self.error!)")
+            debugLog("❌ USER PROFILE: \(self.error!)")
         }
     }
 
@@ -104,10 +104,10 @@ class UserProfileManager: ObservableObject {
             context.insert(newProfile)
             try context.save()
             currentProfile = newProfile
-            print("✅ USER PROFILE: Created new profile")
+            debugLog("✅ USER PROFILE: Created new profile")
         } catch {
             self.error = "Failed to create user profile: \(error.localizedDescription)"
-            print("❌ USER PROFILE: Failed to create profile - \(self.error!)")
+            debugLog("❌ USER PROFILE: Failed to create profile - \(self.error!)")
         }
     }
     
@@ -121,7 +121,7 @@ class UserProfileManager: ObservableObject {
         do {
             profile.markAsUpdated()
             try context.save()
-            print("✅ USER PROFILE: Saved profile for \(profile.username)")
+            debugLog("✅ USER PROFILE: Saved profile for \(profile.username)")
             
             // Trigger debounced CloudKit sync if enabled
             if CloudKitManager.shared.isCloudKitEnabled {
@@ -129,7 +129,7 @@ class UserProfileManager: ObservableObject {
             }
         } catch {
             self.error = "Failed to save profile: \(error.localizedDescription)"
-            print("❌ USER PROFILE: Save failed - \(self.error!)")
+            debugLog("❌ USER PROFILE: Save failed - \(self.error!)")
         }
     }
 
@@ -223,7 +223,7 @@ class UserProfileManager: ObservableObject {
                         try? modelContext?.save()
                     }
                 } catch {
-                    print("❌ Failed to sync profile image to CloudKit: \(error)")
+                    debugLog("❌ Failed to sync profile image to CloudKit: \(error)")
                 }
             }
         }
@@ -271,37 +271,37 @@ class UserProfileManager: ObservableObject {
         defer { isSyncing = false }
 
         do {
-            print("🔄 USER PROFILE: Syncing to CloudKit...")
+            debugLog("🔄 USER PROFILE: Syncing to CloudKit...")
             try await CloudKitManager.shared.saveUserProfile(profile)
             await MainActor.run {
                 profile.markAsSynced()
                 try? modelContext?.save()
             }
-            print("✅ USER PROFILE: Synced to CloudKit successfully")
+            debugLog("✅ USER PROFILE: Synced to CloudKit successfully")
         } catch {
             await MainActor.run {
                 self.error = "CloudKit sync failed: \(error.localizedDescription)"
             }
-            print("❌ USER PROFILE: CloudKit sync failed - \(error)")
+            debugLog("❌ USER PROFILE: CloudKit sync failed - \(error)")
         }
     }
     
 
     func syncFromCloudKit() async {
         guard CloudKitManager.shared.isCloudKitEnabled else {
-            print("🔍 USER PROFILE: CloudKit not enabled, skipping sync")
+            debugLog("🔍 USER PROFILE: CloudKit not enabled, skipping sync")
             return
         }
         
         do {
-            print("🔄 USER PROFILE: Fetching from CloudKit...")
+            debugLog("🔄 USER PROFILE: Fetching from CloudKit...")
             if let cloudProfile = try await CloudKitManager.shared.fetchUserProfile() {
                 await MainActor.run {
                     if let existingProfile = currentProfile {
                         // Replace all data with CloudKit data (complete restoration)
                         existingProfile.updateFromCloudKit(cloudProfile)
                         try? modelContext?.save()
-                        print("✅ USER PROFILE: Completely restored from CloudKit data")
+                        debugLog("✅ USER PROFILE: Completely restored from CloudKit data")
 
                         // Trigger UI updates by notifying that profile changed
                         objectWillChange.send()
@@ -312,7 +312,7 @@ class UserProfileManager: ObservableObject {
                         modelContext?.insert(newProfile)
                         currentProfile = newProfile
                         try? modelContext?.save()
-                        print("✅ USER PROFILE: Created from CloudKit data")
+                        debugLog("✅ USER PROFILE: Created from CloudKit data")
                     }
                 }
                 
@@ -327,13 +327,13 @@ class UserProfileManager: ObservableObject {
                     }
                 }
             } else {
-                print("🔍 USER PROFILE: No CloudKit data found")
+                debugLog("🔍 USER PROFILE: No CloudKit data found")
             }
         } catch {
             await MainActor.run {
                 self.error = "CloudKit fetch failed: \(error.localizedDescription)"
             }
-            print("❌ USER PROFILE: CloudKit fetch failed - \(error)")
+            debugLog("❌ USER PROFILE: CloudKit fetch failed - \(error)")
         }
     }
     
@@ -351,7 +351,7 @@ class UserProfileManager: ObservableObject {
 
         // If this is the first workout ever
         guard let lastWorkout = profile.lastWorkoutDate else {
-            print("🔥 STREAK: First workout! Starting streak at 1")
+            debugLog("🔥 STREAK: First workout! Starting streak at 1")
             updateStreak(currentStreak: 1, longestStreak: 1, lastWorkoutDate: today, paused: false)
             return
         }
@@ -360,19 +360,19 @@ class UserProfileManager: ObservableObject {
 
         // Check if already worked out today
         if calendar.isDate(today, inSameDayAs: lastWorkoutDay) {
-            print("🔥 STREAK: Already worked out today, keeping streak at \(profile.currentStreak)")
+            debugLog("🔥 STREAK: Already worked out today, keeping streak at \(profile.currentStreak)")
             return
         }
 
         // Calculate days since last workout
         let daysSinceLastWorkout = calendar.dateComponents([.day], from: lastWorkoutDay, to: today).day ?? 0
 
-        print("🔥 STREAK: Days since last workout: \(daysSinceLastWorkout)")
+        debugLog("🔥 STREAK: Days since last workout: \(daysSinceLastWorkout)")
 
         if daysSinceLastWorkout == 1 {
             // Consecutive day - increment streak
             let newStreak = profile.currentStreak + 1
-            print("🔥 STREAK: Consecutive day! Incrementing streak to \(newStreak)")
+            debugLog("🔥 STREAK: Consecutive day! Incrementing streak to \(newStreak)")
             updateStreak(currentStreak: newStreak, longestStreak: newStreak, lastWorkoutDate: today, paused: false)
 
             // Notify streak notification manager
@@ -392,12 +392,12 @@ class UserProfileManager: ObservableObject {
             let shouldReset = shouldResetStreak(lastWorkoutDate: lastWorkoutDay, currentDate: today, restDaysPerWeek: profile.restDaysPerWeek)
 
             if shouldReset {
-                print("🔥 STREAK: Exceeded rest days! Resetting streak to 1")
+                debugLog("🔥 STREAK: Exceeded rest days! Resetting streak to 1")
                 updateStreak(currentStreak: 1, lastWorkoutDate: today, paused: false)
             } else {
                 // Within allowed rest days - continue streak
                 let newStreak = profile.currentStreak + 1
-                print("🔥 STREAK: Within rest days allowance! Continuing streak at \(newStreak)")
+                debugLog("🔥 STREAK: Within rest days allowance! Continuing streak at \(newStreak)")
                 updateStreak(currentStreak: newStreak, longestStreak: newStreak, lastWorkoutDate: today, paused: false)
 
                 // Notify streak notification manager (streak was saved!)
@@ -450,7 +450,7 @@ class UserProfileManager: ObservableObject {
             checkDate = weekEnd
         }
 
-        print("🔥 STREAK: Max missed days in any week: \(maxMissedInAnyWeek), allowed: \(restDaysPerWeek)")
+        debugLog("🔥 STREAK: Max missed days in any week: \(maxMissedInAnyWeek), allowed: \(restDaysPerWeek)")
 
         // Reset if exceeded rest days in any calendar week
         return maxMissedInAnyWeek > restDaysPerWeek
@@ -476,7 +476,7 @@ class UserProfileManager: ObservableObject {
             let shouldReset = shouldResetStreak(lastWorkoutDate: lastWorkoutDay, currentDate: today, restDaysPerWeek: profile.restDaysPerWeek)
 
             if shouldReset && !profile.streakPaused {
-                print("🔥 STREAK: Streak expired! Resetting to 0")
+                debugLog("🔥 STREAK: Streak expired! Resetting to 0")
                 updateStreak(currentStreak: 0, paused: false)
             }
             // Note: We no longer auto-pause streaks. User controls pause manually.

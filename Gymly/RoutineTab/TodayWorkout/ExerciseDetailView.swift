@@ -101,7 +101,7 @@ struct ExerciseDetailView: View {
                             exercise: exercise,
                             setForCalendar: false,
                             onSetTap: { tappedSet in
-                                print("📱 ExerciseDetailView received set tap for set ID: \(tappedSet.id)")
+                                debugLog("📱 ExerciseDetailView received set tap for set ID: \(tappedSet.id)")
                                 selectedSet = tappedSet
                                 showSetEditSheet = true
                             }
@@ -198,10 +198,10 @@ struct ExerciseDetailView: View {
                     )
                     .presentationDetents([.fraction(0.68)])
                     .onAppear {
-                        print("📱 EditExerciseSetView appeared for set ID: \(selectedSet.id)")
+                        debugLog("📱 EditExerciseSetView appeared for set ID: \(selectedSet.id)")
                     }
                     .onDisappear {
-                        print("📱 EditExerciseSetView disappeared for set ID: \(selectedSet.id)")
+                        debugLog("📱 EditExerciseSetView disappeared for set ID: \(selectedSet.id)")
                     }
                 }
             }
@@ -255,7 +255,7 @@ struct ExerciseDetailView: View {
                 workoutDate: Date(),
                 workoutID: UUID()
             ) {
-                print("🏆 NEW PR DETECTED: \(prNotification.exerciseName) - \(prNotification.type.displayName)")
+                debugLog("🏆 NEW PR DETECTED: \(prNotification.exerciseName) - \(prNotification.type.displayName)")
 
                 // Refresh PR display at top of view
                 personalRecords = await prManager.getPR(for: freshExercise.name)

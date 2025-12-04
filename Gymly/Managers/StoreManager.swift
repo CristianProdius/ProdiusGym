@@ -65,7 +65,7 @@ class StoreManager: ObservableObject {
 
     // MARK: - Initialization
     init() {
-        print("🛒 StoreManager: Initializing...")
+        debugLog("🛒 StoreManager: Initializing...")
 
         // Start listening for transaction updates
         updateListenerTask = listenForTransactions()
@@ -82,18 +82,18 @@ class StoreManager: ObservableObject {
 
     // MARK: - Load Products
     func loadProducts() async {
-        print("🛒 StoreManager: Loading products...")
+        debugLog("🛒 StoreManager: Loading products...")
 
         do {
             let productIDs = [monthlyProductID, yearlyProductID]
             products = try await Product.products(for: productIDs)
 
-            print("✅ StoreManager: Loaded \(products.count) products")
+            debugLog("✅ StoreManager: Loaded \(products.count) products")
             for product in products {
-                print("   - \(product.displayName): \(product.displayPrice)")
+                debugLog("   - \(product.displayName): \(product.displayPrice)")
             }
         } catch {
-            print("❌ StoreManager: Failed to load products: \(error)")
+            debugLog("❌ StoreManager: Failed to load products: \(error)")
             errorMessage = "Failed to load subscription options"
         }
     }
@@ -101,11 +101,11 @@ class StoreManager: ObservableObject {
     // MARK: - Purchase
     func purchase(_ product: Product) async {
         guard !purchaseInProgress else {
-            print("⚠️ StoreManager: Purchase already in progress")
+            debugLog("⚠️ StoreManager: Purchase already in progress")
             return
         }
 
-        print("🛒 StoreManager: Starting purchase for \(product.displayName)...")
+        debugLog("🛒 StoreManager: Starting purchase for \(product.displayName)...")
         purchaseInProgress = true
         errorMessage = nil
 
@@ -114,7 +114,7 @@ class StoreManager: ObservableObject {
 
             switch result {
             case .success(let verification):
-                print("✅ StoreManager: Purchase successful, verifying...")
+                debugLog("✅ StoreManager: Purchase successful, verifying...")
 
                 // Verify transaction
                 let transaction = try checkVerified(verification)
@@ -125,25 +125,25 @@ class StoreManager: ObservableObject {
                 // Finish transaction
                 await transaction.finish()
 
-                print("✅ StoreManager: Purchase complete for \(product.id)")
+                debugLog("✅ StoreManager: Purchase complete for \(product.id)")
 
             case .userCancelled:
-                print("⚠️ StoreManager: User cancelled purchase")
+                debugLog("⚠️ StoreManager: User cancelled purchase")
 
             case .pending:
-                print("⚠️ StoreManager: Purchase pending (Ask to Buy)")
+                debugLog("⚠️ StoreManager: Purchase pending (Ask to Buy)")
                 errorMessage = "Purchase pending approval"
 
             @unknown default:
-                print("❌ StoreManager: Unknown purchase result")
+                debugLog("❌ StoreManager: Unknown purchase result")
                 errorMessage = "Unknown purchase result"
             }
         } catch StoreError.failedVerification {
             errorMessage = "Purchase verification failed. Please try again."
-            print("❌ StoreManager: Failed verification")
+            debugLog("❌ StoreManager: Failed verification")
         } catch {
             errorMessage = "Purchase failed: \(error.localizedDescription)"
-            print("❌ StoreManager: Purchase error: \(error)")
+            debugLog("❌ StoreManager: Purchase error: \(error)")
         }
 
         purchaseInProgress = false
@@ -151,7 +151,7 @@ class StoreManager: ObservableObject {
 
     // MARK: - Restore Purchases
     func restorePurchases() async {
-        print("🛒 StoreManager: Restoring purchases...")
+        debugLog("🛒 StoreManager: Restoring purchases...")
         purchaseInProgress = true
         errorMessage = nil
 
@@ -160,14 +160,14 @@ class StoreManager: ObservableObject {
             await updateSubscriptionStatus()
 
             if isPremium {
-                print("✅ StoreManager: Purchases restored successfully")
+                debugLog("✅ StoreManager: Purchases restored successfully")
             } else {
-                print("⚠️ StoreManager: No purchases to restore")
+                debugLog("⚠️ StoreManager: No purchases to restore")
                 errorMessage = "No active subscriptions found"
             }
         } catch {
             errorMessage = "Failed to restore purchases: \(error.localizedDescription)"
-            print("❌ StoreManager: Restore failed: \(error)")
+            debugLog("❌ StoreManager: Restore failed: \(error)")
         }
 
         purchaseInProgress = false
@@ -175,7 +175,7 @@ class StoreManager: ObservableObject {
 
     // MARK: - Update Subscription Status
     func updateSubscriptionStatus() async {
-        print("🛒 StoreManager: Updating subscription status...")
+        debugLog("🛒 StoreManager: Updating subscription status...")
 
         // Check for active subscriptions
         var activeSubscription: Product.SubscriptionInfo.Status?
@@ -195,11 +195,11 @@ class StoreManager: ObservableObject {
         }
 
         if let status = activeSubscription, let product = highestPriorityProduct {
-            print("✅ StoreManager: Found active subscription: \(product.displayName)")
+            debugLog("✅ StoreManager: Found active subscription: \(product.displayName)")
 
             // Verify the transaction
             guard let transaction = try? checkVerified(status.transaction) else {
-                print("❌ StoreManager: Transaction verification failed")
+                debugLog("❌ StoreManager: Transaction verification failed")
                 isPremium = false
                 subscriptionStatus = .expired
                 return
@@ -209,7 +209,7 @@ class StoreManager: ObservableObject {
 
             // Get renewal info (verified)
             guard let renewalInfo = try? checkVerified(status.renewalInfo) else {
-                print("❌ StoreManager: Renewal info verification failed")
+                debugLog("❌ StoreManager: Renewal info verification failed")
                 isPremium = false
                 subscriptionStatus = .expired
                 return
@@ -222,52 +222,52 @@ class StoreManager: ObservableObject {
                     // Check if in trial period - use offer instead of deprecated offerType
                     if transaction.offer?.type == .introductory {
                         subscriptionStatus = .trial(expiresAt: expirationDate)
-                        print("   Status: Free Trial (expires \(expirationDate))")
+                        debugLog("   Status: Free Trial (expires \(expirationDate))")
                     } else {
                         subscriptionStatus = .active(expiresAt: expirationDate)
-                        print("   Status: Active (renews \(expirationDate))")
+                        debugLog("   Status: Active (renews \(expirationDate))")
                     }
                 } else {
                     subscriptionStatus = .cancelled(expiresAt: expirationDate)
-                    print("   Status: Cancelled (access until \(expirationDate))")
+                    debugLog("   Status: Cancelled (access until \(expirationDate))")
                 }
                 isPremium = true
 
             case .inGracePeriod:
                 subscriptionStatus = .gracePeriod(expiresAt: expirationDate)
                 isPremium = true
-                print("   Status: Grace Period (expires \(expirationDate))")
+                debugLog("   Status: Grace Period (expires \(expirationDate))")
 
             case .revoked:
                 subscriptionStatus = .expired
                 isPremium = false
-                print("   Status: Revoked")
+                debugLog("   Status: Revoked")
 
             case .expired:
                 subscriptionStatus = .expired
                 isPremium = false
-                print("   Status: Expired")
+                debugLog("   Status: Expired")
 
             case .inBillingRetryPeriod:
                 // Keep premium active during billing retry
                 subscriptionStatus = .gracePeriod(expiresAt: expirationDate)
                 isPremium = true
-                print("   Status: Billing Retry Period")
+                debugLog("   Status: Billing Retry Period")
 
             default:
                 // Handle any future subscription states
                 subscriptionStatus = .expired
                 isPremium = false
-                print("   Status: Unknown (treating as expired)")
+                debugLog("   Status: Unknown (treating as expired)")
             }
         } else {
             // No active subscription
             isPremium = false
             subscriptionStatus = .expired
-            print("⚠️ StoreManager: No active subscription found")
+            debugLog("⚠️ StoreManager: No active subscription found")
         }
 
-        print("🛒 StoreManager: isPremium = \(isPremium)")
+        debugLog("🛒 StoreManager: isPremium = \(isPremium)")
     }
 
     // MARK: - Listen for Transactions
@@ -275,14 +275,14 @@ class StoreManager: ObservableObject {
         return Task.detached { [weak self] in
             guard let self = self else { return }
 
-            print("🛒 StoreManager: Started listening for transaction updates...")
+            debugLog("🛒 StoreManager: Started listening for transaction updates...")
 
             for await result in Transaction.updates {
                 do {
                     // checkVerified is not actor-isolated, so we can call it directly
                     let transaction = try await self.checkVerifiedAsync(result)
 
-                    print("🛒 StoreManager: Received transaction update for \(transaction.productID)")
+                    debugLog("🛒 StoreManager: Received transaction update for \(transaction.productID)")
 
                     // Update subscription status on main thread
                     _ = await MainActor.run {
@@ -293,7 +293,7 @@ class StoreManager: ObservableObject {
 
                     await transaction.finish()
                 } catch {
-                    print("❌ StoreManager: Transaction verification failed: \(error)")
+                    debugLog("❌ StoreManager: Transaction verification failed: \(error)")
                 }
             }
         }
@@ -303,7 +303,7 @@ class StoreManager: ObservableObject {
     private func checkVerifiedAsync<T>(_ result: VerificationResult<T>) async throws -> T {
         switch result {
         case .unverified:
-            print("❌ StoreManager: Transaction unverified")
+            debugLog("❌ StoreManager: Transaction unverified")
             throw StoreError.failedVerification
         case .verified(let safe):
             return safe
@@ -314,7 +314,7 @@ class StoreManager: ObservableObject {
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
         case .unverified:
-            print("❌ StoreManager: Transaction unverified")
+            debugLog("❌ StoreManager: Transaction unverified")
             throw StoreError.failedVerification
         case .verified(let safe):
             return safe

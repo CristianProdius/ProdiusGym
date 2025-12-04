@@ -102,9 +102,9 @@ struct CalendarView: View {
                                                 .onAppear {
                                                     // Only log for today's date to reduce noise
                                                     if Calendar.current.isDate(day.date, inSameDayAs: Date()) {
-                                                        print("🔍 CALENDAR: Today's date is '\(dayDateString)'")
-                                                        print("🔍 CALENDAR: daysRecorded contains: \(config.daysRecorded)")
-                                                        print("🔍 CALENDAR: Contains today? \(config.daysRecorded.contains(dayDateString))")
+                                                        debugLog("🔍 CALENDAR: Today's date is '\(dayDateString)'")
+                                                        debugLog("🔍 CALENDAR: daysRecorded contains: \(config.daysRecorded)")
+                                                        debugLog("🔍 CALENDAR: Contains today? \(config.daysRecorded.contains(dayDateString))")
                                                     }
                                                 }
 

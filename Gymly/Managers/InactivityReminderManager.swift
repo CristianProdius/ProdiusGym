@@ -33,7 +33,7 @@ class InactivityReminderManager: ObservableObject {
               let userProfileManager = userProfileManager,
               let profile = userProfileManager.currentProfile else {
             #if DEBUG
-            print("⚠️ INACTIVITY: Missing dependencies")
+            debugLog("⚠️ INACTIVITY: Missing dependencies")
             #endif
             return
         }
@@ -41,7 +41,7 @@ class InactivityReminderManager: ObservableObject {
         // Check if inactivity reminders are enabled
         guard config.notificationsEnabled && config.inactivityRemindersEnabled else {
             #if DEBUG
-            print("🔔 INACTIVITY: Disabled in settings")
+            debugLog("🔔 INACTIVITY: Disabled in settings")
             #endif
             cancelInactivityReminder()
             return
@@ -59,7 +59,7 @@ class InactivityReminderManager: ObservableObject {
         let daysSinceLastWorkout = calendar.dateComponents([.day], from: lastWorkoutDay, to: today).day ?? 0
 
         #if DEBUG
-        print("📊 INACTIVITY: Days since last workout = \(daysSinceLastWorkout)")
+        debugLog("📊 INACTIVITY: Days since last workout = \(daysSinceLastWorkout)")
         #endif
 
         // Cancel existing reminder
@@ -123,11 +123,11 @@ class InactivityReminderManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ INACTIVITY: Scheduled reminder for tomorrow at 10 AM (\(daysSinceLastWorkout) days inactive)")
+                debugLog("✅ INACTIVITY: Scheduled reminder for tomorrow at 10 AM (\(daysSinceLastWorkout) days inactive)")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ INACTIVITY: Failed to schedule reminder - \(error)")
+                debugLog("❌ INACTIVITY: Failed to schedule reminder - \(error)")
                 #endif
             }
         }
@@ -138,14 +138,14 @@ class InactivityReminderManager: ObservableObject {
         notificationManager.cancelNotification(withId: NotificationManager.NotificationID.inactivityReminder)
 
         #if DEBUG
-        print("🗑️ INACTIVITY: Cancelled reminder")
+        debugLog("🗑️ INACTIVITY: Cancelled reminder")
         #endif
     }
 
     /// Reschedule inactivity check (call this after workout completion or settings change)
     func rescheduleInactivityCheck() {
         #if DEBUG
-        print("🔄 INACTIVITY: Rescheduling inactivity check")
+        debugLog("🔄 INACTIVITY: Rescheduling inactivity check")
         #endif
         checkAndScheduleInactivityReminder()
     }

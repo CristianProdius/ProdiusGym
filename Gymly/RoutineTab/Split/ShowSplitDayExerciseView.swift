@@ -101,10 +101,10 @@ struct ShowSplitDayExerciseView: View {
                     unit: .constant(userProfileManager.currentProfile?.weightUnit ?? "Kg")
                 )
                 .onAppear {
-                    print("📱 EditExerciseSetView appeared for set ID: \(set.id)")
+                    debugLog("📱 EditExerciseSetView appeared for set ID: \(set.id)")
                 }
                 .onDisappear {
-                    print("📱 EditExerciseSetView disappeared for set ID: \(set.id)")
+                    debugLog("📱 EditExerciseSetView disappeared for set ID: \(set.id)")
                 }
             case .none:
                 EmptyView()

@@ -137,9 +137,9 @@ struct ProgressPhotoTimelineView: View {
                                 ], spacing: 8) {
                                     ForEach(photos) { photo in
                                         PhotoThumbnailCell(photo: photo, onTap: {
-                                            print("📸 TIMELINE: Photo tapped - ID: \(photo.id?.uuidString ?? "unknown")")
+                                            debugLog("📸 TIMELINE: Photo tapped - ID: \(photo.id?.uuidString ?? "unknown")")
                                             selectedPhoto = photo
-                                            print("📸 TIMELINE: Set selectedPhoto=\(photo.id?.uuidString ?? "unknown")")
+                                            debugLog("📸 TIMELINE: Set selectedPhoto=\(photo.id?.uuidString ?? "unknown")")
                                         })
                                     }
                                 }
@@ -158,7 +158,7 @@ struct ProgressPhotoTimelineView: View {
         .sheet(item: $selectedPhoto) { photo in
             ProgressPhotoDetailView(photo: photo)
                 .onAppear {
-                    print("✅ TIMELINE: Sheet appeared for photo: \(photo.id?.uuidString ?? "unknown")")
+                    debugLog("✅ TIMELINE: Sheet appeared for photo: \(photo.id?.uuidString ?? "unknown")")
                 }
         }
     }

@@ -13,7 +13,14 @@ struct SettingsView: View {
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
     @Environment(\.colorScheme) private var scheme
+    @Environment(\.modelContext) private var context
     @State private var weightUpdatedTrigger = false
+    @State private var showDeleteAccountAlert = false
+    @State private var showDeleteConfirmation = false
+    @State private var deleteConfirmationText = ""
+    @State private var isDeletingAccount = false
+    @State private var deleteError: String?
+    @State private var showDeleteError = false
 
     let units: [String] = ["Kg","Lbs"]
 
@@ -168,8 +175,8 @@ struct SettingsView: View {
                     // Account Section
                     Section("Account") {
                         Button(action: {
-                            // TODO: Handle logout
-                            config.isUserLoggedIn = false
+                            // Simple logout - just return to sign-in screen, data stays
+                            AccountManager.shared.logout(config: config)
                         }) {
                             HStack {
                                 Image(systemName: "arrow.right.square")
@@ -182,7 +189,7 @@ struct SettingsView: View {
                         .frame(width: 300)
 
                         Button(action: {
-                            // TODO: Handle account deletion
+                            showDeleteAccountAlert = true
                         }) {
                             HStack {
                                 Image(systemName: "trash")
@@ -193,6 +200,20 @@ struct SettingsView: View {
                             }
                         }
                         .frame(width: 300)
+                        .disabled(isDeletingAccount)
+
+                        #if DEBUG
+                        NavigationLink(destination: DeveloperTestingView()) {
+                            HStack {
+                                Image(systemName: "testtube.2")
+                                    .foregroundColor(.orange)
+                                Text("Developer Testing")
+                                    .foregroundColor(.orange)
+                                Spacer()
+                            }
+                        }
+                        .frame(width: 300)
+                        #endif
                     }
                     .listRowBackground(Color.black.opacity(0.05))
 
@@ -216,6 +237,65 @@ struct SettingsView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .navigationTitle("Settings")
+            }
+        }
+        // First confirmation alert
+        .alert("Delete Account?", isPresented: $showDeleteAccountAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Delete", role: .destructive) {
+                showDeleteConfirmation = true
+            }
+        } message: {
+            Text("This will permanently delete ALL your data including workouts, progress photos, and cloud backups. This action cannot be undone.")
+        }
+        // Second confirmation with text input
+        .alert("Final Confirmation", isPresented: $showDeleteConfirmation) {
+            TextField("Type DELETE to confirm", text: $deleteConfirmationText)
+            Button("Cancel", role: .cancel) {
+                deleteConfirmationText = ""
+            }
+            Button("Delete Forever", role: .destructive) {
+                if deleteConfirmationText.uppercased() == "DELETE" {
+                    performAccountDeletion()
+                } else {
+                    deleteError = "You must type DELETE to confirm"
+                    showDeleteError = true
+                }
+                deleteConfirmationText = ""
+            }
+        } message: {
+            Text("Type DELETE (in capital letters) to permanently delete your account and all data.")
+        }
+        // Error alert
+        .alert("Deletion Failed", isPresented: $showDeleteError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(deleteError ?? "Unknown error occurred")
+        }
+    }
+
+    // MARK: - Account Deletion
+
+    private func performAccountDeletion() {
+        isDeletingAccount = true
+
+        Task {
+            do {
+                // Delete account with CloudKit data
+                try await AccountManager.shared.deleteAccount(
+                    context: context,
+                    config: config,
+                    includeCloudKit: true
+                )
+
+                debugLog("✅ Account deleted successfully")
+                // User is automatically logged out by deleteAccount()
+            } catch {
+                await MainActor.run {
+                    deleteError = error.localizedDescription
+                    showDeleteError = true
+                    isDeletingAccount = false
+                }
             }
         }
     }

@@ -27,21 +27,21 @@ struct ProgressPhotoDetailView: View {
     init(photo: ProgressPhoto) {
         self.photo = photo
 
-        print("📸 INIT: Creating ProgressPhotoDetailView for photo \(photo.id?.uuidString ?? "unknown")")
-        print("📸 INIT: Has thumbnailData: \(photo.thumbnailData != nil)")
-        print("📸 INIT: Thumbnail size: \(photo.thumbnailData?.count ?? 0) bytes")
-        print("📸 INIT: Has photoAssetID: \(photo.photoAssetID != nil)")
+        debugLog("📸 INIT: Creating ProgressPhotoDetailView for photo \(photo.id?.uuidString ?? "unknown")")
+        debugLog("📸 INIT: Has thumbnailData: \(photo.thumbnailData != nil)")
+        debugLog("📸 INIT: Thumbnail size: \(photo.thumbnailData?.count ?? 0) bytes")
+        debugLog("📸 INIT: Has photoAssetID: \(photo.photoAssetID != nil)")
 
         // CRITICAL: Load thumbnail SYNCHRONOUSLY in init before view appears
         // This ensures image is ready immediately, not waiting for .onAppear
         if let thumbnailData = photo.thumbnailData,
            let thumbnail = UIImage(data: thumbnailData) {
             _image = State(initialValue: thumbnail)
-            print("✅ INIT: Loaded cached thumbnail successfully - size: \(thumbnail.size)")
+            debugLog("✅ INIT: Loaded cached thumbnail successfully - size: \(thumbnail.size)")
         } else if photo.thumbnailData != nil {
-            print("❌ INIT: Has thumbnailData but failed to create UIImage!")
+            debugLog("❌ INIT: Has thumbnailData but failed to create UIImage!")
         } else {
-            print("⚠️ INIT: No thumbnailData for photo")
+            debugLog("⚠️ INIT: No thumbnailData for photo")
         }
     }
 
@@ -227,26 +227,26 @@ struct ProgressPhotoDetailView: View {
 
     /// Load photo with proper error handling
     private func loadPhoto() async {
-        print("📸 TASK: Starting loadPhoto() - current image state: \(image != nil ? "has image" : "no image")")
+        debugLog("📸 TASK: Starting loadPhoto() - current image state: \(image != nil ? "has image" : "no image")")
 
         // Load full resolution from Photos library
         guard let assetID = photo.photoAssetID else {
             await MainActor.run {
                 isLoading = false
                 loadError = true
-                print("❌ TASK: No asset ID for photo")
+                debugLog("❌ TASK: No asset ID for photo")
             }
             return
         }
 
-        print("📸 TASK: Loading full resolution for asset: \(assetID)")
+        debugLog("📸 TASK: Loading full resolution for asset: \(assetID)")
 
         if let fullImage = await photoManager.loadImage(from: assetID) {
             await MainActor.run {
                 image = fullImage
                 isLoading = false
                 loadError = false
-                print("✅ TASK: Full resolution loaded successfully")
+                debugLog("✅ TASK: Full resolution loaded successfully")
             }
         } else {
             await MainActor.run {
@@ -254,9 +254,9 @@ struct ProgressPhotoDetailView: View {
                 // If we have a thumbnail, don't show error - just keep thumbnail
                 if image == nil {
                     loadError = true
-                    print("❌ TASK: Failed to load full resolution and no thumbnail available")
+                    debugLog("❌ TASK: Failed to load full resolution and no thumbnail available")
                 } else {
-                    print("⚠️ TASK: Failed to load full resolution but thumbnail is available")
+                    debugLog("⚠️ TASK: Failed to load full resolution but thumbnail is available")
                 }
             }
         }

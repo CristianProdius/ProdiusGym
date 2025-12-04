@@ -87,7 +87,7 @@ struct ContentViewGraph: View {
             }
 
             #if DEBUG
-            print("[Graph] \(range.rawValue): Found \(filteredExercises.count) exercises (from \(completedExercises.count) total completed)")
+            debugLog("[Graph] \(range.rawValue): Found \(filteredExercises.count) exercises (from \(completedExercises.count) total completed)")
             #endif
 
             // OPTIMIZATION 3: Aggregate muscle group counts efficiently

@@ -1,0 +1,162 @@
+//
+//  DeveloperTestingView.swift
+//  ShadowLift
+//
+//  Created by Claude Code on 29.11.2025.
+//
+
+import SwiftUI
+import SwiftData
+
+/// Developer-only view for testing account deletion safely
+/// This allows testing the deletion flow WITHOUT deleting CloudKit data
+struct DeveloperTestingView: View {
+    @EnvironmentObject var config: Config
+    @Environment(\.modelContext) private var context
+    @State private var showTestDeleteAlert = false
+    @State private var showTestDeleteConfirmation = false
+    @State private var deleteConfirmationText = ""
+    @State private var isDeletingAccount = false
+    @State private var deleteError: String?
+    @State private var showDeleteError = false
+    @State private var deletionComplete = false
+
+    var body: some View {
+        List {
+            Section {
+                Text("⚠️ DEVELOPER TESTING MODE")
+                    .font(.headline)
+                    .foregroundColor(.orange)
+
+                Text("This view allows you to test account deletion WITHOUT deleting CloudKit data. Your iCloud backups will remain safe.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Section("Safe Test Deletion") {
+                Button(action: {
+                    showTestDeleteAlert = true
+                }) {
+                    HStack {
+                        Image(systemName: "testtube.2")
+                            .foregroundColor(.orange)
+                        VStack(alignment: .leading) {
+                            Text("Test Delete Account")
+                                .foregroundColor(.orange)
+                            Text("Deletes local data only, keeps CloudKit")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                }
+                .disabled(isDeletingAccount)
+            }
+
+            if deletionComplete {
+                Section {
+                    VStack(spacing: 12) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 50))
+                            .foregroundColor(.green)
+
+                        Text("Test Deletion Complete!")
+                            .font(.headline)
+
+                        Text("Local data deleted. CloudKit data is SAFE. You can restore by syncing from iCloud.")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                            .multilineTextAlignment(.center)
+
+                        Button("Restore from iCloud") {
+                            Task {
+                                await CloudKitManager.shared.fetchAndMergeData(context: context, config: config)
+                                deletionComplete = false
+                            }
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
+                    .padding()
+                }
+            }
+
+            Section("Instructions") {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label("1. Tap 'Test Delete Account'", systemImage: "1.circle.fill")
+                    Label("2. Confirm twice (just like real deletion)", systemImage: "2.circle.fill")
+                    Label("3. All local data will be deleted", systemImage: "3.circle.fill")
+                    Label("4. CloudKit data stays SAFE", systemImage: "checkmark.shield.fill")
+                        .foregroundColor(.green)
+                    Label("5. Tap 'Restore from iCloud' to get data back", systemImage: "icloud.and.arrow.down.fill")
+                        .foregroundColor(.blue)
+                }
+                .font(.caption)
+            }
+        }
+        .navigationTitle("Testing Mode")
+        .alert("Test Delete Account?", isPresented: $showTestDeleteAlert) {
+            Button("Cancel", role: .cancel) { }
+            Button("Test Delete", role: .destructive) {
+                showTestDeleteConfirmation = true
+            }
+        } message: {
+            Text("This will delete LOCAL data only. Your CloudKit backups will remain safe and can be restored.")
+        }
+        .alert("Final Test Confirmation", isPresented: $showTestDeleteConfirmation) {
+            TextField("Type DELETE to confirm", text: $deleteConfirmationText)
+            Button("Cancel", role: .cancel) {
+                deleteConfirmationText = ""
+            }
+            Button("Delete Local Data", role: .destructive) {
+                if deleteConfirmationText.uppercased() == "DELETE" {
+                    performTestDeletion()
+                } else {
+                    deleteError = "You must type DELETE to confirm"
+                    showDeleteError = true
+                }
+                deleteConfirmationText = ""
+            }
+        } message: {
+            Text("Type DELETE to test the deletion flow. CloudKit data will NOT be deleted.")
+        }
+        .alert("Test Deletion Failed", isPresented: $showDeleteError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(deleteError ?? "Unknown error occurred")
+        }
+    }
+
+    private func performTestDeletion() {
+        isDeletingAccount = true
+
+        Task {
+            do {
+                // Delete account but SKIP CloudKit deletion (safe testing!)
+                try await AccountManager.shared.deleteAccount(
+                    context: context,
+                    config: config,
+                    includeCloudKit: false  // ← KEY: Don't delete CloudKit!
+                )
+
+                await MainActor.run {
+                    debugLog("✅ TEST DELETION: Local data deleted, CloudKit safe")
+                    isDeletingAccount = false
+                    deletionComplete = true
+
+                    // Log back in so user can restore
+                    config.isUserLoggedIn = true
+                }
+            } catch {
+                await MainActor.run {
+                    deleteError = error.localizedDescription
+                    showDeleteError = true
+                    isDeletingAccount = false
+                }
+            }
+        }
+    }
+}
+
+#Preview {
+    DeveloperTestingView()
+}

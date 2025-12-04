@@ -24,7 +24,7 @@ struct ProfileImageCropView: View {
         self.image = image
         self.onComplete = onComplete
         self.onCancel = onCancel
-        print("🖼️ CROP VIEW INIT: Image size: \(image.size)")
+        debugLog("🖼️ CROP VIEW INIT: Image size: \(image.size)")
     }
 
     var body: some View {
@@ -145,8 +145,8 @@ struct ProfileImageCropView: View {
                 }
             }
             .onAppear {
-                print("🖼️ CROP VIEW: Image size: \(image.size)")
-                print("🖼️ CROP VIEW: View appeared")
+                debugLog("🖼️ CROP VIEW: Image size: \(image.size)")
+                debugLog("🖼️ CROP VIEW: View appeared")
             }
         }
     }
@@ -159,10 +159,10 @@ struct ProfileImageCropView: View {
             height: finalOffset.height + currentOffset.height
         )
 
-        print("🔍 CROP: Final scale: \(scale)")
-        print("🔍 CROP: Final offset: \(offset)")
-        print("🔍 CROP: Circle size: \(circleSize)")
-        print("🔍 CROP: Image size: \(image.size)")
+        debugLog("🔍 CROP: Final scale: \(scale)")
+        debugLog("🔍 CROP: Final offset: \(offset)")
+        debugLog("🔍 CROP: Circle size: \(circleSize)")
+        debugLog("🔍 CROP: Image size: \(image.size)")
 
         // Crop and generate circular image
         if let croppedImage = cropImageToCircle(
@@ -172,10 +172,10 @@ struct ProfileImageCropView: View {
             circleSize: circleSize,
             screenSize: screenSize
         ) {
-            print("✅ CROP: Generated cropped image: \(croppedImage.size)")
+            debugLog("✅ CROP: Generated cropped image: \(croppedImage.size)")
             onComplete(croppedImage)
         } else {
-            print("❌ CROP: Failed to generate cropped image")
+            debugLog("❌ CROP: Failed to generate cropped image")
         }
     }
 
@@ -199,14 +199,14 @@ struct ProfileImageCropView: View {
             displayWidth = screenSize.height * imageAspect
         }
 
-        print("🔍 Display size: \(displayWidth) x \(displayHeight)")
-        print("🔍 Screen size: \(screenSize.width) x \(screenSize.height)")
+        debugLog("🔍 Display size: \(displayWidth) x \(displayHeight)")
+        debugLog("🔍 Screen size: \(screenSize.width) x \(screenSize.height)")
 
         // Where is the displayed image positioned (centered on screen, BEFORE any transforms)
         let baseDisplayX = (screenSize.width - displayWidth) / 2
         let baseDisplayY = (screenSize.height - displayHeight) / 2
 
-        print("🔍 Base display position: (\(baseDisplayX), \(baseDisplayY))")
+        debugLog("🔍 Base display position: (\(baseDisplayX), \(baseDisplayY))")
 
         // Circle is always at screen center
         let circleCenterX = screenSize.width / 2
@@ -217,40 +217,40 @@ struct ProfileImageCropView: View {
         let imageCenterX = screenSize.width / 2 + offset.width
         let imageCenterY = screenSize.height / 2 + offset.height
 
-        print("🔍 Image center after offset: (\(imageCenterX), \(imageCenterY))")
-        print("🔍 Circle center: (\(circleCenterX), \(circleCenterY))")
+        debugLog("🔍 Image center after offset: (\(imageCenterX), \(imageCenterY))")
+        debugLog("🔍 Circle center: (\(circleCenterX), \(circleCenterY))")
 
         // Distance from image center to circle center (in screen coordinates)
         let deltaX = circleCenterX - imageCenterX
         let deltaY = circleCenterY - imageCenterY
 
-        print("🔍 Delta from image center to circle center: (\(deltaX), \(deltaY))")
+        debugLog("🔍 Delta from image center to circle center: (\(deltaX), \(deltaY))")
 
         // Convert to display coordinates (accounting for scale)
         let displayDeltaX = deltaX / scale
         let displayDeltaY = deltaY / scale
 
-        print("🔍 Display delta (unscaled): (\(displayDeltaX), \(displayDeltaY))")
+        debugLog("🔍 Display delta (unscaled): (\(displayDeltaX), \(displayDeltaY))")
 
         // Image center in display coordinates is at (displayWidth/2, displayHeight/2)
         // Circle center in display coordinates relative to image:
         let circleInImageX = (displayWidth / 2) + displayDeltaX
         let circleInImageY = (displayHeight / 2) + displayDeltaY
 
-        print("🔍 Circle position in display image: (\(circleInImageX), \(circleInImageY))")
+        debugLog("🔍 Circle position in display image: (\(circleInImageX), \(circleInImageY))")
 
         // Convert to actual image pixel coordinates
         let imageScale = imageSize.width / displayWidth
         let cropCenterX = circleInImageX * imageScale
         let cropCenterY = circleInImageY * imageScale
 
-        print("🔍 Crop center in image pixels: (\(cropCenterX), \(cropCenterY))")
-        print("🔍 Image scale factor: \(imageScale)")
+        debugLog("🔍 Crop center in image pixels: (\(cropCenterX), \(cropCenterY))")
+        debugLog("🔍 Image scale factor: \(imageScale)")
 
         // Crop radius in image pixels
         let cropRadius = (circleSize / 2) / scale * imageScale
 
-        print("🔍 Crop radius in image pixels: \(cropRadius)")
+        debugLog("🔍 Crop radius in image pixels: \(cropRadius)")
 
         // Create circular crop at the calculated position
         let cropDiameter = cropRadius * 2

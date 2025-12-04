@@ -52,12 +52,12 @@ struct EditUserView: View {
                                     if let newItem = avatarItem,
                                        let data = try? await newItem.loadTransferable(type: Data.self),
                                        let uiImage = UIImage(data: data) {
-                                        print("📸 EDITUSER: Loaded image: \(uiImage.size)")
+                                        debugLog("📸 EDITUSER: Loaded image: \(uiImage.size)")
                                         // Set image first, then present on main thread
                                         await MainActor.run {
                                             selectedImageForCrop = uiImage
                                             showCropEditor = true
-                                            print("📸 EDITUSER: Presenting crop editor")
+                                            debugLog("📸 EDITUSER: Presenting crop editor")
                                         }
                                     }
                                 }
@@ -81,17 +81,17 @@ struct EditUserView: View {
                         Button("Save changes") {
                             Task {
                                 do {
-                                    print("🔥 SAVE CHANGES PRESSED")
-                                    print("🔥 CURRENT USERNAME: \(userProfileManager.currentProfile?.username ?? "none")")
-                                    print("🔥 HAS AVATAR IMAGE: \(avatarImage != nil)")
+                                    debugLog("🔥 SAVE CHANGES PRESSED")
+                                    debugLog("🔥 CURRENT USERNAME: \(userProfileManager.currentProfile?.username ?? "none")")
+                                    debugLog("🔥 HAS AVATAR IMAGE: \(avatarImage != nil)")
 
                                     // Save profile image using new UserProfile system
                                     if let image = avatarImage {
-                                        print("🔥 SAVING PROFILE IMAGE TO USERPROFILE")
+                                        debugLog("🔥 SAVING PROFILE IMAGE TO USERPROFILE")
                                         userProfileManager.updateProfileImage(image)
                                     }
 
-                                    print("✅ Profile changes saved to SwiftData + CloudKit")
+                                    debugLog("✅ Profile changes saved to SwiftData + CloudKit")
 
                                     await MainActor.run {
                                         dismiss()

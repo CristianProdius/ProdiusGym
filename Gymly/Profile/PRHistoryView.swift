@@ -349,7 +349,7 @@ struct PRHistoryView: View {
         isLoading = false
 
         #if DEBUG
-        print("📊 PR HISTORY: Loaded \(allPRs.count) exercises with PRs")
+        debugLog("📊 PR HISTORY: Loaded \(allPRs.count) exercises with PRs")
         #endif
     }
 

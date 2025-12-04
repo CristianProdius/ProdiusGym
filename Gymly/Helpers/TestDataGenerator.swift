@@ -13,7 +13,7 @@ class TestDataGenerator {
 
     /// Generates realistic workout data for the past week
     static func generateTestWorkouts(context: ModelContext) {
-        print("🧪 TEST DATA: Starting generation...")
+        debugLog("🧪 TEST DATA: Starting generation...")
 
         let calendar = Calendar.current
         let today = Date()
@@ -46,7 +46,7 @@ class TestDataGenerator {
             )
 
             if let existing = try? context.fetch(checkDescriptor).first {
-                print("🧪 TEST DATA: Skipping \(dateString) - already exists")
+                debugLog("🧪 TEST DATA: Skipping \(dateString) - already exists")
                 continue
             }
 
@@ -75,16 +75,16 @@ class TestDataGenerator {
             )
             context.insert(dayStorage)
 
-            print("🧪 TEST DATA: Created workout for \(dateString) - \(workout.name) with \(workout.exercises.count) exercises")
+            debugLog("🧪 TEST DATA: Created workout for \(dateString) - \(workout.name) with \(workout.exercises.count) exercises")
         }
 
         // Save everything
         do {
             try context.save()
-            print("🧪 TEST DATA: ✅ Successfully generated test workouts!")
-            print("🧪 TEST DATA: You can now test AI Summary")
+            debugLog("🧪 TEST DATA: ✅ Successfully generated test workouts!")
+            debugLog("🧪 TEST DATA: You can now test AI Summary")
         } catch {
-            print("🧪 TEST DATA: ❌ Error saving: \(error)")
+            debugLog("🧪 TEST DATA: ❌ Error saving: \(error)")
         }
     }
 
@@ -224,7 +224,7 @@ class TestDataGenerator {
 
     /// Clears all test data (DayStorage entries from last 7 days)
     static func clearTestData(context: ModelContext) {
-        print("🗑️ TEST DATA: Clearing test workouts...")
+        debugLog("🗑️ TEST DATA: Clearing test workouts...")
 
         let calendar = Calendar.current
         let today = Date()
@@ -267,9 +267,9 @@ class TestDataGenerator {
 
         do {
             try context.save()
-            print("🗑️ TEST DATA: ✅ Deleted \(deletedCount) test workouts")
+            debugLog("🗑️ TEST DATA: ✅ Deleted \(deletedCount) test workouts")
         } catch {
-            print("🗑️ TEST DATA: ❌ Error deleting: \(error)")
+            debugLog("🗑️ TEST DATA: ❌ Error deleting: \(error)")
         }
     }
 }

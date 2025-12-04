@@ -264,7 +264,7 @@ struct EditExerciseSetView: View {
                     workoutDate: Date(),
                     workoutID: UUID()
                 ) {
-                    print("🏆 NEW PR DETECTED: \(prNotification.exerciseName) - \(prNotification.type.displayName)")
+                    debugLog("🏆 NEW PR DETECTED: \(prNotification.exerciseName) - \(prNotification.type.displayName)")
                 }
             }
         }

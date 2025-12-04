@@ -27,7 +27,7 @@ class PRManager: ObservableObject {
     func setup(modelContext: ModelContext, userProfileManager: UserProfileManager) {
         self.modelContext = modelContext
         self.userProfileManager = userProfileManager
-        print("✅ PR MANAGER: Initialized")
+        debugLog("✅ PR MANAGER: Initialized")
     }
 
     // MARK: - Core PR Checking
@@ -35,7 +35,7 @@ class PRManager: ObservableObject {
     /// Check if a set is a PR and update records accordingly
     func checkForPR(exercise: Exercise, set: Exercise.Set, workoutDate: Date = Date(), workoutID: UUID) async -> PRNotification? {
         guard let context = modelContext else {
-            print("❌ PR MANAGER: No model context available")
+            debugLog("❌ PR MANAGER: No model context available")
             return nil
         }
 
@@ -75,7 +75,7 @@ class PRManager: ObservableObject {
                     date: workoutDate
                 )
                 recentPRs.append(notification)
-                print("🏆 PR MANAGER: New Weight PR for \(exercise.name)! \(newBest) kg × \(set.reps) reps")
+                debugLog("🏆 PR MANAGER: New Weight PR for \(exercise.name)! \(newBest) kg × \(set.reps) reps")
 
                 // Send push notification for milestone
                 milestoneManager.sendPRNotification(prNotification: notification)
@@ -90,7 +90,7 @@ class PRManager: ObservableObject {
                     date: workoutDate
                 )
                 recentPRs.append(notification)
-                print("🏆 PR MANAGER: New 1RM PR for \(exercise.name)! \(new1RM) kg")
+                debugLog("🏆 PR MANAGER: New 1RM PR for \(exercise.name)! \(new1RM) kg")
 
                 // Send push notification for milestone
                 milestoneManager.sendPRNotification(prNotification: notification)
@@ -98,7 +98,7 @@ class PRManager: ObservableObject {
                 return notification
             }
         } catch {
-            print("❌ PR MANAGER: Failed to save PR - \(error)")
+            debugLog("❌ PR MANAGER: Failed to save PR - \(error)")
         }
 
         return nil
@@ -107,7 +107,7 @@ class PRManager: ObservableObject {
     /// Analyze entire workout for volume PRs
     func analyzeWorkoutForPRs(exercises: [Exercise], workoutDate: Date = Date(), workoutID: UUID) async -> [PRNotification] {
         guard let context = modelContext else {
-            print("❌ PR MANAGER: No model context available")
+            debugLog("❌ PR MANAGER: No model context available")
             return []
         }
 
@@ -156,7 +156,7 @@ class PRManager: ObservableObject {
                         date: workoutDate
                     )
                     notifications.append(notification)
-                    print("🏆 PR MANAGER: New Volume PR for \(exerciseName)! \(newVolume) kg total")
+                    debugLog("🏆 PR MANAGER: New Volume PR for \(exerciseName)! \(newVolume) kg total")
 
                     // Send push notification for milestone
                     milestoneManager.sendPRNotification(prNotification: notification)
@@ -170,7 +170,7 @@ class PRManager: ObservableObject {
         do {
             try context.save()
         } catch {
-            print("❌ PR MANAGER: Failed to save PRs - \(error)")
+            debugLog("❌ PR MANAGER: Failed to save PRs - \(error)")
         }
 
         recentPRs.append(contentsOf: notifications)
@@ -202,7 +202,7 @@ class PRManager: ObservableObject {
                 return pr
             }
         } catch {
-            print("❌ PR MANAGER: Failed to fetch PR - \(error)")
+            debugLog("❌ PR MANAGER: Failed to fetch PR - \(error)")
         }
 
         return nil
@@ -251,7 +251,7 @@ class PRManager: ObservableObject {
         do {
             return try context.fetch(descriptor)
         } catch {
-            print("❌ PR MANAGER: Failed to fetch all PRs - \(error)")
+            debugLog("❌ PR MANAGER: Failed to fetch all PRs - \(error)")
             return []
         }
     }
@@ -278,7 +278,7 @@ class PRManager: ObservableObject {
                 return existing
             }
         } catch {
-            print("❌ PR MANAGER: Failed to fetch PR - \(error)")
+            debugLog("❌ PR MANAGER: Failed to fetch PR - \(error)")
         }
 
         // Create new PR record
@@ -286,7 +286,7 @@ class PRManager: ObservableObject {
         context.insert(newPR)
         cachedPRs[normalized] = newPR
 
-        print("✅ PR MANAGER: Created new PR record for \(exerciseName)")
+        debugLog("✅ PR MANAGER: Created new PR record for \(exerciseName)")
         return newPR
     }
 
@@ -317,11 +317,11 @@ class PRManager: ObservableObject {
     /// Recalculate all PRs from workout history (expensive operation)
     func recalculateAllPRs() async {
         guard let context = modelContext else {
-            print("❌ PR MANAGER: No model context available")
+            debugLog("❌ PR MANAGER: No model context available")
             return
         }
 
-        print("🔄 PR MANAGER: Starting full PR recalculation...")
+        debugLog("🔄 PR MANAGER: Starting full PR recalculation...")
 
         // Fetch all DayStorage entries (completed workouts)
         let dayStorageDescriptor = FetchDescriptor<DayStorage>(
@@ -382,9 +382,9 @@ class PRManager: ObservableObject {
             }
 
             try context.save()
-            print("✅ PR MANAGER: Recalculation complete! Processed \(allDayStorage.count) workouts")
+            debugLog("✅ PR MANAGER: Recalculation complete! Processed \(allDayStorage.count) workouts")
         } catch {
-            print("❌ PR MANAGER: Failed to recalculate PRs - \(error)")
+            debugLog("❌ PR MANAGER: Failed to recalculate PRs - \(error)")
         }
     }
 

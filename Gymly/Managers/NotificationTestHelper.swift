@@ -31,9 +31,9 @@ class NotificationTestHelper {
                 userInfo: ["type": "test"]
             )
 
-            print("✅ TEST: Streak warning notification scheduled in 5 seconds")
+            debugLog("✅ TEST: Streak warning notification scheduled in 5 seconds")
         } catch {
-            print("❌ TEST: Failed to schedule notification - \(error)")
+            debugLog("❌ TEST: Failed to schedule notification - \(error)")
         }
     }
 
@@ -51,9 +51,9 @@ class NotificationTestHelper {
                 userInfo: ["type": "test"]
             )
 
-            print("✅ TEST: Streak saved notification scheduled in 5 seconds")
+            debugLog("✅ TEST: Streak saved notification scheduled in 5 seconds")
         } catch {
-            print("❌ TEST: Failed to schedule notification - \(error)")
+            debugLog("❌ TEST: Failed to schedule notification - \(error)")
         }
     }
 
@@ -71,16 +71,16 @@ class NotificationTestHelper {
                 userInfo: ["type": "test"]
             )
 
-            print("✅ TEST: Milestone notification scheduled in 5 seconds")
+            debugLog("✅ TEST: Milestone notification scheduled in 5 seconds")
         } catch {
-            print("❌ TEST: Failed to schedule notification - \(error)")
+            debugLog("❌ TEST: Failed to schedule notification - \(error)")
         }
     }
 
     /// Simulate user with streak at risk (2 days since last workout, 2 rest days allowed)
     func simulateStreakAtRisk(userProfileManager: UserProfileManager, config: Config) {
         guard let profile = userProfileManager.currentProfile else {
-            print("❌ TEST: No user profile")
+            debugLog("❌ TEST: No user profile")
             return
         }
 
@@ -93,11 +93,11 @@ class NotificationTestHelper {
         profile.restDaysPerWeek = 2
         profile.streakPaused = false
 
-        print("✅ TEST: Simulated streak at risk")
-        print("   - Current streak: 15 days")
-        print("   - Last workout: 2 days ago")
-        print("   - Rest days allowed: 2 per week")
-        print("   - Result: Streak will break TODAY if no workout")
+        debugLog("✅ TEST: Simulated streak at risk")
+        debugLog("   - Current streak: 15 days")
+        debugLog("   - Last workout: 2 days ago")
+        debugLog("   - Rest days allowed: 2 per week")
+        debugLog("   - Result: Streak will break TODAY if no workout")
 
         // Trigger notification scheduling
         StreakNotificationManager.shared.scheduleStreakProtection()
@@ -106,7 +106,7 @@ class NotificationTestHelper {
     /// Simulate user with safe streak
     func simulateSafeStreak(userProfileManager: UserProfileManager, config: Config) {
         guard let profile = userProfileManager.currentProfile else {
-            print("❌ TEST: No user profile")
+            debugLog("❌ TEST: No user profile")
             return
         }
 
@@ -119,11 +119,11 @@ class NotificationTestHelper {
         profile.restDaysPerWeek = 2
         profile.streakPaused = false
 
-        print("✅ TEST: Simulated safe streak")
-        print("   - Current streak: 10 days")
-        print("   - Last workout: 1 day ago")
-        print("   - Rest days allowed: 2 per week")
-        print("   - Result: Streak safe for 1 more day")
+        debugLog("✅ TEST: Simulated safe streak")
+        debugLog("   - Current streak: 10 days")
+        debugLog("   - Last workout: 1 day ago")
+        debugLog("   - Rest days allowed: 2 per week")
+        debugLog("   - Result: Streak safe for 1 more day")
 
         // Trigger notification scheduling
         StreakNotificationManager.shared.scheduleStreakProtection()
@@ -133,20 +133,20 @@ class NotificationTestHelper {
     func listPendingNotifications() async {
         let pending = await NotificationManager.shared.getPendingNotifications()
 
-        print("\n📋 PENDING NOTIFICATIONS (\(pending.count) total):")
+        debugLog("\n📋 PENDING NOTIFICATIONS (\(pending.count) total):")
         for request in pending {
             let content = request.content
-            print("   ID: \(request.identifier)")
-            print("   Title: \(content.title)")
-            print("   Body: \(content.body)")
+            debugLog("   ID: \(request.identifier)")
+            debugLog("   Title: \(content.title)")
+            debugLog("   Body: \(content.body)")
             if let trigger = request.trigger as? UNCalendarNotificationTrigger {
-                print("   Scheduled: \(trigger.nextTriggerDate() ?? Date())")
+                debugLog("   Scheduled: \(trigger.nextTriggerDate() ?? Date())")
             } else if let trigger = request.trigger as? UNTimeIntervalNotificationTrigger {
-                print("   In: \(trigger.timeInterval) seconds")
+                debugLog("   In: \(trigger.timeInterval) seconds")
             }
-            print("   ---")
+            debugLog("   ---")
         }
-        print("")
+        debugLog("")
     }
 
     /// Clear all test notifications
@@ -154,7 +154,7 @@ class NotificationTestHelper {
         NotificationManager.shared.cancelNotification(withId: "test_streak_warning")
         NotificationManager.shared.cancelNotification(withId: "test_streak_saved")
         NotificationManager.shared.cancelNotification(withId: "test_streak_milestone")
-        print("🗑️ TEST: Cleared all test notifications")
+        debugLog("🗑️ TEST: Cleared all test notifications")
     }
 }
 #endif

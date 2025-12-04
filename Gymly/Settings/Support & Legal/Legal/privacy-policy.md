@@ -256,7 +256,7 @@ Subject Line: "Privacy Inquiry"
 **Mailing Address:**
 ShadowLift Fitness
 Attn: Privacy Department
-[Your Address Here]
+[Sulice, Okružní 759, 25168, Czechia]
 
 **Response Time:**
 - General inquiries: Within 7 business days

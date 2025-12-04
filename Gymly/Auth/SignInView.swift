@@ -91,27 +91,27 @@ struct SignInView: View {
                                 // IMMEDIATELY show loading overlay BEFORE any async work
                                 // DON'T set config.isUserLoggedIn yet - wait until sync completes
                                 isSyncingFromCloud = true
-                                print("🔥 SHOWING SYNC OVERLAY")
+                                debugLog("🔥 SHOWING SYNC OVERLAY")
 
                                 if let userCredential = authorization.credential as? ASAuthorizationAppleIDCredential {
-                                    print("User ID: \(userCredential.user)")
+                                    debugLog("User ID: \(userCredential.user)")
 
                                     // Store email in UserProfile if available (but don't override existing)
                                     if let email = userCredential.email {
-                                        print("User Email: \(email)")
+                                        debugLog("User Email: \(email)")
                                         // Only update email if current profile doesn't have a valid email
                                         let currentEmail = userProfileManager.currentProfile?.email ?? ""
                                         if currentEmail.isEmpty || currentEmail == "user@example.com" {
                                             userProfileManager.updateEmail(email)
                                         }
                                     } else {
-                                        print("Email not available (User has logged in before)")
+                                        debugLog("Email not available (User has logged in before)")
                                     }
 
                                     // Store username from Apple ID, but only as fallback (will be overridden by CloudKit if available)
                                     if let fullName = userCredential.fullName,
                                        let givenName = fullName.givenName {
-                                        print("🔥 APPLE ID USERNAME: \(givenName)")
+                                        debugLog("🔥 APPLE ID USERNAME: \(givenName)")
                                         // Only update username if current profile has default username
                                         let currentUsername = userProfileManager.currentProfile?.username ?? ""
                                         if currentUsername.isEmpty || currentUsername == "User" {
@@ -122,44 +122,44 @@ struct SignInView: View {
 
                                 // Store the first-time login status outside the credential scope
                                 let isFirstTimeLogin = (authorization.credential as? ASAuthorizationAppleIDCredential)?.fullName != nil
-                                print("🔥 IS FIRST TIME LOGIN: \(isFirstTimeLogin)")
+                                debugLog("🔥 IS FIRST TIME LOGIN: \(isFirstTimeLogin)")
 
                                 // Trigger CloudKit sync after successful login
                                 Task {
                                     // Small delay to ensure overlay renders before heavy sync work
                                     try? await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
 
-                                    print("🔥 STARTING CLOUDKIT SYNC PROCESS")
+                                    debugLog("🔥 STARTING CLOUDKIT SYNC PROCESS")
                                     await CloudKitManager.shared.checkCloudKitStatus()
 
                                     // Set config iCloud sync state based on CloudKit availability
                                     await MainActor.run {
                                         config.isCloudKitEnabled = CloudKitManager.shared.isCloudKitEnabled
-                                        print("🔥 CLOUDKIT MANAGER STATE: \(CloudKitManager.shared.isCloudKitEnabled)")
-                                        print("🔥 CONFIG STATE: \(config.isCloudKitEnabled)")
+                                        debugLog("🔥 CLOUDKIT MANAGER STATE: \(CloudKitManager.shared.isCloudKitEnabled)")
+                                        debugLog("🔥 CONFIG STATE: \(config.isCloudKitEnabled)")
                                         if CloudKitManager.shared.isCloudKitEnabled {
-                                            print("🔥 CLOUDKIT IS ENABLED")
+                                            debugLog("🔥 CLOUDKIT IS ENABLED")
                                         } else {
-                                            print("🔥 CLOUDKIT IS NOT AVAILABLE")
+                                            debugLog("🔥 CLOUDKIT IS NOT AVAILABLE")
                                         }
                                     }
 
                                     if config.isCloudKitEnabled {
-                                        print("🔥 STARTING USERPROFILE CLOUDKIT SYNC")
+                                        debugLog("🔥 STARTING USERPROFILE CLOUDKIT SYNC")
 
                                         // Fetch UserProfile (picture/name) from CloudKit
                                         await userProfileManager.syncFromCloudKit()
 
-                                        print("🔥 USERPROFILE CLOUDKIT SYNC COMPLETED")
-                                        print("🔥 CURRENT USERNAME: \(userProfileManager.currentProfile?.username ?? "none")")
+                                        debugLog("🔥 USERPROFILE CLOUDKIT SYNC COMPLETED")
+                                        debugLog("🔥 CURRENT USERNAME: \(userProfileManager.currentProfile?.username ?? "none")")
 
                                         // Fetch Fitness Profile from iCloud Key-Value Store
-                                        print("🔥 FETCHING FITNESS PROFILE FROM ICLOUD")
+                                        debugLog("🔥 FETCHING FITNESS PROFILE FROM ICLOUD")
                                         if iCloudSync == nil {
                                             iCloudSync = iCloudSyncManager(config: config)
                                         }
                                         await iCloudSync?.fetchFromiCloudWithTimeout(timeout: 2.0)
-                                        print("🔥 FITNESS PROFILE FETCH COMPLETED")
+                                        debugLog("🔥 FITNESS PROFILE FETCH COMPLETED")
                                     }
 
                                     // NOTE: Workout data (splits/exercises/days) syncs automatically via SwiftData iCloud
@@ -167,7 +167,7 @@ struct SignInView: View {
 
                                     // Wait for SwiftData to sync from iCloud automatically
                                     // Poll for splits instead of blind wait - actively check until data appears
-                                    print("🔥 WAITING FOR SWIFTDATA ICLOUD SYNC...")
+                                    debugLog("🔥 WAITING FOR SWIFTDATA ICLOUD SYNC...")
 
                                     var attempts = 0
                                     let maxAttempts = 20 // 20 attempts × 0.5 seconds = 10 seconds max
@@ -185,7 +185,7 @@ struct SignInView: View {
                                             let splits = try context.fetch(descriptor)
 
                                             if !splits.isEmpty {
-                                                print("🔥 FOUND \(splits.count) SPLITS IN DATABASE AFTER \(attempts) ATTEMPTS")
+                                                debugLog("🔥 FOUND \(splits.count) SPLITS IN DATABASE AFTER \(attempts) ATTEMPTS")
                                                 splitsFound = true
 
                                                 // Complete progress bar
@@ -198,7 +198,7 @@ struct SignInView: View {
                                                 break
                                             }
                                         } catch {
-                                            print("⚠️ Error checking for splits: \(error.localizedDescription)")
+                                            debugLog("⚠️ Error checking for splits: \(error.localizedDescription)")
                                         }
 
                                         // Wait before next attempt
@@ -207,9 +207,9 @@ struct SignInView: View {
                                     }
 
                                     if splitsFound {
-                                        print("🔥 SWIFTDATA ICLOUD SYNC COMPLETED - SPLITS FOUND")
+                                        debugLog("🔥 SWIFTDATA ICLOUD SYNC COMPLETED - SPLITS FOUND")
                                     } else {
-                                        print("⚠️ SWIFTDATA ICLOUD SYNC TIMEOUT - NO SPLITS FOUND AFTER \(attempts) ATTEMPTS")
+                                        debugLog("⚠️ SWIFTDATA ICLOUD SYNC TIMEOUT - NO SPLITS FOUND AFTER \(attempts) ATTEMPTS")
                                         // Complete progress bar anyway
                                         await MainActor.run {
                                             syncProgress = 1.0
@@ -226,12 +226,12 @@ struct SignInView: View {
                                     await MainActor.run {
                                         isSyncingFromCloud = false
                                         config.isUserLoggedIn = true
-                                        print("🔥 SIGNIN: All syncs completed, transitioning to main app")
+                                        debugLog("🔥 SIGNIN: All syncs completed, transitioning to main app")
                                     }
                                 }
 
                             case .failure(let error):
-                                print("Could not authenticate: \(error.localizedDescription)")
+                                debugLog("Could not authenticate: \(error.localizedDescription)")
                             }
                     }
                     .signInWithAppleButtonStyle(colorScheme == .dark ? .white : .black)

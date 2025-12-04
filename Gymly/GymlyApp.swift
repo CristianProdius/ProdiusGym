@@ -12,6 +12,10 @@ import SwiftData
 struct GymlyApp: App {
     @StateObject private var config = Config()
     @StateObject private var storeManager = StoreManager()
+    @State private var importError: ImportError?
+    @State private var showImportError = false
+    @State private var showImportSuccess = false
+    @State private var importedSplitName = ""
 
     var body: some Scene {
         WindowGroup {
@@ -23,33 +27,79 @@ struct GymlyApp: App {
                 }
                 .onChange(of: storeManager.isPremium) { oldValue, newValue in
                     // Sync premium status from StoreManager to Config
-                    print("💎 GymlyApp: StoreManager isPremium changed from \(oldValue) to \(newValue)")
+                    debugLog("💎 GymlyApp: StoreManager isPremium changed from \(oldValue) to \(newValue)")
                     config.updatePremiumStatus(from: newValue)
-                    print("💎 GymlyApp: Config isPremium is now \(config.isPremium)")
+                    debugLog("💎 GymlyApp: Config isPremium is now \(config.isPremium)")
+                }
+                // Import Error Alert
+                .alert("Import Failed", isPresented: $showImportError) {
+                    Button("OK") {
+                        importError = nil
+                    }
+                } message: {
+                    if let error = importError {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(error.errorDescription ?? "Unknown error")
+                            if let suggestion = error.recoverySuggestion {
+                                Text("\n\(suggestion)")
+                                    .font(.caption)
+                            }
+                        }
+                    }
+                }
+                // Import Success Alert
+                .alert("Split Imported", isPresented: $showImportSuccess) {
+                    Button("OK") {}
+                } message: {
+                    Text("'\(importedSplitName)' has been successfully imported and is ready to use!")
                 }
         }
         .modelContainer(for: [Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self])
     }
     
     private func handleIncomingFile(_ url: URL, config: Config) {
-        print("Opened file: \(url)")
+        debugLog("📂 Opened file: \(url)")
 
-        if let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) {
-            let context = modelContainer.mainContext
-            let viewModel = WorkoutViewModel(config: config, context: context)
-            
-            if let split = viewModel.importSplit(from: url) {
-                print("✅ Successfully decoded split: \(split.name)") // Debug log
-                DispatchQueue.main.async {
-                    NotificationCenter.default.post(name: .importSplit, object: split)
-                    print("📢 Notification posted for imported split")
+        guard let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) else {
+            debugLog("❌ Failed to create ModelContainer")
+            importError = ImportError.corruptData("Unable to initialize database")
+            showImportError = true
+            return
+        }
 
-                    // Also post cloudKitDataSynced to refresh any other views
-                    NotificationCenter.default.post(name: .cloudKitDataSynced, object: nil)
-                    print("📢 CloudKit sync notification posted")
-                }
-            } else {
-                print("❌ Failed to decode split")
+        let context = modelContainer.mainContext
+        let viewModel = WorkoutViewModel(config: config, context: context)
+
+        do {
+            let split = try viewModel.importSplit(from: url)
+            debugLog("✅ Successfully imported split: \(split.name)")
+
+            DispatchQueue.main.async {
+                // Store split name for success alert
+                self.importedSplitName = split.name
+                self.showImportSuccess = true
+
+                // Post notifications to refresh UI
+                NotificationCenter.default.post(name: .importSplit, object: split)
+                debugLog("📢 Notification posted for imported split")
+
+                // Also post cloudKitDataSynced to refresh any other views
+                NotificationCenter.default.post(name: .cloudKitDataSynced, object: nil)
+                debugLog("📢 CloudKit sync notification posted")
+            }
+
+        } catch let error as ImportError {
+            debugLog("❌ Import failed: \(error.errorDescription ?? "Unknown error")")
+            DispatchQueue.main.async {
+                self.importError = error
+                self.showImportError = true
+            }
+
+        } catch {
+            debugLog("❌ Unexpected import error: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.importError = ImportError.corruptData(error.localizedDescription)
+                self.showImportError = true
             }
         }
     }

@@ -113,5 +113,13 @@
 			</dict>
 		</dict>
 	</array>
+	<key>NSHealthShareUsageDescription</key>
+	<string>ShadowLift needs access to your health data to sync your weight, height, and BMI for accurate fitness tracking and progress visualization.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>ShadowLift needs permission to save your workout data and weight measurements to Apple Health so you can track your fitness progress across all your health apps.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>ShadowLift needs camera access to capture progress photos so you can visually track your physical transformation over time.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>ShadowLift needs permission to save your progress photos to your photo library so you can keep a permanent record of your fitness journey.</string>
 </dict>
 </plist>

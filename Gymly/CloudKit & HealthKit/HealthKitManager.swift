@@ -21,7 +21,7 @@ class HealthKitManager: ObservableObject {
     /// Request authorization for Height, Weight, and Date of Birth (age)
     func requestAuthorization() {
         guard isHealthKitAvailable() else {
-            print("HealthKit is not available on this device.")
+            debugLog("HealthKit is not available on this device.")
             return
         }
 
@@ -34,9 +34,9 @@ class HealthKitManager: ObservableObject {
 
         healthStore.requestAuthorization(toShare: writeTypes, read: readTypes) { success, error in
             if success {
-                print("HealthKit authorization granted!")
+                debugLog("HealthKit authorization granted!")
             } else {
-                print("HealthKit authorization denied: \(error?.localizedDescription ?? "Unknown error")")
+                debugLog("HealthKit authorization denied: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
     }
@@ -62,9 +62,9 @@ class HealthKitManager: ObservableObject {
 
         healthStore.save(sample) { success, error in
             if success {
-                print("✅ Height saved to HealthKit")
+                debugLog("✅ Height saved to HealthKit")
             } else {
-                print("❌ Error saving height: \(error?.localizedDescription ?? "Unknown error")")
+                debugLog("❌ Error saving height: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
     }
@@ -85,7 +85,7 @@ class HealthKitManager: ObservableObject {
     
     func saveWeight(_ weightKg: Double, date: Date = Date()) {
         guard let type = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
-            print("❌ Unable to create bodyMass quantity type")
+            debugLog("❌ Unable to create bodyMass quantity type")
             return
         }
 
@@ -93,16 +93,16 @@ class HealthKitManager: ObservableObject {
         let authStatus = healthStore.authorizationStatus(for: type)
         switch authStatus {
         case .notDetermined:
-            print("⚠️ HealthKit authorization not determined. Requesting authorization...")
+            debugLog("⚠️ HealthKit authorization not determined. Requesting authorization...")
             requestAuthorization()
             return
         case .sharingDenied:
-            print("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > Gymly")
+            debugLog("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > Gymly")
             return
         case .sharingAuthorized:
-            print("✅ HealthKit sharing authorized, proceeding to save weight")
+            debugLog("✅ HealthKit sharing authorized, proceeding to save weight")
         @unknown default:
-            print("❌ Unknown HealthKit authorization status")
+            debugLog("❌ Unknown HealthKit authorization status")
             return
         }
 
@@ -112,17 +112,17 @@ class HealthKitManager: ObservableObject {
         healthStore.save(sample) { success, error in
             DispatchQueue.main.async {
                 if success {
-                    print("✅ Weight saved to HealthKit: \(weightKg) kg")
+                    debugLog("✅ Weight saved to HealthKit: \(weightKg) kg")
                 } else {
-                    print("❌ Error saving weight: \(error?.localizedDescription ?? "Unknown error")")
+                    debugLog("❌ Error saving weight: \(error?.localizedDescription ?? "Unknown error")")
                     if let error = error as? HKError {
                         switch error.code {
                         case .errorAuthorizationDenied:
-                            print("❌ Authorization denied - check HealthKit permissions")
+                            debugLog("❌ Authorization denied - check HealthKit permissions")
                         case .errorAuthorizationNotDetermined:
-                            print("❌ Authorization not determined - requesting authorization")
+                            debugLog("❌ Authorization not determined - requesting authorization")
                         default:
-                            print("❌ HealthKit error code: \(error.code)")
+                            debugLog("❌ HealthKit error code: \(error.code)")
                         }
                     }
                 }
@@ -139,14 +139,14 @@ class HealthKitManager: ObservableObject {
             let age = calendar.dateComponents([.year], from: birthDate.date!, to: Date()).year
             completion(age)
         } catch {
-            print("Error retrieving age: \(error.localizedDescription)")
+            debugLog("Error retrieving age: \(error.localizedDescription)")
             completion(nil)
         }
     }
     
     func fetchDailyLatestWeightLastMonth(completion: @escaping ([(date: Date, weight: Double)]) -> Void) {
         guard let weightType = HKQuantityType.quantityType(forIdentifier: .bodyMass) else {
-            print("Unable to get weight type")
+            debugLog("Unable to get weight type")
             completion([])
             return
         }
@@ -225,13 +225,13 @@ class HealthKitManager: ObservableObject {
                                 }
                             }
                         } catch {
-                            print("❌ Failed to save new weight data: \(error)")
+                            debugLog("❌ Failed to save new weight data: \(error)")
                         }
                     }
                 }
 
             } catch {
-                print("❌ Failed to clear old weight data: \(error)")
+                debugLog("❌ Failed to clear old weight data: \(error)")
             }
         }
     }

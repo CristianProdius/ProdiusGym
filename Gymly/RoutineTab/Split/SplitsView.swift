@@ -59,8 +59,46 @@ struct SplitsView: View {
                     }
 
                     Section("My Splits") {
-                        /// Show all splits
-                        ForEach($splits.sorted(by: { $0.wrappedValue.isActive && !$1.wrappedValue.isActive })) { $split in
+                        if splits.isEmpty {
+                            // Empty State
+                            VStack(spacing: 16) {
+                                Image(systemName: "list.bullet.rectangle")
+                                    .font(.system(size: 60))
+                                    .foregroundColor(.secondary)
+
+                                Text("No Workout Splits Yet")
+                                    .font(.title3)
+                                    .bold()
+                                    .foregroundColor(.primary)
+
+                                Text("Create your first split or browse templates to get started")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal)
+
+                                Button(action: {
+                                    createSplit = true
+                                }) {
+                                    HStack {
+                                        Image(systemName: "plus.circle.fill")
+                                        Text("Create Split")
+                                    }
+                                    .bold()
+                                    .padding(.horizontal, 24)
+                                    .padding(.vertical, 12)
+                                    .background(appearanceManager.accentColor.color)
+                                    .foregroundColor(.black)
+                                    .cornerRadius(25)
+                                }
+                                .padding(.top, 8)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 60)
+                            .listRowBackground(Color.clear)
+                        } else {
+                            /// Show all splits
+                            ForEach($splits.sorted(by: { $0.wrappedValue.isActive && !$1.wrappedValue.isActive })) { $split in
                             NavigationLink(destination: SplitDetailView(split: split, viewModel: viewModel)) {
                                 VStack {
                                     HStack {
@@ -116,6 +154,7 @@ struct SplitsView: View {
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
                         .listRowBackground(Color.black.opacity(0.1))
+                        }
                     }
                 }
                 .scrollContentBackground(.hidden)
@@ -140,7 +179,7 @@ struct SplitsView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name.importSplit)) { notification in
             if let split = notification.object as? Split {
-                print("📩 Received imported split notification: \(split.name)")
+                debugLog("📩 Received imported split notification: \(split.name)")
 
                 DispatchQueue.main.async {
                     viewModel.deactivateAllSplits()

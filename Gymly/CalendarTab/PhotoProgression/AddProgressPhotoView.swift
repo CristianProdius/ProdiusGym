@@ -25,17 +25,154 @@ struct AddProgressPhotoView: View {
     @State private var capturedImage: UIImage?
     @State private var showPoseGuide = true
     @State private var isSaving = false
+    @State private var showPhotoPermissionError = false
 
     var body: some View {
         NavigationView {
             ZStack {
                 Color.black.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    // Camera Preview
-                    ZStack {
-                        CameraPreview(camera: camera)
-                            .ignoresSafeArea()
+                // Check if camera is authorized
+                if !camera.isCameraAuthorized {
+                    // Camera Permission Denied View
+                    cameraPermissionDeniedView
+                } else {
+                    // Normal camera interface
+                    cameraInterfaceView
+                }
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .foregroundColor(.white)
+                }
+
+                ToolbarItem(placement: .principal) {
+                    Text("Progress Photo")
+                        .foregroundColor(.white)
+                        .font(.headline)
+                }
+            }
+            .onAppear {
+                camera.checkPermissions()
+            }
+            .onDisappear {
+                camera.stopCamera()
+            }
+            .sheet(isPresented: $showImagePicker) {
+                ImagePicker(image: $capturedImage, onImagePicked: {
+                    showReviewSheet = true
+                })
+            }
+            .sheet(isPresented: $showReviewSheet) {
+                if let image = capturedImage {
+                    ReviewPhotoView(
+                        image: image,
+                        photoType: selectedPhotoType,
+                        notes: $notes,
+                        onSave: {
+                            savePhoto(image: image)
+                        },
+                        onCancel: {
+                            capturedImage = nil
+                            showReviewSheet = false
+                        }
+                    )
+                }
+            }
+            // Photo Library Permission Error Alert
+            .alert("Photo Library Access Required", isPresented: $showPhotoPermissionError) {
+                Button("Open Settings") {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("To save progress photos, Gymly needs access to your photo library. Please enable it in Settings.")
+            }
+        }
+    }
+
+    // MARK: - Camera Permission Denied View
+
+    private var cameraPermissionDeniedView: some View {
+        VStack(spacing: 24) {
+            Spacer()
+
+            // Icon
+            Image(systemName: "camera.slash.fill")
+                .font(.system(size: 70))
+                .foregroundColor(.white.opacity(0.7))
+
+            // Title
+            Text("Camera Access Required")
+                .font(.title2)
+                .bold()
+                .foregroundColor(.white)
+
+            // Description
+            Text("To take progress photos, Gymly needs access to your camera. You can still import photos from your library.")
+                .font(.body)
+                .foregroundColor(.white.opacity(0.8))
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            // Buttons
+            VStack(spacing: 12) {
+                // Open Settings Button
+                Button(action: {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                }) {
+                    HStack {
+                        Image(systemName: "gear")
+                        Text("Open Settings")
+                    }
+                    .bold()
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(appearanceManager.accentColor.color)
+                    .foregroundColor(.black)
+                    .cornerRadius(12)
+                }
+
+                // Import from Library Button
+                Button(action: {
+                    showImagePicker = true
+                }) {
+                    HStack {
+                        Image(systemName: "photo.on.rectangle")
+                        Text("Import from Library")
+                    }
+                    .bold()
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.white.opacity(0.2))
+                    .foregroundColor(.white)
+                    .cornerRadius(12)
+                }
+            }
+            .padding(.horizontal, 40)
+            .padding(.top, 20)
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+
+    // MARK: - Camera Interface View
+
+    private var cameraInterfaceView: some View {
+        VStack(spacing: 0) {
+            // Camera Preview
+            ZStack {
+                CameraPreview(camera: camera)
+                    .ignoresSafeArea()
 
                         // Pose Guide Overlay
                         if showPoseGuide {
@@ -142,48 +279,6 @@ struct AddProgressPhotoView: View {
                     .background(Color.black)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                    .foregroundColor(.white)
-                }
-
-                ToolbarItem(placement: .principal) {
-                    Text("Progress Photo")
-                        .foregroundColor(.white)
-                        .font(.headline)
-                }
-            }
-            .onAppear {
-                camera.checkPermissions()
-            }
-            .onDisappear {
-                camera.stopCamera()
-            }
-            .sheet(isPresented: $showImagePicker) {
-                ImagePicker(image: $capturedImage, onImagePicked: {
-                    showReviewSheet = true
-                })
-            }
-            .sheet(isPresented: $showReviewSheet) {
-                if let image = capturedImage {
-                    ReviewPhotoView(
-                        image: image,
-                        photoType: selectedPhotoType,
-                        notes: $notes,
-                        onSave: {
-                            savePhoto(image: image)
-                        },
-                        onCancel: {
-                            capturedImage = nil
-                            showReviewSheet = false
-                        }
-                    )
-                }
-            }
         }
     }
 
@@ -216,6 +311,9 @@ struct AddProgressPhotoView: View {
                 isSaving = false
                 if photo != nil {
                     dismiss()
+                } else {
+                    // Photo save failed (likely permission denied)
+                    showPhotoPermissionError = true
                 }
             }
         }

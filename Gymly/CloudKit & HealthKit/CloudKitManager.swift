@@ -61,11 +61,11 @@ class CloudKitManager: ObservableObject {
 
         if hasExistingPreference {
             self.isCloudKitEnabled = savedCloudKitState
-            print("🔥 INIT CLOUDKIT MANAGER - RESTORED EXISTING STATE: \(savedCloudKitState)")
+            debugLog("🔥 INIT CLOUDKIT MANAGER - RESTORED EXISTING STATE: \(savedCloudKitState)")
         } else {
             // No existing preference - will be set based on availability check
             self.isCloudKitEnabled = false
-            print("🔥 INIT CLOUDKIT MANAGER - NO EXISTING PREFERENCE, WILL CHECK AVAILABILITY")
+            debugLog("🔥 INIT CLOUDKIT MANAGER - NO EXISTING PREFERENCE, WILL CHECK AVAILABILITY")
         }
 
         Task {
@@ -97,7 +97,7 @@ class CloudKitManager: ObservableObject {
                     self.networkQuality = .good
                 }
 
-                print("📡 Network Quality: \(self.networkQuality), Auto-sync: \(self.networkQuality.shouldEnableAutoSync)")
+                debugLog("📡 Network Quality: \(self.networkQuality), Auto-sync: \(self.networkQuality.shouldEnableAutoSync)")
             }
         }
 
@@ -136,13 +136,13 @@ class CloudKitManager: ObservableObject {
 
         // CRITICAL: Never auto-sync during active gym session (prevents lag)
         if isInActiveWorkout && !allowDuringWorkout {
-            print("🚫 SYNC BLOCKED: User is in active workout - sync deferred")
+            debugLog("🚫 SYNC BLOCKED: User is in active workout - sync deferred")
             return false
         }
 
         // Always allow manual sync, but warn about poor connection
         if !networkQuality.shouldEnableAutoSync {
-            print("⚠️ NETWORK QUALITY POOR - Sync may be slow or fail")
+            debugLog("⚠️ NETWORK QUALITY POOR - Sync may be slow or fail")
         }
 
         return true
@@ -152,9 +152,9 @@ class CloudKitManager: ObservableObject {
     func setWorkoutSessionActive(_ active: Bool) {
         isInActiveWorkout = active
         if active {
-            print("🏋️ WORKOUT SESSION STARTED - Auto-sync disabled")
+            debugLog("🏋️ WORKOUT SESSION STARTED - Auto-sync disabled")
         } else {
-            print("✅ WORKOUT SESSION ENDED - Auto-sync re-enabled")
+            debugLog("✅ WORKOUT SESSION ENDED - Auto-sync re-enabled")
         }
     }
 
@@ -172,39 +172,39 @@ class CloudKitManager: ObservableObject {
                         if hasExistingPreference {
                             // User has a saved preference, respect it
                             self.isCloudKitEnabled = userPreference
-                            print("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, EXISTING USER PREFERENCE: \(userPreference)")
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, EXISTING USER PREFERENCE: \(userPreference)")
                         } else {
                             // First time or fresh install - enable CloudKit by default when available
                             self.isCloudKitEnabled = true
                             self.userDefaults.set(true, forKey: self.cloudKitEnabledKey)
-                            print("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, NO EXISTING PREFERENCE - ENABLING BY DEFAULT")
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, NO EXISTING PREFERENCE - ENABLING BY DEFAULT")
                         }
                         self.syncError = nil
                     case .noAccount:
                         self.isCloudKitEnabled = false
                         self.syncError = "iCloud account not available. Please sign in to iCloud in Settings."
                         self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        print("🔥 CLOUDKIT STATUS CHECK: NO ACCOUNT")
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: NO ACCOUNT")
                     case .restricted:
                         self.isCloudKitEnabled = false
                         self.syncError = "iCloud is restricted on this device."
                         self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        print("🔥 CLOUDKIT STATUS CHECK: RESTRICTED")
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: RESTRICTED")
                     case .couldNotDetermine:
                         self.isCloudKitEnabled = false
                         self.syncError = "Could not determine iCloud status."
                         self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        print("🔥 CLOUDKIT STATUS CHECK: COULD NOT DETERMINE")
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: COULD NOT DETERMINE")
                     case .temporarilyUnavailable:
                         self.isCloudKitEnabled = false
                         self.syncError = "iCloud is temporarily unavailable."
                         self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        print("🔥 CLOUDKIT STATUS CHECK: TEMPORARILY UNAVAILABLE")
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: TEMPORARILY UNAVAILABLE")
                     @unknown default:
                         self.isCloudKitEnabled = false
                         self.syncError = "Unknown iCloud status."
                         self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        print("🔥 CLOUDKIT STATUS CHECK: UNKNOWN")
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: UNKNOWN")
                     }
                     continuation.resume()
                 }
@@ -216,7 +216,7 @@ class CloudKitManager: ObservableObject {
     func setCloudKitEnabled(_ enabled: Bool) {
         isCloudKitEnabled = enabled
         userDefaults.set(enabled, forKey: cloudKitEnabledKey)
-        print("🔥 CLOUDKIT STATE SET TO: \(enabled)")
+        debugLog("🔥 CLOUDKIT STATE SET TO: \(enabled)")
     }
 
     func isCloudKitAvailable() async -> Bool {
@@ -235,7 +235,7 @@ class CloudKitManager: ObservableObject {
 
         // CRITICAL: Save days FIRST before creating references to them
         // CloudKit requires referenced records to exist before creating references
-        print("🔄 SAVESPLIT: Saving \(split.days?.count ?? 0) days for split '\(split.name)'")
+        debugLog("🔄 SAVESPLIT: Saving \(split.days?.count ?? 0) days for split '\(split.name)'")
 
         // OPTIMIZATION: Save days in parallel instead of sequentially
         let days = split.days ?? []
@@ -244,10 +244,10 @@ class CloudKitManager: ObservableObject {
                 group.addTask {
                     do {
                         try await self.saveDay(day, splitId: split.id)
-                        print("✅ SAVESPLIT: Saved day '\(day.name)'")
+                        debugLog("✅ SAVESPLIT: Saved day '\(day.name)'")
                     } catch is CloudKitError {
                         // Network timeout - queue for later retry
-                        print("⚠️ SAVESPLIT: Day '\(day.name)' queued for retry")
+                        debugLog("⚠️ SAVESPLIT: Day '\(day.name)' queued for retry")
                         throw CloudKitError.timeout
                     }
                 }
@@ -266,11 +266,11 @@ class CloudKitManager: ObservableObject {
             record = try await withTimeout(operationTimeout) {
                 try await self.privateDatabase.record(for: recordID)
             }
-            print("🔄 SAVESPLIT: Updating existing split record '\(split.name)'")
+            debugLog("🔄 SAVESPLIT: Updating existing split record '\(split.name)'")
         } catch {
             // Record doesn't exist, create new one
             record = CKRecord(recordType: "Split", recordID: recordID)
-            print("🆕 SAVESPLIT: Creating new split record '\(split.name)'")
+            debugLog("🆕 SAVESPLIT: Creating new split record '\(split.name)'")
         }
 
         // Update record fields
@@ -288,9 +288,9 @@ class CloudKitManager: ObservableObject {
             _ = try await withTimeout(operationTimeout) {
                 try await self.privateDatabase.save(record)
             }
-            print("✅ SAVESPLIT: Split record '\(split.name)' saved successfully")
+            debugLog("✅ SAVESPLIT: Split record '\(split.name)' saved successfully")
         } catch {
-            print("❌ SAVESPLIT: Failed to save split record '\(split.name)': \(error.localizedDescription)")
+            debugLog("❌ SAVESPLIT: Failed to save split record '\(split.name)': \(error.localizedDescription)")
             throw error
         }
     }
@@ -301,7 +301,7 @@ class CloudKitManager: ObservableObject {
         }
 
         // CRITICAL: Save exercises FIRST before creating references to them
-        print("🔄 SAVEDAY: Saving \(day.exercises?.count ?? 0) exercises for day '\(day.name)'")
+        debugLog("🔄 SAVEDAY: Saving \(day.exercises?.count ?? 0) exercises for day '\(day.name)'")
 
         // OPTIMIZATION: Save exercises in parallel instead of sequentially
         let exercises = day.exercises ?? []
@@ -309,7 +309,7 @@ class CloudKitManager: ObservableObject {
             for exercise in exercises {
                 group.addTask {
                     try await self.saveExercise(exercise, dayId: day.id)
-                    print("✅ SAVEDAY: Saved exercise '\(exercise.name)'")
+                    debugLog("✅ SAVEDAY: Saved exercise '\(exercise.name)'")
                 }
             }
 
@@ -325,11 +325,11 @@ class CloudKitManager: ObservableObject {
             record = try await withTimeout(operationTimeout) {
                 try await self.privateDatabase.record(for: recordID)
             }
-            print("🔄 SAVEDAY: Updating existing day record '\(day.name)'")
+            debugLog("🔄 SAVEDAY: Updating existing day record '\(day.name)'")
         } catch {
             // Record doesn't exist, create new one
             record = CKRecord(recordType: "Day", recordID: recordID)
-            print("🆕 SAVEDAY: Creating new day record '\(day.name)'")
+            debugLog("🆕 SAVEDAY: Creating new day record '\(day.name)'")
         }
 
         record["name"] = day.name
@@ -347,9 +347,9 @@ class CloudKitManager: ObservableObject {
             _ = try await withTimeout(operationTimeout) {
                 try await self.privateDatabase.save(record)
             }
-            print("✅ SAVEDAY: Day record '\(day.name)' saved successfully")
+            debugLog("✅ SAVEDAY: Day record '\(day.name)' saved successfully")
         } catch {
-            print("❌ SAVEDAY: Failed to save day record '\(day.name)': \(error.localizedDescription)")
+            debugLog("❌ SAVEDAY: Failed to save day record '\(day.name)': \(error.localizedDescription)")
             throw error
         }
     }
@@ -443,7 +443,7 @@ class CloudKitManager: ObservableObject {
             throw CloudKitError.notAvailable
         }
 
-        print("🔍 FETCHING SPLITS FROM CLOUDKIT...")
+        debugLog("🔍 FETCHING SPLITS FROM CLOUDKIT...")
 
         do {
             // Use the simpler records(matching:) API which works without queryable indexes
@@ -455,32 +455,32 @@ class CloudKitManager: ObservableObject {
                 switch result {
                 case .success(let record):
                     fetchedRecords.append(record)
-                    print("🔍 Fetched split record: \(record["name"] as? String ?? "unknown")")
+                    debugLog("🔍 Fetched split record: \(record["name"] as? String ?? "unknown")")
                 case .failure(let error):
-                    print("❌ Error fetching individual record: \(error.localizedDescription)")
+                    debugLog("❌ Error fetching individual record: \(error.localizedDescription)")
                 }
             }
 
-            print("🔍 QUERY RESULT: \(fetchedRecords.count) split records found")
+            debugLog("🔍 QUERY RESULT: \(fetchedRecords.count) split records found")
 
             var splits: [Split] = []
             for record in fetchedRecords {
                 if let split = await splitFromRecord(record) {
                     splits.append(split)
-                    print("🔍 CONVERTED SPLIT: \(split.name), isActive: \(split.isActive)")
+                    debugLog("🔍 CONVERTED SPLIT: \(split.name), isActive: \(split.isActive)")
                 }
             }
 
-            print("🔍 FINAL SPLIT COUNT: \(splits.count)")
+            debugLog("🔍 FINAL SPLIT COUNT: \(splits.count)")
             return splits
         } catch let error as CKError {
-            print("❌ CLOUDKIT ERROR FETCHING SPLITS: \(error.localizedDescription)")
-            print("❌ ERROR CODE: \(error.code.rawValue)")
-            print("❌ ERROR DETAILS: \(error)")
+            debugLog("❌ CLOUDKIT ERROR FETCHING SPLITS: \(error.localizedDescription)")
+            debugLog("❌ ERROR CODE: \(error.code.rawValue)")
+            debugLog("❌ ERROR DETAILS: \(error)")
 
             // Return empty array instead of throwing if there are no records or query issues
             if error.code == .unknownItem || error.code == .invalidArguments {
-                print("⚠️ NO SPLITS FOUND IN CLOUDKIT OR QUERY ISSUE - RETURNING EMPTY ARRAY")
+                debugLog("⚠️ NO SPLITS FOUND IN CLOUDKIT OR QUERY ISSUE - RETURNING EMPTY ARRAY")
                 return []
             }
             throw error
@@ -656,17 +656,17 @@ class CloudKitManager: ObservableObject {
     @MainActor
     func performFullSync(context: ModelContext, config: Config) async {
         guard shouldPerformSync() else {
-            print("❌ PERFORMFULLSYNC: CloudKit not enabled or network unavailable")
+            debugLog("❌ PERFORMFULLSYNC: CloudKit not enabled or network unavailable")
             return
         }
 
         // Check network quality and warn user
         if networkQuality == .poor {
-            print("⚠️ PERFORMFULLSYNC: Network quality is POOR - sync may be slow")
+            debugLog("⚠️ PERFORMFULLSYNC: Network quality is POOR - sync may be slow")
             self.syncError = "Network quality is poor. Sync may take longer than usual."
         }
 
-        print("🔄 PERFORMFULLSYNC: Starting full CloudKit sync")
+        debugLog("🔄 PERFORMFULLSYNC: Starting full CloudKit sync")
 
         self.isSyncing = true
 
@@ -676,24 +676,24 @@ class CloudKitManager: ObservableObject {
                 // Sync Splits
                 let descriptor = FetchDescriptor<Split>()
                 let localSplits = try context.fetch(descriptor)
-                print("🔄 PERFORMFULLSYNC: Found \(localSplits.count) local splits to sync")
+                debugLog("🔄 PERFORMFULLSYNC: Found \(localSplits.count) local splits to sync")
 
                 // OPTIMIZATION: Sync splits in parallel with concurrency limit
                 var successCount = 0
                 var timeoutCount = 0
 
                 for split in localSplits {
-                    print("🔄 PERFORMFULLSYNC: Uploading split '\(split.name)' to CloudKit...")
+                    debugLog("🔄 PERFORMFULLSYNC: Uploading split '\(split.name)' to CloudKit...")
                     do {
                         try await self.saveSplit(split)
-                        print("✅ PERFORMFULLSYNC: Split '\(split.name)' uploaded successfully")
+                        debugLog("✅ PERFORMFULLSYNC: Split '\(split.name)' uploaded successfully")
                         successCount += 1
                     } catch let error as CloudKitError where error == .timeout {
-                        print("⏱️ PERFORMFULLSYNC: Split '\(split.name)' timed out - will retry later")
+                        debugLog("⏱️ PERFORMFULLSYNC: Split '\(split.name)' timed out - will retry later")
                         timeoutCount += 1
                         // Don't throw - continue with other splits
                     } catch {
-                        print("❌ PERFORMFULLSYNC: Failed to upload split '\(split.name)': \(error.localizedDescription)")
+                        debugLog("❌ PERFORMFULLSYNC: Failed to upload split '\(split.name)': \(error.localizedDescription)")
                         // Continue with other splits even if one fails
                     }
                 }
@@ -715,7 +715,7 @@ class CloudKitManager: ObservableObject {
                 // Sync Progress Photos (with full images)
                 let progressPhotoDescriptor = FetchDescriptor<ProgressPhoto>()
                 let localProgressPhotos = try context.fetch(progressPhotoDescriptor)
-                print("🔄 PERFORMFULLSYNC: Found \(localProgressPhotos.count) progress photos to sync")
+                debugLog("🔄 PERFORMFULLSYNC: Found \(localProgressPhotos.count) progress photos to sync")
 
                 for photo in localProgressPhotos {
                     // Load full image from Photos library if available
@@ -723,15 +723,15 @@ class CloudKitManager: ObservableObject {
                         if let fullImage = await PhotoManager.shared.loadImage(from: assetID) {
                             do {
                                 try await self.saveProgressPhoto(photo, fullImage: fullImage)
-                                print("✅ PERFORMFULLSYNC: Progress photo synced")
+                                debugLog("✅ PERFORMFULLSYNC: Progress photo synced")
                             } catch {
-                                print("❌ PERFORMFULLSYNC: Failed to sync progress photo - \(error)")
+                                debugLog("❌ PERFORMFULLSYNC: Failed to sync progress photo - \(error)")
                             }
                         } else {
-                            print("⚠️ PERFORMFULLSYNC: Could not load image from Photos library for photo \(photo.id?.uuidString ?? "unknown")")
+                            debugLog("⚠️ PERFORMFULLSYNC: Could not load image from Photos library for photo \(photo.id?.uuidString ?? "unknown")")
                         }
                     } else {
-                        print("⚠️ PERFORMFULLSYNC: Photo \(photo.id?.uuidString ?? "unknown") has no asset ID, skipping")
+                        debugLog("⚠️ PERFORMFULLSYNC: Photo \(photo.id?.uuidString ?? "unknown") has no asset ID, skipping")
                     }
                 }
 
@@ -747,11 +747,11 @@ class CloudKitManager: ObservableObject {
                     } else {
                         self.syncError = nil
                     }
-                    print("✅ PERFORMFULLSYNC: Sync complete - \(successCount) successful, \(timeoutCount) timed out")
+                    debugLog("✅ PERFORMFULLSYNC: Sync complete - \(successCount) successful, \(timeoutCount) timed out")
                 }
             } catch {
                 await MainActor.run {
-                    print("❌ PERFORMFULLSYNC ERROR: \(error.localizedDescription)")
+                    debugLog("❌ PERFORMFULLSYNC ERROR: \(error.localizedDescription)")
                     self.syncError = error.localizedDescription
                     self.isSyncing = false
                 }
@@ -762,11 +762,11 @@ class CloudKitManager: ObservableObject {
     @MainActor
     func fetchAndMergeData(context: ModelContext, config: Config) async {
         guard isCloudKitEnabled else {
-            print("🔥 CLOUDKIT NOT ENABLED - SKIPPING FETCH")
+            debugLog("🔥 CLOUDKIT NOT ENABLED - SKIPPING FETCH")
             return
         }
 
-        print("🔥 STARTING FETCHANDMERGEDATA")
+        debugLog("🔥 STARTING FETCHANDMERGEDATA")
         self.isSyncing = true
         self.syncError = nil
 
@@ -776,7 +776,7 @@ class CloudKitManager: ObservableObject {
             let cloudDayStorages = try await fetchAllDayStorage()
             let cloudWeightPoints = try await fetchAllWeightPoints()
 
-            print("🔥 FETCHED FROM CLOUDKIT: \(cloudSplits.count) splits, \(cloudDayStorages.count) day storages, \(cloudWeightPoints.count) weight points")
+            debugLog("🔥 FETCHED FROM CLOUDKIT: \(cloudSplits.count) splits, \(cloudDayStorages.count) day storages, \(cloudWeightPoints.count) weight points")
 
             // Merge with local data (must happen on main thread with ModelContext)
             let localSplitDescriptor = FetchDescriptor<Split>()
@@ -785,7 +785,7 @@ class CloudKitManager: ObservableObject {
             for cloudSplit in cloudSplits {
                 if !localSplits.contains(where: { $0.id == cloudSplit.id }) {
                     context.insert(cloudSplit)
-                    print("🔥 INSERTED SPLIT: \(cloudSplit.name), isActive: \(cloudSplit.isActive)")
+                    debugLog("🔥 INSERTED SPLIT: \(cloudSplit.name), isActive: \(cloudSplit.isActive)")
                 }
             }
 
@@ -795,7 +795,7 @@ class CloudKitManager: ObservableObject {
             let hasActiveSplit = updatedLocalSplits.contains(where: { $0.isActive })
 
             if !hasActiveSplit, let firstSplit = updatedLocalSplits.first {
-                print("🔥 NO ACTIVE SPLIT FOUND - Activating first split: \(firstSplit.name)")
+                debugLog("🔥 NO ACTIVE SPLIT FOUND - Activating first split: \(firstSplit.name)")
                 firstSplit.isActive = true
             }
 
@@ -819,7 +819,7 @@ class CloudKitManager: ObservableObject {
 
             // Fetch and restore Progress Photos from CloudKit
             let cloudProgressPhotos = try await fetchProgressPhotos()
-            print("🔥 FETCHED FROM CLOUDKIT: \(cloudProgressPhotos.count) progress photos")
+            debugLog("🔥 FETCHED FROM CLOUDKIT: \(cloudProgressPhotos.count) progress photos")
 
             let localProgressPhotoDescriptor = FetchDescriptor<ProgressPhoto>()
             let localProgressPhotos = try context.fetch(localProgressPhotoDescriptor)
@@ -831,13 +831,13 @@ class CloudKitManager: ObservableObject {
             for (cloudPhoto, imageData) in cloudProgressPhotos {
                 // Skip if photo already exists locally
                 if localProgressPhotos.contains(where: { $0.id == cloudPhoto.id }) {
-                    print("📸 CLOUDKIT: Photo \(cloudPhoto.id?.uuidString ?? "unknown") already exists locally, skipping")
+                    debugLog("📸 CLOUDKIT: Photo \(cloudPhoto.id?.uuidString ?? "unknown") already exists locally, skipping")
                     continue
                 }
 
                 // Convert Data to UIImage
                 guard let image = UIImage(data: imageData) else {
-                    print("❌ CLOUDKIT: Failed to create UIImage from data for photo \(cloudPhoto.id?.uuidString ?? "unknown")")
+                    debugLog("❌ CLOUDKIT: Failed to create UIImage from data for photo \(cloudPhoto.id?.uuidString ?? "unknown")")
                     continue
                 }
 
@@ -858,15 +858,15 @@ class CloudKitManager: ObservableObject {
                         profile.progressPhotos?.append(cloudPhoto)
                     }
 
-                    print("✅ CLOUDKIT: Restored progress photo \(cloudPhoto.id?.uuidString ?? "unknown") to Photos library")
+                    debugLog("✅ CLOUDKIT: Restored progress photo \(cloudPhoto.id?.uuidString ?? "unknown") to Photos library")
                 } else {
-                    print("❌ CLOUDKIT: Failed to save photo \(cloudPhoto.id?.uuidString ?? "unknown") to Photos library")
+                    debugLog("❌ CLOUDKIT: Failed to save photo \(cloudPhoto.id?.uuidString ?? "unknown") to Photos library")
                 }
             }
 
             // Save context
             try context.save()
-            print("🔥 CONTEXT SAVED SUCCESSFULLY")
+            debugLog("🔥 CONTEXT SAVED SUCCESSFULLY")
 
             // Update last sync date
             let now = Date()
@@ -874,7 +874,7 @@ class CloudKitManager: ObservableObject {
             self.lastSyncDate = now
             self.isSyncing = false
         } catch {
-            print("❌ FETCHANDMERGEDATA ERROR: \(error)")
+            debugLog("❌ FETCHANDMERGEDATA ERROR: \(error)")
             self.syncError = error.localizedDescription
             self.isSyncing = false
         }
@@ -896,11 +896,11 @@ class CloudKitManager: ObservableObject {
                 // Try to fetch existing record to update it
                 let existingRecord = try await privateDatabase.record(for: recordID)
                 record = existingRecord
-                print("🔄 USER PROFILE: Updating existing CloudKit record")
+                debugLog("🔄 USER PROFILE: Updating existing CloudKit record")
             } catch {
                 // Record doesn't exist, create new one
                 record = CKRecord(recordType: "UserProfile", recordID: recordID)
-                print("🆕 USER PROFILE: Creating new CloudKit record")
+                debugLog("🆕 USER PROFILE: Creating new CloudKit record")
             }
 
             // Update record with current profile data
@@ -921,10 +921,10 @@ class CloudKitManager: ObservableObject {
             }
 
             _ = try await privateDatabase.save(record)
-            print("✅ USER PROFILE: Saved to CloudKit with ID: \(record.recordID.recordName)")
+            debugLog("✅ USER PROFILE: Saved to CloudKit with ID: \(record.recordID.recordName)")
 
         } catch {
-            print("❌ USER PROFILE: Failed to save to CloudKit - \(error)")
+            debugLog("❌ USER PROFILE: Failed to save to CloudKit - \(error)")
             throw CloudKitError.syncFailed(error.localizedDescription)
         }
     }
@@ -939,15 +939,15 @@ class CloudKitManager: ObservableObject {
 
         do {
             let record = try await privateDatabase.record(for: recordID)
-            print("✅ USER PROFILE: Found existing CloudKit profile")
+            debugLog("✅ USER PROFILE: Found existing CloudKit profile")
             return UserProfile.fromCKRecord(record)
         } catch {
             // Record doesn't exist or other error
             if let ckError = error as? CKError, ckError.code == .unknownItem {
-                print("🔍 USER PROFILE: No CloudKit profile found")
+                debugLog("🔍 USER PROFILE: No CloudKit profile found")
                 return nil
             } else {
-                print("❌ USER PROFILE: Failed to fetch from CloudKit - \(error)")
+                debugLog("❌ USER PROFILE: Failed to fetch from CloudKit - \(error)")
                 throw CloudKitError.syncFailed(error.localizedDescription)
             }
         }
@@ -975,21 +975,21 @@ class CloudKitManager: ObservableObject {
             // Try to fetch existing record first
             let existingRecord = try await privateDatabase.record(for: recordID)
             record = existingRecord
-            print("🔄 PROFILE IMAGE: Updating existing CloudKit record")
+            debugLog("🔄 PROFILE IMAGE: Updating existing CloudKit record")
         } catch {
             // Create new record if it doesn't exist
             record = CKRecord(recordType: "ProfileImage", recordID: recordID)
-            print("🆕 PROFILE IMAGE: Creating new CloudKit record")
+            debugLog("🆕 PROFILE IMAGE: Creating new CloudKit record")
         }
 
         record["image"] = asset
 
         do {
             _ = try await privateDatabase.save(record)
-            print("✅ PROFILE IMAGE: Saved to CloudKit")
+            debugLog("✅ PROFILE IMAGE: Saved to CloudKit")
             return "cloudkit_profile_image"
         } catch {
-            print("❌ PROFILE IMAGE: Failed to save to CloudKit - \(error)")
+            debugLog("❌ PROFILE IMAGE: Failed to save to CloudKit - \(error)")
             throw CloudKitError.syncFailed(error.localizedDescription)
         }
     }
@@ -1009,14 +1009,14 @@ class CloudKitManager: ObservableObject {
                let fileURL = asset.fileURL,
                let imageData = try? Data(contentsOf: fileURL),
                let image = UIImage(data: imageData) {
-                print("✅ PROFILE IMAGE: Fetched from CloudKit")
+                debugLog("✅ PROFILE IMAGE: Fetched from CloudKit")
                 return image
             }
 
-            print("🔍 PROFILE IMAGE: Record found but no valid image data")
+            debugLog("🔍 PROFILE IMAGE: Record found but no valid image data")
             return nil
         } catch {
-            print("🔍 PROFILE IMAGE: No CloudKit profile image found")
+            debugLog("🔍 PROFILE IMAGE: No CloudKit profile image found")
             return nil
         }
     }
@@ -1033,7 +1033,7 @@ class CloudKitManager: ObservableObject {
             throw CloudKitError.invalidData
         }
 
-        print("📸 CLOUDKIT: Saving progress photo \(photoID)")
+        debugLog("📸 CLOUDKIT: Saving progress photo \(photoID)")
 
         // Compress image for CloudKit (max 10MB, CloudKit limit is 25MB but we'll be conservative)
         guard let imageData = fullImage.jpegData(compressionQuality: 0.85) else {
@@ -1052,11 +1052,11 @@ class CloudKitManager: ObservableObject {
         do {
             // Try to fetch existing record
             record = try await privateDatabase.record(for: recordID)
-            print("🔄 PROGRESS PHOTO: Updating existing CloudKit record")
+            debugLog("🔄 PROGRESS PHOTO: Updating existing CloudKit record")
         } catch {
             // Create new record
             record = CKRecord(recordType: "ProgressPhoto", recordID: recordID)
-            print("🆕 PROGRESS PHOTO: Creating new CloudKit record")
+            debugLog("🆕 PROGRESS PHOTO: Creating new CloudKit record")
         }
 
         // Store full image as asset
@@ -1086,14 +1086,14 @@ class CloudKitManager: ObservableObject {
             _ = try await withTimeout(30.0) { // 30 second timeout for image upload
                 try await self.privateDatabase.save(record)
             }
-            print("✅ PROGRESS PHOTO: Saved to CloudKit")
+            debugLog("✅ PROGRESS PHOTO: Saved to CloudKit")
 
             // Clean up temp file
             try? FileManager.default.removeItem(at: tempURL)
         } catch {
             // Clean up temp file even on error
             try? FileManager.default.removeItem(at: tempURL)
-            print("❌ PROGRESS PHOTO: Failed to save - \(error)")
+            debugLog("❌ PROGRESS PHOTO: Failed to save - \(error)")
             throw CloudKitError.syncFailed(error.localizedDescription)
         }
     }
@@ -1104,7 +1104,7 @@ class CloudKitManager: ObservableObject {
             throw CloudKitError.notAvailable
         }
 
-        print("📸 CLOUDKIT: Fetching progress photos...")
+        debugLog("📸 CLOUDKIT: Fetching progress photos...")
 
         do {
             let query = CKQuery(recordType: "ProgressPhoto", predicate: NSPredicate(value: true))
@@ -1117,18 +1117,18 @@ class CloudKitManager: ObservableObject {
                 case .success(let record):
                     if let photoData = try? await progressPhotoFromRecord(record) {
                         results.append(photoData)
-                        print("✅ PROGRESS PHOTO: Fetched photo from CloudKit")
+                        debugLog("✅ PROGRESS PHOTO: Fetched photo from CloudKit")
                     }
                 case .failure(let error):
-                    print("❌ PROGRESS PHOTO: Error fetching record - \(error)")
+                    debugLog("❌ PROGRESS PHOTO: Error fetching record - \(error)")
                 }
             }
 
-            print("📸 CLOUDKIT: Fetched \(results.count) progress photos")
+            debugLog("📸 CLOUDKIT: Fetched \(results.count) progress photos")
             return results
         } catch let error as CKError {
             if error.code == .unknownItem || error.code == .invalidArguments {
-                print("📸 CLOUDKIT: No progress photos found")
+                debugLog("📸 CLOUDKIT: No progress photos found")
                 return []
             }
             throw error
@@ -1140,7 +1140,7 @@ class CloudKitManager: ObservableObject {
         guard let asset = record["imageAsset"] as? CKAsset,
               let fileURL = asset.fileURL,
               let imageData = try? Data(contentsOf: fileURL) else {
-            print("❌ PROGRESS PHOTO: No valid image asset in record")
+            debugLog("❌ PROGRESS PHOTO: No valid image asset in record")
             return nil
         }
 
@@ -1176,7 +1176,21 @@ class CloudKitManager: ObservableObject {
 
         let recordID = CKRecord.ID(recordName: photoID.uuidString)
         try await privateDatabase.deleteRecord(withID: recordID)
-        print("🗑️ PROGRESS PHOTO: Deleted from CloudKit")
+        debugLog("🗑️ PROGRESS PHOTO: Deleted from CloudKit")
+    }
+
+    /// Delete user profile from CloudKit
+    func deleteUserProfile() async throws {
+        let recordID = CKRecord.ID(recordName: "user_profile")
+        try await privateDatabase.deleteRecord(withID: recordID)
+        debugLog("🗑️ USER PROFILE: Deleted from CloudKit")
+    }
+
+    /// Delete profile image from CloudKit
+    func deleteProfileImage() async throws {
+        let recordID = CKRecord.ID(recordName: "user_profile_image")
+        try await privateDatabase.deleteRecord(withID: recordID)
+        debugLog("🗑️ PROFILE IMAGE: Deleted from CloudKit")
     }
 }
 

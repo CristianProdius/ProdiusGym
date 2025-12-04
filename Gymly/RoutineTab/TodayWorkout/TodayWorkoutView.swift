@@ -229,7 +229,7 @@ struct TodayWorkoutView: View {
                 )) { notification in
                     Task { @MainActor in
                         if notification.name == .cloudKitDataSynced {
-                            print("🔄 REFRESH: CloudKit sync completed, refreshing TodayWorkoutView")
+                            debugLog("🔄 REFRESH: CloudKit sync completed, refreshing TodayWorkoutView")
                         }
                         await refreshView()
                     }
@@ -260,7 +260,7 @@ struct TodayWorkoutView: View {
                     await refreshView()
                     // Also refresh profile image after login/CloudKit sync
                     await loadProfileImage()
-                    print("🖼️ PROFILE: Refreshed profile image after login")
+                    debugLog("🖼️ PROFILE: Refreshed profile image after login")
                 }
             }
             /// Sheet for showing splits view
@@ -310,7 +310,7 @@ struct TodayWorkoutView: View {
                 // Clear summary data when sheet is dismissed to allow showing it again
                 if !isShowing {
                     workoutSummaryData = nil
-                    print("🧹 WORKOUT SUMMARY: Sheet dismissed, cleared summary data")
+                    debugLog("🧹 WORKOUT SUMMARY: Sheet dismissed, cleared summary data")
                 }
             }
         }
@@ -342,28 +342,28 @@ struct TodayWorkoutView: View {
     @MainActor
     func refreshView() async {
         #if DEBUG
-        print("🔄 TODAYWORKOUTVIEW: Starting refreshView")
+        debugLog("🔄 TODAYWORKOUTVIEW: Starting refreshView")
         #endif
 
         // OPTIMIZATION: Fetch split days only ONCE (was being fetched twice before!)
         let splitDays = viewModel.getActiveSplitDays()
         #if DEBUG
-        print("🔄 TODAYWORKOUTVIEW: Found \(splitDays.count) split days")
+        debugLog("🔄 TODAYWORKOUTVIEW: Found \(splitDays.count) split days")
         #endif
 
         config.dayInSplit = viewModel.updateDayInSplit()
         config.lastUpdateDate = Date()  // Track last update time
 
         #if DEBUG
-        print("🔧 TODAYWORKOUTVIEW: config.dayInSplit = \(config.dayInSplit)")
-        print("🔧 TODAYWORKOUTVIEW: Available days: \(splitDays.map { "Day \($0.dayOfSplit): \($0.name)" }.joined(separator: ", "))")
+        debugLog("🔧 TODAYWORKOUTVIEW: config.dayInSplit = \(config.dayInSplit)")
+        debugLog("🔧 TODAYWORKOUTVIEW: Available days: \(splitDays.map { "Day \($0.dayOfSplit): \($0.name)" }.joined(separator: ", "))")
         #endif
 
         // OPTIMIZATION: Filter split days directly instead of calling fetchDay()
         // which would call getActiveSplitDays() again (duplicate query)
         let updatedDay = splitDays.first(where: { $0.dayOfSplit == config.dayInSplit }) ?? Day(name: "", dayOfSplit: 0, exercises: [], date: "")
         #if DEBUG
-        print("🔄 TODAYWORKOUTVIEW: Updated day: '\(updatedDay.name)', exercises: \(updatedDay.exercises?.count ?? 0)")
+        debugLog("🔄 TODAYWORKOUTVIEW: Updated day: '\(updatedDay.name)', exercises: \(updatedDay.exercises?.count ?? 0)")
         #endif
 
         // Update all state variables together with animation to ensure UI updates
@@ -372,7 +372,7 @@ struct TodayWorkoutView: View {
             selectedDay = updatedDay
             viewModel.day = updatedDay
             #if DEBUG
-            print("🔄 TODAYWORKOUTVIEW: Set selectedDay to '\(selectedDay.name)'")
+            debugLog("🔄 TODAYWORKOUTVIEW: Set selectedDay to '\(selectedDay.name)'")
             #endif
         }
 
@@ -386,7 +386,7 @@ struct TodayWorkoutView: View {
         isLoadingInitialData = false
 
         #if DEBUG
-        print("🔄 TODAYWORKOUTVIEW: Refresh complete")
+        debugLog("🔄 TODAYWORKOUTVIEW: Refresh complete")
         #endif
     }
 

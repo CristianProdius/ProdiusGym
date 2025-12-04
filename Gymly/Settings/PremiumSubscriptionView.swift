@@ -83,6 +83,11 @@ struct PremiumSubscriptionView: View {
                     dismiss()
                 }
             }
+            .onChange(of: storeManager.errorMessage) { _, newError in
+                if newError != nil {
+                    showError = true
+                }
+            }
         }
     }
 

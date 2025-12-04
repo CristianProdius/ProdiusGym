@@ -35,7 +35,7 @@ class NotificationManager: NSObject, ObservableObject {
         isAuthorized = settings.authorizationStatus == .authorized
 
         #if DEBUG
-        print("🔔 Notification Status: \(authorizationStatus.rawValue)")
+        debugLog("🔔 Notification Status: \(authorizationStatus.rawValue)")
         #endif
     }
 
@@ -46,11 +46,11 @@ class NotificationManager: NSObject, ObservableObject {
             await checkAuthorizationStatus()
 
             #if DEBUG
-            print(granted ? "✅ Notification permission granted" : "❌ Notification permission denied")
+            debugLog(granted ? "✅ Notification permission granted" : "❌ Notification permission denied")
             #endif
         } catch {
             #if DEBUG
-            print("❌ Failed to request notification authorization: \(error)")
+            debugLog("❌ Failed to request notification authorization: \(error)")
             #endif
             throw error
         }
@@ -77,7 +77,7 @@ class NotificationManager: NSObject, ObservableObject {
     ) async throws {
         guard isAuthorized else {
             #if DEBUG
-            print("⚠️ Cannot schedule notification - not authorized")
+            debugLog("⚠️ Cannot schedule notification - not authorized")
             #endif
             return
         }
@@ -103,11 +103,11 @@ class NotificationManager: NSObject, ObservableObject {
         do {
             try await center.add(request)
             #if DEBUG
-            print("✅ Scheduled notification '\(id)' for \(date)")
+            debugLog("✅ Scheduled notification '\(id)' for \(date)")
             #endif
         } catch {
             #if DEBUG
-            print("❌ Failed to schedule notification '\(id)': \(error)")
+            debugLog("❌ Failed to schedule notification '\(id)': \(error)")
             #endif
             throw error
         }
@@ -125,7 +125,7 @@ class NotificationManager: NSObject, ObservableObject {
     ) async throws {
         guard isAuthorized else {
             #if DEBUG
-            print("⚠️ Cannot schedule notification - not authorized")
+            debugLog("⚠️ Cannot schedule notification - not authorized")
             #endif
             return
         }
@@ -147,11 +147,11 @@ class NotificationManager: NSObject, ObservableObject {
         do {
             try await center.add(request)
             #if DEBUG
-            print("✅ Scheduled notification '\(id)' with date components (repeats: \(repeats))")
+            debugLog("✅ Scheduled notification '\(id)' with date components (repeats: \(repeats))")
             #endif
         } catch {
             #if DEBUG
-            print("❌ Failed to schedule notification '\(id)': \(error)")
+            debugLog("❌ Failed to schedule notification '\(id)': \(error)")
             #endif
             throw error
         }
@@ -169,7 +169,7 @@ class NotificationManager: NSObject, ObservableObject {
     ) async throws {
         guard isAuthorized else {
             #if DEBUG
-            print("⚠️ Cannot schedule notification - not authorized")
+            debugLog("⚠️ Cannot schedule notification - not authorized")
             #endif
             return
         }
@@ -191,11 +191,11 @@ class NotificationManager: NSObject, ObservableObject {
         do {
             try await center.add(request)
             #if DEBUG
-            print("✅ Scheduled notification '\(id)' in \(timeInterval) seconds")
+            debugLog("✅ Scheduled notification '\(id)' in \(timeInterval) seconds")
             #endif
         } catch {
             #if DEBUG
-            print("❌ Failed to schedule notification '\(id)': \(error)")
+            debugLog("❌ Failed to schedule notification '\(id)': \(error)")
             #endif
             throw error
         }
@@ -207,7 +207,7 @@ class NotificationManager: NSObject, ObservableObject {
     func cancelNotification(withId id: String) {
         center.removePendingNotificationRequests(withIdentifiers: [id])
         #if DEBUG
-        print("🗑️ Cancelled notification '\(id)'")
+        debugLog("🗑️ Cancelled notification '\(id)'")
         #endif
     }
 
@@ -215,7 +215,7 @@ class NotificationManager: NSObject, ObservableObject {
     func cancelAllNotifications() {
         center.removeAllPendingNotificationRequests()
         #if DEBUG
-        print("🗑️ Cancelled all pending notifications")
+        debugLog("🗑️ Cancelled all pending notifications")
         #endif
     }
 
@@ -265,7 +265,7 @@ extension NotificationManager: UNUserNotificationCenterDelegate {
         let userInfo = response.notification.request.content.userInfo
 
         #if DEBUG
-        print("📬 User tapped notification: \(userInfo)")
+        debugLog("📬 User tapped notification: \(userInfo)")
         #endif
 
         // Handle different notification actions here

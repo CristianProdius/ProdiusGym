@@ -98,7 +98,7 @@ struct SettingUserInfoCell: View {
         do {
             let recentPoints = try context.fetch(descriptor)
 
-            print("📊 SettingUserInfoCell: Found \(recentPoints.count) weight entries in last 10 days")
+            debugLog("📊 SettingUserInfoCell: Found \(recentPoints.count) weight entries in last 10 days")
 
             if !recentPoints.isEmpty {
                 // Try to find weight from ~7 days ago (with 3 day tolerance)
@@ -114,7 +114,7 @@ struct SettingUserInfoCell: View {
                     if daysDiff <= 3 {
                         self.compareWeight = point.weight
                         self.compareText = "vs last week"
-                        print("✅ SettingUserInfoCell: Using last week weight: \(point.weight)kg (from \(daysDiff) days ago)")
+                        debugLog("✅ SettingUserInfoCell: Using last week weight: \(point.weight)kg (from \(daysDiff) days ago)")
                         return
                     }
                 }
@@ -127,10 +127,10 @@ struct SettingUserInfoCell: View {
 
             let allPoints = try context.fetch(allDescriptor)
 
-            print("📊 SettingUserInfoCell: Found \(allPoints.count) total weight entries in database")
+            debugLog("📊 SettingUserInfoCell: Found \(allPoints.count) total weight entries in database")
 
             guard allPoints.count >= 2 else {
-                print("⚠️ SettingUserInfoCell: Not enough weight data (need at least 2 entries)")
+                debugLog("⚠️ SettingUserInfoCell: Not enough weight data (need at least 2 entries)")
                 return
             }
 
@@ -140,10 +140,10 @@ struct SettingUserInfoCell: View {
             self.compareWeight = secondLastWeight
             self.compareText = "vs last time"
 
-            print("✅ SettingUserInfoCell: Comparing to 2nd last weight: \(secondLastWeight)kg")
+            debugLog("✅ SettingUserInfoCell: Comparing to 2nd last weight: \(secondLastWeight)kg")
 
         } catch {
-            print("❌ SettingUserInfoCell: Error fetching weight points: \(error)")
+            debugLog("❌ SettingUserInfoCell: Error fetching weight points: \(error)")
         }
     }
 }

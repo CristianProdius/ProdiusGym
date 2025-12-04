@@ -107,10 +107,10 @@ struct StreakDetailView: View {
 
         do {
             let workouts = try context.fetch(fetchDescriptor)
-            print("🔧 STREAK: This week workouts: \(workouts.count) (from \(weekStartString) to \(weekEndString))")
+            debugLog("🔧 STREAK: This week workouts: \(workouts.count) (from \(weekStartString) to \(weekEndString))")
             return workouts.count
         } catch {
-            print("❌ STREAK: Failed to fetch this week workouts: \(error)")
+            debugLog("❌ STREAK: Failed to fetch this week workouts: \(error)")
             return 0
         }
     }
@@ -170,7 +170,7 @@ struct StreakDetailView: View {
 
             return Double(allWorkouts.count) / weeksBetween
         } catch {
-            print("❌ STREAK: Failed to calculate avg workouts: \(error)")
+            debugLog("❌ STREAK: Failed to calculate avg workouts: \(error)")
             return 0.0
         }
     }
@@ -435,11 +435,11 @@ struct StreakDetailView: View {
         }
         .onAppear {
             // Debug: Check initial state
-            print("🔧 STREAK VIEW: Appeared")
-            print("🔧 STREAK: Current paused state: \(isStreakPaused)")
-            print("🔧 STREAK: Profile exists: \(userProfileManager.currentProfile != nil)")
+            debugLog("🔧 STREAK VIEW: Appeared")
+            debugLog("🔧 STREAK: Current paused state: \(isStreakPaused)")
+            debugLog("🔧 STREAK: Profile exists: \(userProfileManager.currentProfile != nil)")
             if let profile = userProfileManager.currentProfile {
-                print("🔧 STREAK: Profile streakPaused value: \(profile.streakPaused)")
+                debugLog("🔧 STREAK: Profile streakPaused value: \(profile.streakPaused)")
             }
         }
     }
@@ -478,7 +478,7 @@ struct StreakDetailView: View {
         userProfileManager.objectWillChange.send()
 
         // Debug log
-        print("🔧 STREAK: Pause toggled to \(paused), saved to profile")
+        debugLog("🔧 STREAK: Pause toggled to \(paused), saved to profile")
 
         toastMessage = paused ? "Streak tracking paused" : "Streak tracking resumed"
         showToast()

@@ -32,7 +32,7 @@ class WorkoutReminderManager: ObservableObject {
         guard let config = config,
               let context = modelContext else {
             #if DEBUG
-            print("⚠️ WORKOUT REMINDER: Missing dependencies")
+            debugLog("⚠️ WORKOUT REMINDER: Missing dependencies")
             #endif
             return
         }
@@ -40,14 +40,14 @@ class WorkoutReminderManager: ObservableObject {
         // Check if workout reminders are enabled
         guard config.notificationsEnabled && config.workoutReminderEnabled else {
             #if DEBUG
-            print("🔔 WORKOUT REMINDER: Disabled in settings")
+            debugLog("🔔 WORKOUT REMINDER: Disabled in settings")
             #endif
             cancelAllWorkoutReminders()
             return
         }
 
         #if DEBUG
-        print("🔄 WORKOUT REMINDER: Analyzing workout patterns...")
+        debugLog("🔄 WORKOUT REMINDER: Analyzing workout patterns...")
         #endif
 
         // Analyze each weekday separately
@@ -87,7 +87,7 @@ class WorkoutReminderManager: ObservableObject {
 
         #if DEBUG
         let weekdayName = calendar.weekdaySymbols[weekday - 1]
-        print("📊 WORKOUT REMINDER: \(weekdayName) - Found \(workoutTimes.count) workouts in last 4 occurrences")
+        debugLog("📊 WORKOUT REMINDER: \(weekdayName) - Found \(workoutTimes.count) workouts in last 4 occurrences")
         #endif
 
         // Calculate optimal reminder time for this weekday
@@ -118,7 +118,7 @@ class WorkoutReminderManager: ObservableObject {
 
             guard let dayStorage = dayStorages.first else {
                 #if DEBUG
-                print("🔍 WORKOUT REMINDER: No DayStorage found for \(dateString)")
+                debugLog("🔍 WORKOUT REMINDER: No DayStorage found for \(dateString)")
                 #endif
                 return nil
             }
@@ -135,7 +135,7 @@ class WorkoutReminderManager: ObservableObject {
             guard let day = days.first,
                   let exercises = day.exercises else {
                 #if DEBUG
-                print("🔍 WORKOUT REMINDER: No exercises found for \(dateString)")
+                debugLog("🔍 WORKOUT REMINDER: No exercises found for \(dateString)")
                 #endif
                 return nil
             }
@@ -160,14 +160,14 @@ class WorkoutReminderManager: ObservableObject {
             if let earliestTime = earliestTime {
                 let timeFormatter = DateFormatter()
                 timeFormatter.dateFormat = "HH:mm"
-                print("✅ WORKOUT REMINDER: Found workout at \(timeFormatter.string(from: earliestTime)) on \(dateString)")
+                debugLog("✅ WORKOUT REMINDER: Found workout at \(timeFormatter.string(from: earliestTime)) on \(dateString)")
             }
             #endif
 
             return earliestTime
         } catch {
             #if DEBUG
-            print("❌ WORKOUT REMINDER: Failed to fetch workout data - \(error)")
+            debugLog("❌ WORKOUT REMINDER: Failed to fetch workout data - \(error)")
             #endif
             return nil
         }
@@ -207,8 +207,8 @@ class WorkoutReminderManager: ObservableObject {
 
         #if DEBUG
         let optimalComponents = calendar.dateComponents([.hour, .minute], from: optimalTime)
-        print("📅 WORKOUT REMINDER: \(weekdayName) - Optimal workout time: \(optimalComponents.hour!):\(String(format: "%02d", optimalComponents.minute!))")
-        print("⏰ WORKOUT REMINDER: \(weekdayName) - Reminder at: \(components.hour!):\(String(format: "%02d", components.minute!))")
+        debugLog("📅 WORKOUT REMINDER: \(weekdayName) - Optimal workout time: \(optimalComponents.hour!):\(String(format: "%02d", optimalComponents.minute!))")
+        debugLog("⏰ WORKOUT REMINDER: \(weekdayName) - Reminder at: \(components.hour!):\(String(format: "%02d", components.minute!))")
         #endif
 
         // Create notification request for this weekday
@@ -221,7 +221,7 @@ class WorkoutReminderManager: ObservableObject {
         let (isRestDay, workoutName) = getTodayWorkoutInfo(weekday: weekday, config: config)
 
         #if DEBUG
-        print("🏋️ WORKOUT REMINDER: \(weekdayName) - isRestDay: \(isRestDay), workoutName: \(workoutName ?? "nil")")
+        debugLog("🏋️ WORKOUT REMINDER: \(weekdayName) - isRestDay: \(isRestDay), workoutName: \(workoutName ?? "nil")")
         #endif
 
         let notificationID = "workout_reminder_\(weekday)"
@@ -253,11 +253,11 @@ class WorkoutReminderManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ WORKOUT REMINDER: Scheduled for \(weekdayName)")
+                debugLog("✅ WORKOUT REMINDER: Scheduled for \(weekdayName)")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ WORKOUT REMINDER: Failed to schedule for \(weekdayName) - \(error)")
+                debugLog("❌ WORKOUT REMINDER: Failed to schedule for \(weekdayName) - \(error)")
                 #endif
             }
         }
@@ -309,7 +309,7 @@ class WorkoutReminderManager: ObservableObject {
             return (isRestDay, isRestDay ? nil : day.name)
         } catch {
             #if DEBUG
-            print("❌ WORKOUT REMINDER: Failed to fetch split info - \(error)")
+            debugLog("❌ WORKOUT REMINDER: Failed to fetch split info - \(error)")
             #endif
             return (false, nil)
         }
@@ -343,12 +343,12 @@ class WorkoutReminderManager: ObservableObject {
                 notificationManager.cancelNotification(withId: notificationID)
 
                 #if DEBUG
-                print("🗑️ WORKOUT REMINDER: Cancelled today's reminder (workout completed)")
+                debugLog("🗑️ WORKOUT REMINDER: Cancelled today's reminder (workout completed)")
                 #endif
             }
         } catch {
             #if DEBUG
-            print("❌ WORKOUT REMINDER: Failed to check workout status - \(error)")
+            debugLog("❌ WORKOUT REMINDER: Failed to check workout status - \(error)")
             #endif
         }
     }
@@ -361,7 +361,7 @@ class WorkoutReminderManager: ObservableObject {
         }
 
         #if DEBUG
-        print("🗑️ WORKOUT REMINDER: Cancelled all workout reminders")
+        debugLog("🗑️ WORKOUT REMINDER: Cancelled all workout reminders")
         #endif
     }
 

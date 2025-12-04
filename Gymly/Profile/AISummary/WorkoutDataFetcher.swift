@@ -35,7 +35,7 @@ actor WorkoutDataFetcher {
         let endDate = calendar.date(byAdding: .weekOfYear, value: -weeksBack, to: Date()) ?? Date()
         guard let startDate = calendar.date(byAdding: .day, value: -(numberOfWeeks * 7), to: endDate) else {
             #if DEBUG
-            print("🔍 AI Fetch: Failed to create start date")
+            debugLog("🔍 AI Fetch: Failed to create start date")
             #endif
             return []
         }
@@ -44,8 +44,8 @@ actor WorkoutDataFetcher {
         let endDateString = Self.dateFormatter.string(from: endDate)
 
         #if DEBUG
-        print("🔍 AI Fetch: Looking for workouts between '\(startDateString)' and '\(endDateString)'")
-        print("🔍 AI Fetch: Date range (Date objects): \(startDate) to \(endDate)")
+        debugLog("🔍 AI Fetch: Looking for workouts between '\(startDateString)' and '\(endDateString)'")
+        debugLog("🔍 AI Fetch: Date range (Date objects): \(startDate) to \(endDate)")
         #endif
 
         // IMPORTANT: Cannot use string comparison for date filtering because the format
@@ -61,14 +61,14 @@ actor WorkoutDataFetcher {
             let allDayStorages = try modelContext.fetch(dayStorageDescriptor)
 
             #if DEBUG
-            print("🔍 AI Fetch: Found \(allDayStorages.count) total DayStorage entries in database")
+            debugLog("🔍 AI Fetch: Found \(allDayStorages.count) total DayStorage entries in database")
             #endif
 
             // Filter by date range using Date comparison
             let dayStorages = allDayStorages.filter { storage in
                 guard let storageDate = Self.dateFormatter.date(from: storage.date) else {
                     #if DEBUG
-                    print("   ⚠️ Could not parse date: '\(storage.date)'")
+                    debugLog("   ⚠️ Could not parse date: '\(storage.date)'")
                     #endif
                     return false
                 }
@@ -76,11 +76,11 @@ actor WorkoutDataFetcher {
             }
 
             #if DEBUG
-            print("🔍 AI Fetch: Found \(dayStorages.count) DayStorage entries in date range (after filtering)")
-            print("🔍 AI Fetch: Date range filter: \(startDate) to \(endDate)")
+            debugLog("🔍 AI Fetch: Found \(dayStorages.count) DayStorage entries in date range (after filtering)")
+            debugLog("🔍 AI Fetch: Date range filter: \(startDate) to \(endDate)")
             // Log each DayStorage entry to check for duplicates
             for storage in dayStorages {
-                print("   📋 DayStorage: date='\(storage.date)', dayName='\(storage.dayName)', dayId=\(storage.dayId)")
+                debugLog("   📋 DayStorage: date='\(storage.date)', dayName='\(storage.dayName)', dayId=\(storage.dayId)")
             }
             #endif
 
@@ -90,7 +90,7 @@ actor WorkoutDataFetcher {
 
             for dayStorage in dayStorages {
                 #if DEBUG
-                print("\n🔍 Processing DayStorage: date='\(dayStorage.date)', dayName='\(dayStorage.dayName)'")
+                debugLog("\n🔍 Processing DayStorage: date='\(dayStorage.date)', dayName='\(dayStorage.dayName)'")
                 #endif
 
                 // Fetch Day directly by ID
@@ -103,7 +103,7 @@ actor WorkoutDataFetcher {
 
                 guard let day = try modelContext.fetch(dayDescriptor).first else {
                     #if DEBUG
-                    print("   ❌ SKIP: Day with id \(dayId) does NOT exist (orphaned DayStorage)")
+                    debugLog("   ❌ SKIP: Day with id \(dayId) does NOT exist (orphaned DayStorage)")
                     #endif
                     skippedCount += 1
                     skippedReasons["orphaned (Day not found)"] = (skippedReasons["orphaned (Day not found)"] ?? 0) + 1
@@ -111,12 +111,12 @@ actor WorkoutDataFetcher {
                 }
 
                 #if DEBUG
-                print("   ✅ Day found: id=\(day.id)")
+                debugLog("   ✅ Day found: id=\(day.id)")
                 #endif
 
                 guard let exercises = day.exercises, !exercises.isEmpty else {
                     #if DEBUG
-                    print("   ❌ SKIP: Day has NO exercises")
+                    debugLog("   ❌ SKIP: Day has NO exercises")
                     #endif
                     skippedCount += 1
                     skippedReasons["no exercises"] = (skippedReasons["no exercises"] ?? 0) + 1
@@ -124,7 +124,7 @@ actor WorkoutDataFetcher {
                 }
 
                 #if DEBUG
-                print("   📊 Day has \(exercises.count) total exercises")
+                debugLog("   📊 Day has \(exercises.count) total exercises")
                 #endif
 
                 // Separate completed and incomplete exercises
@@ -163,13 +163,13 @@ actor WorkoutDataFetcher {
                 }
 
                 #if DEBUG
-                print("   📈 Completed exercises: \(completedExercises.count)")
-                print("   📉 Incomplete exercises: \(incompleteExercises.count)")
+                debugLog("   📈 Completed exercises: \(completedExercises.count)")
+                debugLog("   📉 Incomplete exercises: \(incompleteExercises.count)")
                 #endif
 
                 guard !completedExercises.isEmpty else {
                     #if DEBUG
-                    print("   ❌ SKIP: Day has NO COMPLETED exercises (all incomplete)")
+                    debugLog("   ❌ SKIP: Day has NO COMPLETED exercises (all incomplete)")
                     #endif
                     skippedCount += 1
                     skippedReasons["no completed exercises"] = (skippedReasons["no completed exercises"] ?? 0) + 1
@@ -180,7 +180,7 @@ actor WorkoutDataFetcher {
                 let duration = calculateDuration(from: completedExercises)
 
                 #if DEBUG
-                print("   ✅ INCLUDED: Adding workout with \(completedExercises.count) exercises")
+                debugLog("   ✅ INCLUDED: Adding workout with \(completedExercises.count) exercises")
                 #endif
 
                 completedWorkouts.append(
@@ -195,24 +195,24 @@ actor WorkoutDataFetcher {
             }
 
             #if DEBUG
-            print("\n" + String(repeating: "=", count: 60))
-            print("📊 AI FETCH SUMMARY:")
-            print("   Total DayStorage entries found: \(dayStorages.count)")
-            print("   Valid workouts included: \(completedWorkouts.count)")
-            print("   Entries skipped: \(skippedCount)")
+            debugLog("\n" + String(repeating: "=", count: 60))
+            debugLog("📊 AI FETCH SUMMARY:")
+            debugLog("   Total DayStorage entries found: \(dayStorages.count)")
+            debugLog("   Valid workouts included: \(completedWorkouts.count)")
+            debugLog("   Entries skipped: \(skippedCount)")
             if !skippedReasons.isEmpty {
-                print("   Skip reasons:")
+                debugLog("   Skip reasons:")
                 for (reason, count) in skippedReasons.sorted(by: { $0.value > $1.value }) {
-                    print("      - \(reason): \(count)")
+                    debugLog("      - \(reason): \(count)")
                 }
             }
-            print(String(repeating: "=", count: 60) + "\n")
+            debugLog(String(repeating: "=", count: 60) + "\n")
             #endif
 
             return completedWorkouts.sorted { $0.date < $1.date }
         } catch {
             #if DEBUG
-            print("❌ AI Fetch Error: \(error)")
+            debugLog("❌ AI Fetch Error: \(error)")
             #endif
             return []
         }
@@ -249,7 +249,7 @@ actor WorkoutDataFetcher {
                 )
             }
         } catch {
-            print("Error fetching historical data: \(error)")
+            debugLog("Error fetching historical data: \(error)")
             return []
         }
     }

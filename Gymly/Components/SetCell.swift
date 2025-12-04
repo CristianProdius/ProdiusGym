@@ -37,16 +37,16 @@ struct SetCell: View {
         Section("Set \(index + 1)") {
             Button {
                 if setForCalendar == false {
-                    print("📱 Tapping set \(index + 1) (ID: \(set.id))")
+                    debugLog("📱 Tapping set \(index + 1) (ID: \(set.id))")
                     if let onSetTap = onSetTap {
                         // Use callback for external sheet management
-                        print("📱 Using callback for set tap")
+                        debugLog("📱 Using callback for set tap")
                         onSetTap(set)
                     } else {
                         // Use internal sheet management
-                        print("📱 Using internal sheet - showEditSheet: \(showEditSheet)")
+                        debugLog("📱 Using internal sheet - showEditSheet: \(showEditSheet)")
                         showEditSheet = true
-                        print("📱 Set showEditSheet to: \(showEditSheet)")
+                        debugLog("📱 Set showEditSheet to: \(showEditSheet)")
                     }
                 }
             } label: {
@@ -124,16 +124,16 @@ struct SetCell: View {
                     unit: .constant(weightUnit)
                 )
                 .onAppear {
-                    print("📱 EditExerciseSetView appeared for set \(index + 1)")
+                    debugLog("📱 EditExerciseSetView appeared for set \(index + 1)")
                 }
                 .onDisappear {
-                    print("📱 EditExerciseSetView disappeared for set \(index + 1)")
+                    debugLog("📱 EditExerciseSetView disappeared for set \(index + 1)")
                 }
             }
         }
         .onChange(of: showEditSheet) { oldValue, newValue in
             if onSetTap == nil {
-                print("📱 showEditSheet changed to: \(newValue) for set \(index + 1)")
+                debugLog("📱 showEditSheet changed to: \(newValue) for set \(index + 1)")
             }
         }
         .task {
@@ -155,7 +155,7 @@ struct SetCell: View {
                         weight: set.weight,
                         reps: set.reps
                     )
-                    print("⭐ SetCell: PR check for \(exercise.name) - isPR: \(isPR)")
+                    debugLog("⭐ SetCell: PR check for \(exercise.name) - isPR: \(isPR)")
                 }
             }
         }

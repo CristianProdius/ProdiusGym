@@ -57,7 +57,7 @@ struct SplitDetailView: View {
         DispatchQueue.main.async {
             // Ensure the file exists before sharing
             guard FileManager.default.fileExists(atPath: url.path) else {
-                print("File does not exist at path: \(url.path)")
+                debugLog("File does not exist at path: \(url.path)")
                 return
             }
 
@@ -65,13 +65,13 @@ struct SplitDetailView: View {
             do {
                 try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: url.path)
             } catch {
-                print("Failed to set file permissions: \(error)")
+                debugLog("Failed to set file permissions: \(error)")
                 return
             }
 
             // Verify file is readable
             guard FileManager.default.isReadableFile(atPath: url.path) else {
-                print("File is not readable at path: \(url.path)")
+                debugLog("File is not readable at path: \(url.path)")
                 return
             }
 

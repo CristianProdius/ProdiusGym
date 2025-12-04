@@ -49,7 +49,7 @@ struct ConnectionsView: View {
                         } else {
                             // User wants to disable - just update the flag
                             config.isHealtKitEnabled = false
-                            print("🩺 HEALTH: HealthKit disabled by user")
+                            debugLog("🩺 HEALTH: HealthKit disabled by user")
                         }
                     }
                 ))
@@ -86,7 +86,7 @@ struct ConnectionsView: View {
                                 config.isCloudKitEnabled = false
                             } else {
                                 // CloudKit not available but user wants to enable it
-                                print("❌ CloudKit not available, cannot enable sync")
+                                debugLog("❌ CloudKit not available, cannot enable sync")
                             }
                         }
                     }
@@ -157,7 +157,7 @@ struct ConnectionsView: View {
 
     /// Requests HealthKit authorization with optimistic UI updates
     private func requestHealthKitAuthorizationOptimistic() {
-        print("🩺 HEALTH: Requesting HealthKit authorization with READ and WRITE permissions...")
+        debugLog("🩺 HEALTH: Requesting HealthKit authorization with READ and WRITE permissions...")
 
         let healthDataToRead: Set = [
             HKObjectType.characteristicType(forIdentifier: .dateOfBirth)!,
@@ -177,7 +177,7 @@ struct ConnectionsView: View {
             // iOS doesn't tell us if user granted or denied - we must try fetching to find out
 
             DispatchQueue.main.async {
-                print("🩺 HEALTH: Authorization dialog completed, attempting to fetch data...")
+                debugLog("🩺 HEALTH: Authorization dialog completed, attempting to fetch data...")
 
                 // Show syncing indicator
                 self.isHealthKitSyncing = true
@@ -190,7 +190,7 @@ struct ConnectionsView: View {
 
     /// Fetch HealthKit data with validation (checks if permissions actually work)
     private func fetchHealthKitDataAfterAuthorizationWithValidation() {
-        print("📱 HEALTH: Fetching data from HealthKit with validation...")
+        debugLog("📱 HEALTH: Fetching data from HealthKit with validation...")
 
         // Track completion and success of fetches
         var completedFetches = 0
@@ -204,10 +204,10 @@ struct ConnectionsView: View {
                     self.isHealthKitSyncing = false
 
                     if anyDataFetched {
-                        print("✅ HEALTH: Permissions granted - data fetched successfully")
+                        debugLog("✅ HEALTH: Permissions granted - data fetched successfully")
                         // Keep toggle enabled
                     } else {
-                        print("❌ HEALTH: No data could be fetched - permissions likely denied")
+                        debugLog("❌ HEALTH: No data could be fetched - permissions likely denied")
                         // Revert toggle
                         self.config.isHealtKitEnabled = false
                         self.showHealthKitSettingsAlert = true
@@ -223,7 +223,7 @@ struct ConnectionsView: View {
                     anyDataFetched = true
                     let heightInCm = height * 100.0
                     self.userProfileManager.updatePhysicalStats(height: heightInCm)
-                    print("✅ HEALTH: Fetched height: \(height) m (\(heightInCm) cm)")
+                    debugLog("✅ HEALTH: Fetched height: \(height) m (\(heightInCm) cm)")
                 }
                 checkCompletion()
             }
@@ -235,7 +235,7 @@ struct ConnectionsView: View {
                 if let age = age {
                     anyDataFetched = true
                     self.userProfileManager.updatePhysicalStats(age: age)
-                    print("✅ HEALTH: Fetched age: \(age) years")
+                    debugLog("✅ HEALTH: Fetched age: \(age) years")
                 }
                 checkCompletion()
             }
@@ -247,7 +247,7 @@ struct ConnectionsView: View {
                 if let weight = weight {
                     anyDataFetched = true
                     self.userProfileManager.updatePhysicalStats(weight: weight)
-                    print("✅ HEALTH: Fetched weight: \(weight) kg")
+                    debugLog("✅ HEALTH: Fetched weight: \(weight) kg")
                 }
                 checkCompletion()
             }
@@ -256,7 +256,7 @@ struct ConnectionsView: View {
 
     /// Fetch HealthKit data immediately after authorization (parallel fetch)
     private func fetchHealthKitDataAfterAuthorization() {
-        print("📱 HEALTH: Fetching data from HealthKit after authorization...")
+        debugLog("📱 HEALTH: Fetching data from HealthKit after authorization...")
 
         // Track completion of all three fetches
         var completedFetches = 0
@@ -267,7 +267,7 @@ struct ConnectionsView: View {
             if completedFetches == totalFetches {
                 DispatchQueue.main.async {
                     self.isHealthKitSyncing = false
-                    print("✅ HEALTH: All data fetched successfully")
+                    debugLog("✅ HEALTH: All data fetched successfully")
                 }
             }
         }
@@ -279,7 +279,7 @@ struct ConnectionsView: View {
                     // HealthKit returns height in meters, UserProfile stores in centimeters
                     let heightInCm = height * 100.0
                     self.userProfileManager.updatePhysicalStats(height: heightInCm)
-                    print("✅ HEALTH: Fetched height: \(height) m (\(heightInCm) cm)")
+                    debugLog("✅ HEALTH: Fetched height: \(height) m (\(heightInCm) cm)")
                 }
                 checkCompletion()
             }
@@ -290,7 +290,7 @@ struct ConnectionsView: View {
             DispatchQueue.main.async {
                 if let age = age {
                     self.userProfileManager.updatePhysicalStats(age: age)
-                    print("✅ HEALTH: Fetched age: \(age) years")
+                    debugLog("✅ HEALTH: Fetched age: \(age) years")
                 }
                 checkCompletion()
             }
@@ -301,7 +301,7 @@ struct ConnectionsView: View {
             DispatchQueue.main.async {
                 if let weight = weight {
                     self.userProfileManager.updatePhysicalStats(weight: weight)
-                    print("✅ HEALTH: Fetched weight: \(weight) kg")
+                    debugLog("✅ HEALTH: Fetched weight: \(weight) kg")
                 }
                 checkCompletion()
             }

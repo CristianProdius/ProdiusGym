@@ -33,7 +33,7 @@ class StreakNotificationManager: ObservableObject {
               let userProfileManager = userProfileManager,
               let profile = userProfileManager.currentProfile else {
             #if DEBUG
-            print("⚠️ STREAK NOTIFICATION: Missing dependencies")
+            debugLog("⚠️ STREAK NOTIFICATION: Missing dependencies")
             #endif
             return
         }
@@ -41,7 +41,7 @@ class StreakNotificationManager: ObservableObject {
         // Check if notifications are enabled
         guard config.notificationsEnabled && config.streakNotificationsEnabled else {
             #if DEBUG
-            print("🔔 STREAK NOTIFICATION: Disabled in settings")
+            debugLog("🔔 STREAK NOTIFICATION: Disabled in settings")
             #endif
             return
         }
@@ -49,7 +49,7 @@ class StreakNotificationManager: ObservableObject {
         // Check if user has a streak to protect
         guard profile.currentStreak > 0 else {
             #if DEBUG
-            print("🔔 STREAK NOTIFICATION: No streak to protect (streak = 0)")
+            debugLog("🔔 STREAK NOTIFICATION: No streak to protect (streak = 0)")
             #endif
             return
         }
@@ -57,14 +57,14 @@ class StreakNotificationManager: ObservableObject {
         // Check if streak is paused
         guard !profile.streakPaused else {
             #if DEBUG
-            print("🔔 STREAK NOTIFICATION: Streak is paused")
+            debugLog("🔔 STREAK NOTIFICATION: Streak is paused")
             #endif
             return
         }
 
         guard let lastWorkoutDate = profile.lastWorkoutDate else {
             #if DEBUG
-            print("⚠️ STREAK NOTIFICATION: No last workout date")
+            debugLog("⚠️ STREAK NOTIFICATION: No last workout date")
             #endif
             return
         }
@@ -80,9 +80,9 @@ class StreakNotificationManager: ObservableObject {
         let maxAllowedGap = restDaysPerWeek
 
         #if DEBUG
-        print("🔥 STREAK NOTIFICATION: Current streak = \(profile.currentStreak)")
-        print("🔥 STREAK NOTIFICATION: Days since last workout = \(daysSinceLastWorkout)")
-        print("🔥 STREAK NOTIFICATION: Max allowed gap = \(maxAllowedGap) days (rest days per week)")
+        debugLog("🔥 STREAK NOTIFICATION: Current streak = \(profile.currentStreak)")
+        debugLog("🔥 STREAK NOTIFICATION: Days since last workout = \(daysSinceLastWorkout)")
+        debugLog("🔥 STREAK NOTIFICATION: Max allowed gap = \(maxAllowedGap) days (rest days per week)")
         #endif
 
         // Cancel any existing streak notifications first
@@ -106,11 +106,11 @@ class StreakNotificationManager: ObservableObject {
         } else if daysUntilBreak < 0 {
             // Streak already broken (should have been reset by checkStreakStatus)
             #if DEBUG
-            print("⚠️ STREAK NOTIFICATION: Streak should have been reset (days until break = \(daysUntilBreak))")
+            debugLog("⚠️ STREAK NOTIFICATION: Streak should have been reset (days until break = \(daysUntilBreak))")
             #endif
         } else {
             #if DEBUG
-            print("✅ STREAK NOTIFICATION: Streak safe for \(daysUntilBreak) more days")
+            debugLog("✅ STREAK NOTIFICATION: Streak safe for \(daysUntilBreak) more days")
             #endif
         }
     }
@@ -158,11 +158,11 @@ class StreakNotificationManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ STREAK NOTIFICATION: Scheduled warning for \(notificationDate)")
+                debugLog("✅ STREAK NOTIFICATION: Scheduled warning for \(notificationDate)")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ STREAK NOTIFICATION: Failed to schedule - \(error)")
+                debugLog("❌ STREAK NOTIFICATION: Failed to schedule - \(error)")
                 #endif
             }
         }
@@ -195,11 +195,11 @@ class StreakNotificationManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ STREAK NOTIFICATION: Sent streak saved notification (streak = \(newStreak))")
+                debugLog("✅ STREAK NOTIFICATION: Sent streak saved notification (streak = \(newStreak))")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ STREAK NOTIFICATION: Failed to send streak saved - \(error)")
+                debugLog("❌ STREAK NOTIFICATION: Failed to send streak saved - \(error)")
                 #endif
             }
         }
@@ -255,11 +255,11 @@ class StreakNotificationManager: ObservableObject {
                 )
 
                 #if DEBUG
-                print("✅ STREAK NOTIFICATION: Sent milestone notification (streak = \(streak))")
+                debugLog("✅ STREAK NOTIFICATION: Sent milestone notification (streak = \(streak))")
                 #endif
             } catch {
                 #if DEBUG
-                print("❌ STREAK NOTIFICATION: Failed to send milestone - \(error)")
+                debugLog("❌ STREAK NOTIFICATION: Failed to send milestone - \(error)")
                 #endif
             }
         }
@@ -268,7 +268,7 @@ class StreakNotificationManager: ObservableObject {
     /// Reschedule all streak notifications (call when settings change or app launches)
     func rescheduleAllStreakNotifications() {
         #if DEBUG
-        print("🔄 STREAK NOTIFICATION: Rescheduling all streak notifications")
+        debugLog("🔄 STREAK NOTIFICATION: Rescheduling all streak notifications")
         #endif
         scheduleStreakProtection()
     }
