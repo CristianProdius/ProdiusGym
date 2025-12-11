@@ -21,13 +21,43 @@ struct SplitDetailView: View {
     @State private var splitName: String = ""
     @State private var showAddDay: Bool = false
     @State private var newDayName: String = ""
+    @State private var isReorderingDays: Bool = false
+    @State private var editModeDays: EditMode = .inactive
+    @State private var reorderingBufferDays: [Day] = []
+    private func orderNumber(for day: Day) -> Int {
+        if let idx = reorderingBufferDays.firstIndex(where: { $0.id == day.id }) {
+            return idx + 1
+        }
+        return 0
+    }
+
     var body: some View {
         ZStack {
             FloatingClouds(theme: CloudsTheme.graphite(scheme))
                 .ignoresSafeArea()
             List {
                 /// Show all days in a split and display them in a list
-                ForEach(days.sorted(by: { $0.dayOfSplit < $1.dayOfSplit })) { day in
+                if isReorderingDays {
+                    // Reorder mode: operate on buffer
+                    ForEach(reorderingBufferDays, id: \.id) { day in
+                        HStack {
+                            Text("\(orderNumber(for: day))")
+                                .foregroundStyle(appearanceManager.accentColor.color)
+                                .bold()
+                            Text(day.name)
+                            Spacer()
+                            Text("\(day.exercises?.count ?? 0) exercises")
+                                .foregroundStyle(.secondary)
+                                .font(.caption)
+                        }
+                        .listRowBackground(Color.black.opacity(0.1))
+                    }
+                    .onMove { indices, newOffset in
+                        reorderingBufferDays.move(fromOffsets: indices, toOffset: newOffset)
+                    }
+                } else {
+                    // Normal mode
+                    ForEach(days.sorted(by: { $0.dayOfSplit < $1.dayOfSplit })) { day in
                     NavigationLink(destination: ShowSplitDayView(viewModel: viewModel, day: day, split: split)) {
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Day \(day.dayOfSplit) - \(day.name)")
@@ -83,38 +113,79 @@ struct SplitDetailView: View {
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
                     .listRowBackground(Color.black.opacity(0.1))
+                    }
                 }
             }
+            .environment(\.editMode, $editModeDays)
             .toolbar {
                 ToolbarItemGroup(placement: .topBarTrailing) {
-                    // Add Day button (primary action)
-                    Button {
-                        newDayName = ""
-                        showAddDay = true
-                    } label: {
-                        Label("Add Day", systemImage: "plus.circle")
-                    }
-
-                    // More menu (secondary actions)
-                    Menu {
+                    if isReorderingDays {
+                        // Show Done button in reorder mode
                         Button {
-                            splitName = split.name
-                            editingSplitName = true
-                        } label: {
-                            Label("Edit Split Name", systemImage: "pencil")
-                        }
-
-                        Button {
-                            if let url = viewModel.exportSplit(split) {
-                                viewModel.editPlan = false
-                                shareURL = url
-                                presentShareSheet(url: url)
+                            // Commit: write buffer back to split.days and persist
+                            split.days = reorderingBufferDays
+                            // Update day numbers based on new order
+                            for (idx, day) in reorderingBufferDays.enumerated() {
+                                day.dayOfSplit = idx + 1
+                            }
+                            isReorderingDays = false
+                            editModeDays = .inactive
+                            do {
+                                try context.save()
+                                days = split.days ?? []
+                                debugLog("✅ Days reordered and saved")
+                            } catch {
+                                debugLog("❌ Failed to save reordered days: \(error)")
                             }
                         } label: {
-                            Label("Export Split", systemImage: "square.and.arrow.up")
+                            Text("Done")
+                                .bold()
                         }
-                    } label: {
-                        Label("More", systemImage: "ellipsis.circle")
+                    } else {
+                        // Normal mode: Add Day + Menu
+
+                        // Add Day button (primary action)
+                        Button {
+                            newDayName = ""
+                            showAddDay = true
+                        } label: {
+                            Label("Add Day", systemImage: "plus.circle")
+                        }
+
+                        // More menu (secondary actions)
+                        Menu {
+                            Button {
+                                splitName = split.name
+                                editingSplitName = true
+                            } label: {
+                                Label("Edit Split Name", systemImage: "pencil")
+                            }
+
+                            Divider()
+
+                            Button {
+                                // Enter reorder mode
+                                reorderingBufferDays = days.sorted(by: { $0.dayOfSplit < $1.dayOfSplit })
+                                isReorderingDays = true
+                                editModeDays = .active
+                            } label: {
+                                Label("Reorder Days", systemImage: "arrow.up.arrow.down")
+                            }
+
+                            Divider()
+
+                            Button {
+                                if let url = viewModel.exportSplit(split) {
+                                    viewModel.editPlan = false
+                                    shareURL = url
+                                    presentShareSheet(url: url)
+                                }
+                            } label: {
+                                Label("Export Split", systemImage: "square.and.arrow.up")
+                            }
+                        } label: {
+                            Label("More", systemImage: "ellipsis.circle")
+                        }
                     }
                 }
             }
