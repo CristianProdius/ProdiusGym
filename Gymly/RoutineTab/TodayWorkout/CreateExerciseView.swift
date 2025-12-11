@@ -19,8 +19,8 @@ struct CreateExerciseView: View {
     @State var day: Day
     
     var body: some View {
-        NavigationView {
-                List {
+        NavigationStack {
+            List {
                     /// Section for entering exercise details
                     Section("Exercise parameters") {
                         LazyVStack {
@@ -71,6 +71,6 @@ struct CreateExerciseView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listRowBackground(Color.clear)
-            }
         }
+    }
 }

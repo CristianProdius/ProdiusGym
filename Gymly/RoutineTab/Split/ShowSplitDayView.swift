@@ -187,7 +187,7 @@ struct ShowSplitDayView: View {
             }) {
                 CreateExerciseView(viewModel: viewModel, day: viewModel.day)
                     .navigationTitle("Create Exercise")
-                    .presentationDetents([.large])
+                    .presentationDetents([.medium])
             }
             .sheet(isPresented: $copyWorkout, onDismiss: {
                 Task {
