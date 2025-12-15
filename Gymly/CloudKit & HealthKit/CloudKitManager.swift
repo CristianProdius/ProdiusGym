@@ -1192,6 +1192,119 @@ class CloudKitManager: ObservableObject {
         try await privateDatabase.deleteRecord(withID: recordID)
         debugLog("🗑️ PROFILE IMAGE: Deleted from CloudKit")
     }
+
+    // MARK: - Public Split Sharing
+
+    /// Share a split publicly and get shareable link
+    /// Returns: URL like https://shadowlift.app/splits/{id}
+    func shareSplit(_ split: Split) async throws -> URL {
+        debugLog("🔗 SHARE SPLIT: Starting public share for '\(split.name)'")
+
+        // Use the public database for sharing
+        let publicDatabase = container.publicCloudDatabase
+        let shareID = split.id.uuidString
+        let recordID = CKRecord.ID(recordName: "shared_\(shareID)")
+
+        // Create or update the public record
+        let record: CKRecord
+        do {
+            record = try await publicDatabase.record(for: recordID)
+            debugLog("🔄 SHARE SPLIT: Updating existing public record")
+        } catch {
+            record = CKRecord(recordType: "SharedSplit", recordID: recordID)
+            debugLog("🆕 SHARE SPLIT: Creating new public record")
+        }
+
+        // Encode split to JSON
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        guard let splitData = try? encoder.encode(split) else {
+            throw CloudKitError.invalidData
+        }
+
+        // Store split data and metadata
+        record["splitData"] = splitData as CKRecordValue
+        record["splitName"] = split.name as CKRecordValue
+        record["splitDays"] = (split.days?.count ?? 0) as CKRecordValue
+        record["createdAt"] = Date() as CKRecordValue
+        record["version"] = 1 as CKRecordValue // For future compatibility
+
+        // Calculate total exercises for preview
+        let totalExercises = split.days?.reduce(0) { total, day in
+            total + (day.exercises?.count ?? 0)
+        } ?? 0
+        record["totalExercises"] = totalExercises as CKRecordValue
+
+        do {
+            _ = try await withTimeout(15.0) {
+                try await publicDatabase.save(record)
+            }
+            debugLog("✅ SHARE SPLIT: Saved to public database")
+
+            // Return the shareable link
+            let shareURL = URL(string: "https://shadowlift.app/splits/\(shareID)")!
+            debugLog("🔗 SHARE SPLIT: Generated link: \(shareURL.absoluteString)")
+            return shareURL
+
+        } catch {
+            debugLog("❌ SHARE SPLIT: Failed to save - \(error)")
+            throw CloudKitError.syncFailed(error.localizedDescription)
+        }
+    }
+
+    /// Fetch a shared split by ID from public database
+    func fetchSharedSplit(shareID: String) async throws -> Split {
+        debugLog("📥 FETCH SHARED SPLIT: Fetching split with ID \(shareID)")
+
+        let publicDatabase = container.publicCloudDatabase
+        let recordID = CKRecord.ID(recordName: "shared_\(shareID)")
+
+        do {
+            let record = try await withTimeout(10.0) {
+                try await publicDatabase.record(for: recordID)
+            }
+
+            guard let splitData = record["splitData"] as? Data else {
+                throw CloudKitError.invalidData
+            }
+
+            let decoder = JSONDecoder()
+            decoder.dateDecodingStrategy = .iso8601
+            let split = try decoder.decode(Split.self, from: splitData)
+
+            debugLog("✅ FETCH SHARED SPLIT: Successfully fetched '\(split.name)'")
+            return split
+
+        } catch {
+            debugLog("❌ FETCH SHARED SPLIT: Failed - \(error)")
+            throw CloudKitError.syncFailed(error.localizedDescription)
+        }
+    }
+
+    /// Get metadata for a shared split (for preview without full download)
+    func fetchSharedSplitMetadata(shareID: String) async throws -> (name: String, days: Int, exercises: Int) {
+        debugLog("📋 FETCH SHARED SPLIT METADATA: Fetching metadata for \(shareID)")
+
+        let publicDatabase = container.publicCloudDatabase
+        let recordID = CKRecord.ID(recordName: "shared_\(shareID)")
+
+        do {
+            let record = try await withTimeout(10.0) {
+                try await publicDatabase.record(for: recordID)
+            }
+
+            let name = record["splitName"] as? String ?? "Unknown Split"
+            let days = record["splitDays"] as? Int ?? 0
+            let exercises = record["totalExercises"] as? Int ?? 0
+
+            debugLog("✅ FETCH SHARED SPLIT METADATA: \(name) - \(days) days, \(exercises) exercises")
+            return (name, days, exercises)
+
+        } catch {
+            debugLog("❌ FETCH SHARED SPLIT METADATA: Failed - \(error)")
+            throw CloudKitError.syncFailed(error.localizedDescription)
+        }
+    }
 }
 
 enum CloudKitError: LocalizedError, Equatable {

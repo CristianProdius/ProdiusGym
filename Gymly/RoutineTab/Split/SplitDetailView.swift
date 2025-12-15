@@ -175,13 +175,26 @@ struct SplitDetailView: View {
                             Divider()
 
                             Button {
-                                if let url = viewModel.exportSplit(split) {
-                                    viewModel.editPlan = false
-                                    shareURL = url
-                                    presentShareSheet(url: url)
+                                Task {
+                                    do {
+                                        let shareLink = try await CloudKitManager.shared.shareSplit(split)
+                                        await MainActor.run {
+                                            viewModel.editPlan = false
+                                            shareURL = shareLink
+                                            presentShareSheet(url: shareLink)
+                                        }
+                                    } catch {
+                                        debugLog("❌ Failed to share split: \(error)")
+                                        // Fallback to file export if CloudKit fails
+                                        if let url = viewModel.exportSplit(split) {
+                                            viewModel.editPlan = false
+                                            shareURL = url
+                                            presentShareSheet(url: url)
+                                        }
+                                    }
                                 }
                             } label: {
-                                Label("Export Split", systemImage: "square.and.arrow.up")
+                                Label("Share Split", systemImage: "square.and.arrow.up")
                             }
                         } label: {
                             Label("More", systemImage: "ellipsis.circle")

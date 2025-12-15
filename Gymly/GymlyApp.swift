@@ -59,8 +59,15 @@ struct GymlyApp: App {
     }
     
     private func handleIncomingFile(_ url: URL, config: Config) {
-        debugLog("📂 Opened file: \(url)")
+        debugLog("📂 Opened URL: \(url)")
 
+        // Check if this is a deep link (shadowlift://import-split/{id})
+        if url.scheme == "shadowlift" {
+            handleDeepLink(url, config: config)
+            return
+        }
+
+        // Otherwise, handle as file import
         guard let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) else {
             debugLog("❌ Failed to create ModelContainer")
             importError = ImportError.corruptData("Unable to initialize database")
@@ -101,6 +108,57 @@ struct GymlyApp: App {
             DispatchQueue.main.async {
                 self.importError = ImportError.corruptData(error.localizedDescription)
                 self.showImportError = true
+            }
+        }
+    }
+
+    private func handleDeepLink(_ url: URL, config: Config) {
+        debugLog("🔗 Handling deep link: \(url)")
+
+        // Parse shadowlift://import-split/{id}
+        guard url.host == "import-split",
+              let shareID = url.pathComponents.dropFirst().first else {
+            debugLog("❌ Invalid deep link format")
+            importError = ImportError.invalidFormat("Invalid share link format")
+            showImportError = true
+            return
+        }
+
+        debugLog("🔗 Importing split with ID: \(shareID)")
+
+        guard let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) else {
+            debugLog("❌ Failed to create ModelContainer")
+            importError = ImportError.corruptData("Unable to initialize database")
+            showImportError = true
+            return
+        }
+
+        let context = modelContainer.mainContext
+        let viewModel = WorkoutViewModel(config: config, context: context)
+
+        Task {
+            do {
+                // Fetch split from CloudKit public database
+                let split = try await CloudKitManager.shared.fetchSharedSplit(shareID: shareID)
+
+                // Import into local database
+                let importedSplit = try viewModel.importSharedSplit(split, context: context)
+
+                await MainActor.run {
+                    self.importedSplitName = importedSplit.name
+                    self.showImportSuccess = true
+
+                    // Post notifications to refresh UI
+                    NotificationCenter.default.post(name: .importSplit, object: importedSplit)
+                    NotificationCenter.default.post(name: .cloudKitDataSynced, object: nil)
+                    debugLog("✅ Successfully imported shared split: \(importedSplit.name)")
+                }
+            } catch {
+                await MainActor.run {
+                    debugLog("❌ Failed to import shared split: \(error)")
+                    self.importError = ImportError.networkError("Failed to download split: \(error.localizedDescription)")
+                    self.showImportError = true
+                }
             }
         }
     }

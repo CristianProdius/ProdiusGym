@@ -1110,6 +1110,71 @@ final class WorkoutViewModel: ObservableObject {
             return newSplit
     }
 
+    /// Import a shared split from CloudKit (deep link import)
+    func importSharedSplit(_ split: Split, context: ModelContext) throws -> Split {
+        debugLog("🔗 Importing shared split: \(split.name)")
+
+        // Validate required fields
+        guard !split.name.isEmpty else {
+            debugLog("❌ Split name is empty")
+            throw ImportError.missingRequiredData("split name")
+        }
+
+        guard let days = split.days, !days.isEmpty else {
+            debugLog("❌ Split has no days")
+            throw ImportError.missingRequiredData("workout days")
+        }
+
+        // Create new split with new UUIDs (deep copy)
+        let newSplit = Split(
+            id: UUID(),
+            name: split.name,
+            days: [],
+            isActive: false, // Don't auto-activate imported splits
+            startDate: Date()
+        )
+
+        for day in days {
+            let newDay = Day(
+                id: UUID(),
+                name: day.name,
+                dayOfSplit: day.dayOfSplit,
+                exercises: [],
+                date: day.date
+            )
+
+            for exercise in day.exercises ?? [] {
+                let newExercise = Exercise(
+                    id: UUID(),
+                    name: exercise.name,
+                    sets: exercise.sets ?? [],
+                    repGoal: exercise.repGoal,
+                    muscleGroup: exercise.muscleGroup,
+                    createdAt: Date(),
+                    exerciseOrder: exercise.exerciseOrder
+                )
+                if newDay.exercises == nil {
+                    newDay.exercises = []
+                }
+                newDay.exercises?.append(newExercise)
+                context.insert(newExercise)
+            }
+
+            newDay.split = newSplit
+            if newSplit.days == nil {
+                newSplit.days = []
+            }
+            newSplit.days?.append(newDay)
+            context.insert(newDay)
+        }
+
+        context.insert(newSplit)
+        try context.save()
+        debugLog("✅ Shared split successfully imported: \(newSplit.name)")
+
+        return newSplit
+    }
+
     /// Helper to create user-friendly messages from DecodingError
     private func decodingErrorMessage(from error: DecodingError) -> String {
         switch error {

@@ -10,20 +10,21 @@ import Foundation
 /// Errors that can occur during split file import
 enum ImportError: LocalizedError {
     case fileNotFound
-    case invalidFormat
+    case invalidFormat(String)
     case corruptData(String)
     case accessDenied
     case invalidFileExtension
     case missingRequiredData(String)
     case decodingFailed(String)
+    case networkError(String)
 
     var errorDescription: String? {
         switch self {
         case .fileNotFound:
             return "The selected file could not be found. It may have been moved or deleted."
 
-        case .invalidFormat:
-            return "This file is not a valid workout split. Please select a .gymlysplit file."
+        case .invalidFormat(let details):
+            return "This file is not a valid workout split: \(details)"
 
         case .corruptData(let details):
             return "The file appears to be corrupted or incomplete: \(details)"
@@ -39,6 +40,9 @@ enum ImportError: LocalizedError {
 
         case .decodingFailed(let reason):
             return "Failed to read the split file: \(reason)"
+
+        case .networkError(let reason):
+            return "Network error: \(reason)"
         }
     }
 
@@ -48,7 +52,7 @@ enum ImportError: LocalizedError {
             return "Try receiving the file again or saving it to a different location."
 
         case .invalidFormat, .invalidFileExtension:
-            return "Make sure you're importing a workout split file exported from Gymly."
+            return "Make sure you're importing a workout split file exported from ShadowLift."
 
         case .corruptData, .decodingFailed:
             return "The file may have been damaged during transfer. Try exporting it again from the source device."
@@ -57,7 +61,10 @@ enum ImportError: LocalizedError {
             return "Grant file access when prompted, or try selecting the file from a different location."
 
         case .missingRequiredData:
-            return "This file may be from an older version of Gymly. Try exporting a fresh copy."
+            return "This file may be from an older version of ShadowLift. Try exporting a fresh copy."
+
+        case .networkError:
+            return "Check your internet connection and try again."
         }
     }
 }

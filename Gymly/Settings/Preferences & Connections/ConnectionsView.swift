@@ -270,7 +270,7 @@ struct ConnectionsView: View {
         // Also fetch weight history for the chart
         debugLog("📊 HEALTH: Fetching weight history for chart...")
         Task { @MainActor in
-            await healthKitManager.updateFromWeightChart(context: viewModel.context)
+            healthKitManager.updateFromWeightChart(context: viewModel.context)
             debugLog("✅ HEALTH: Weight history fetched and saved")
         }
     }
