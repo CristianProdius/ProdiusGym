@@ -18,6 +18,22 @@ struct GymlyApp: App {
     @State private var showImportSuccess = false
     @State private var importedSplitName = ""
 
+    // Deep link import preview
+    @State private var sharedSplitToPreview: Split?
+    @State private var showSharedSplitPreview = false
+    @State private var isLoadingSharedSplit = false
+
+    // Single shared ModelContainer - DO NOT create new ones elsewhere!
+    let modelContainer: ModelContainer
+
+    init() {
+        do {
+            modelContainer = try ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self)
+        } catch {
+            fatalError("Failed to create ModelContainer: \(error)")
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
             ToolBar()
@@ -54,8 +70,60 @@ struct GymlyApp: App {
                 } message: {
                     Text("'\(importedSplitName)' has been successfully imported and is ready to use!")
                 }
+                // Shared Split Preview Sheet
+                .sheet(isPresented: $showSharedSplitPreview) {
+                    if let split = sharedSplitToPreview {
+                        SplitImportPreviewView(split: split) {
+                            importSharedSplit(split)
+                        }
+                        .environmentObject(AppearanceManager())
+                    }
+                }
+                // Loading overlay for fetching shared split
+                .overlay {
+                    if isLoadingSharedSplit {
+                        ZStack {
+                            Color.black.opacity(0.5)
+                                .ignoresSafeArea()
+                            VStack(spacing: 16) {
+                                ProgressView()
+                                    .scaleEffect(1.5)
+                                    .tint(.white)
+                                Text("Loading shared split...")
+                                    .foregroundColor(.white)
+                                    .font(.headline)
+                            }
+                            .padding(30)
+                            .background(Color.black.opacity(0.7))
+                            .cornerRadius(20)
+                        }
+                    }
+                }
         }
-        .modelContainer(for: [Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self])
+        .modelContainer(modelContainer)
+    }
+
+    private func importSharedSplit(_ split: Split) {
+        let context = modelContainer.mainContext
+        let viewModel = WorkoutViewModel(config: config, context: context)
+
+        do {
+            let importedSplit = try viewModel.importSharedSplit(split, context: context)
+            importedSplitName = importedSplit.name
+            showImportSuccess = true
+
+            // Post notifications to refresh UI
+            NotificationCenter.default.post(name: .importSplit, object: importedSplit)
+            NotificationCenter.default.post(name: .cloudKitDataSynced, object: nil)
+            debugLog("✅ Successfully imported shared split: \(importedSplit.name)")
+        } catch {
+            debugLog("❌ Failed to import shared split: \(error)")
+            importError = ImportError.corruptData("Failed to import: \(error.localizedDescription)")
+            showImportError = true
+        }
+
+        // Clear the preview state
+        sharedSplitToPreview = nil
     }
     
     private func handleIncomingFile(_ url: URL, config: Config) {
@@ -67,14 +135,7 @@ struct GymlyApp: App {
             return
         }
 
-        // Otherwise, handle as file import
-        guard let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) else {
-            debugLog("❌ Failed to create ModelContainer")
-            importError = ImportError.corruptData("Unable to initialize database")
-            showImportError = true
-            return
-        }
-
+        // Use the shared modelContainer - DO NOT create a new one!
         let context = modelContainer.mainContext
         let viewModel = WorkoutViewModel(config: config, context: context)
 
@@ -124,38 +185,27 @@ struct GymlyApp: App {
             return
         }
 
-        debugLog("🔗 Importing split with ID: \(shareID)")
+        debugLog("🔗 Fetching shared split with ID: \(shareID)")
 
-        guard let modelContainer = try? ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self) else {
-            debugLog("❌ Failed to create ModelContainer")
-            importError = ImportError.corruptData("Unable to initialize database")
-            showImportError = true
-            return
-        }
-
-        let context = modelContainer.mainContext
-        let viewModel = WorkoutViewModel(config: config, context: context)
+        // Show loading indicator
+        isLoadingSharedSplit = true
 
         Task {
             do {
                 // Fetch split from CloudKit public database
                 let split = try await CloudKitManager.shared.fetchSharedSplit(shareID: shareID)
 
-                // Import into local database
-                let importedSplit = try viewModel.importSharedSplit(split, context: context)
-
                 await MainActor.run {
-                    self.importedSplitName = importedSplit.name
-                    self.showImportSuccess = true
-
-                    // Post notifications to refresh UI
-                    NotificationCenter.default.post(name: .importSplit, object: importedSplit)
-                    NotificationCenter.default.post(name: .cloudKitDataSynced, object: nil)
-                    debugLog("✅ Successfully imported shared split: \(importedSplit.name)")
+                    isLoadingSharedSplit = false
+                    // Store the split and show preview sheet
+                    sharedSplitToPreview = split
+                    showSharedSplitPreview = true
+                    debugLog("✅ Fetched shared split, showing preview: \(split.name)")
                 }
             } catch {
                 await MainActor.run {
-                    debugLog("❌ Failed to import shared split: \(error)")
+                    isLoadingSharedSplit = false
+                    debugLog("❌ Failed to fetch shared split: \(error)")
                     self.importError = ImportError.networkError("Failed to download split: \(error.localizedDescription)")
                     self.showImportError = true
                 }

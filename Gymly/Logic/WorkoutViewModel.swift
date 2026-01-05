@@ -221,7 +221,12 @@ final class WorkoutViewModel: ObservableObject {
     func getAllSplits() -> [Split] {
         let predicate = #Predicate<Split> { _ in true }
         let fetchDescriptor = FetchDescriptor<Split>(predicate: predicate)
-        return try! context.fetch(fetchDescriptor)
+        do {
+            return try context.fetch(fetchDescriptor)
+        } catch {
+            debugLog("❌ Failed to fetch splits: \(error)")
+            return []
+        }
     }
     
     /// Delete split
@@ -1111,16 +1116,28 @@ final class WorkoutViewModel: ObservableObject {
     }
 
     /// Import a shared split from CloudKit (deep link import)
+    /// Re-encodes the split to avoid SwiftData @Model state issues from fetchSharedSplit
     func importSharedSplit(_ split: Split, context: ModelContext) throws -> Split {
         debugLog("🔗 Importing shared split: \(split.name)")
 
+        // Re-encode to JSON data - this strips away any SwiftData internal state
+        // from the @Model objects that were decoded in fetchSharedSplit
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(split)
+
+        // Decode fresh - this creates new @Model objects without SwiftData baggage
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decodedSplit = try decoder.decode(Split.self, from: data)
+
         // Validate required fields
-        guard !split.name.isEmpty else {
+        guard !decodedSplit.name.isEmpty else {
             debugLog("❌ Split name is empty")
             throw ImportError.missingRequiredData("split name")
         }
 
-        guard let days = split.days, !days.isEmpty else {
+        guard let days = decodedSplit.days, !days.isEmpty else {
             debugLog("❌ Split has no days")
             throw ImportError.missingRequiredData("workout days")
         }
@@ -1128,30 +1145,30 @@ final class WorkoutViewModel: ObservableObject {
         // Create new split with new UUIDs (deep copy)
         let newSplit = Split(
             id: UUID(),
-            name: split.name,
+            name: decodedSplit.name,
             days: [],
             isActive: false, // Don't auto-activate imported splits
             startDate: Date()
         )
 
-        for day in days {
+        for decodedDay in days {
             let newDay = Day(
                 id: UUID(),
-                name: day.name,
-                dayOfSplit: day.dayOfSplit,
+                name: decodedDay.name,
+                dayOfSplit: decodedDay.dayOfSplit,
                 exercises: [],
-                date: day.date
+                date: decodedDay.date
             )
 
-            for exercise in day.exercises ?? [] {
+            for decodedExercise in decodedDay.exercises ?? [] {
                 let newExercise = Exercise(
                     id: UUID(),
-                    name: exercise.name,
-                    sets: exercise.sets ?? [],
-                    repGoal: exercise.repGoal,
-                    muscleGroup: exercise.muscleGroup,
-                    createdAt: Date(),
-                    exerciseOrder: exercise.exerciseOrder
+                    name: decodedExercise.name,
+                    sets: decodedExercise.sets ?? [],
+                    repGoal: decodedExercise.repGoal,
+                    muscleGroup: decodedExercise.muscleGroup,
+                    createdAt: decodedExercise.createdAt,
+                    exerciseOrder: decodedExercise.exerciseOrder
                 )
                 if newDay.exercises == nil {
                     newDay.exercises = []
