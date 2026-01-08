@@ -13,6 +13,7 @@ import SwiftData
 struct DeveloperTestingView: View {
     @ObservedObject var crashReporter = CrashReporter.shared
     @EnvironmentObject var config: Config
+    @EnvironmentObject var storeManager: StoreManager
     @Environment(\.modelContext) private var context
     @State private var showTestDeleteAlert = false
     @State private var showTestDeleteConfirmation = false
@@ -32,6 +33,52 @@ struct DeveloperTestingView: View {
                 Text("This view allows you to test account deletion WITHOUT deleting CloudKit data. Your iCloud backups will remain safe.")
                     .font(.caption)
                     .foregroundColor(.secondary)
+            }
+
+            Section("Premium Testing") {
+                Toggle(isOn: Binding(
+                    get: { storeManager.isPremium },
+                    set: { newValue in
+                        storeManager.debugSetPremium(newValue)
+                    }
+                )) {
+                    HStack {
+                        Image(systemName: storeManager.isPremium ? "star.fill" : "star")
+                            .foregroundColor(storeManager.isPremium ? .yellow : .gray)
+                        VStack(alignment: .leading) {
+                            Text("Premium Status")
+                            Text(storeManager.isPremium ? "Pro features enabled" : "Free tier")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                Toggle(isOn: Binding(
+                    get: { storeManager.hasAIAccess },
+                    set: { _ in
+                        storeManager.debugToggleAIAccess()
+                    }
+                )) {
+                    HStack {
+                        Image(systemName: storeManager.hasAIAccess ? "cpu.fill" : "cpu")
+                            .foregroundColor(storeManager.hasAIAccess ? .purple : .gray)
+                        VStack(alignment: .leading) {
+                            Text("AI Access")
+                            Text(storeManager.hasAIAccess ? "Pro+AI tier" : "No AI features")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                HStack {
+                    Image(systemName: "info.circle")
+                        .foregroundColor(.blue)
+                    Text("These toggles simulate subscription states for testing premium features without purchasing.")
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
             Section("Safe Test Deletion") {
@@ -214,4 +261,6 @@ struct DeveloperTestingView: View {
 
 #Preview {
     DeveloperTestingView()
+        .environmentObject(Config())
+        .environmentObject(StoreManager())
 }

@@ -49,6 +49,8 @@ struct ExerciseDetailView: View {
                         .padding()
                         .bold()
                 }
+                .accessibilityElement(children: .combine)
+                .accessibilityLabel("\(exercise.sets?.count ?? 0) sets, \(exercise.repGoal) rep goal")
 
                 /// PR Display Header
                 if let pr = personalRecords, pr.hasPRs, let display = pr.displayPR {
@@ -89,6 +91,8 @@ struct ExerciseDetailView: View {
                     .background(Color.yellow.opacity(0.1))
                     .cornerRadius(8)
                     .padding(.horizontal)
+                    .accessibilityElement(children: .combine)
+                    .accessibilityLabel("Personal record: \(String(format: "%.1f", display.value)) kilograms for \(display.reps) reps")
                 }
                 Form {
                     /// List of exercise sets - OPTIMIZATION: Use cached sorted sets

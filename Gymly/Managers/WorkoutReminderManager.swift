@@ -183,7 +183,12 @@ class WorkoutReminderManager: ObservableObject {
             return (components.hour ?? 0) * 3600 + (components.minute ?? 0) * 60 + (components.second ?? 0)
         }
 
-        // Calculate average
+        // Calculate average - guard against division by zero
+        guard !secondsSinceMidnight.isEmpty else {
+            // Return a default time (6 PM) if no times provided
+            let today = calendar.startOfDay(for: Date())
+            return calendar.date(bySettingHour: 18, minute: 0, second: 0, of: today) ?? Date()
+        }
         let averageSeconds = secondsSinceMidnight.reduce(0, +) / secondsSinceMidnight.count
 
         // Convert back to Date (today with that time)
@@ -197,6 +202,12 @@ class WorkoutReminderManager: ObservableObject {
     /// Schedule reminder for a specific weekday
     private func scheduleReminderForWeekday(_ weekday: Int, optimalTime: Date, config: Config) {
         let calendar = Calendar.current
+
+        // Validate weekday is in valid range (1-7) to prevent array out-of-bounds crash
+        guard weekday >= 1, weekday <= 7 else {
+            debugLog("❌ WORKOUT REMINDER: Invalid weekday \(weekday), skipping")
+            return
+        }
         let weekdayName = calendar.weekdaySymbols[weekday - 1]
 
         // Calculate reminder time (2 hours before optimal workout time)

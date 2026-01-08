@@ -60,7 +60,7 @@ struct LegalDocumentView: View {
 
         guard let finalUrl = url,
               let text = try? String(contentsOf: finalUrl, encoding: .utf8) else {
-            content = "Document not found. Please contact support at support@gymly.app\n\nLooking for: \(documentName).md"
+            content = "Document not found. Please contact support at support@shadowlift.app\n\nLooking for: \(documentName).md"
             isLoading = false
             return
         }

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import StoreKit
 
 struct SettingsView: View {
     @ObservedObject var viewModel: WorkoutViewModel
@@ -53,7 +54,7 @@ struct SettingsView: View {
                             .frame(maxWidth: .infinity, alignment: .trailing)
                             .padding(.trailing, -30)
                             .onChange(of: userProfileManager.currentProfile?.weightUnit ?? "Kg") {
-                                debugPrint("Selected unit: \(userProfileManager.currentProfile?.weightUnit ?? "Kg")")
+                                debugLog("Selected unit: \(userProfileManager.currentProfile?.weightUnit ?? "Kg")")
                                 userProfileManager.updatePreferences(roundSetWeights: true)
                                 weightUpdatedTrigger.toggle()
                             }
@@ -149,9 +150,9 @@ struct SettingsView: View {
                         .frame(width: 300)
 
                         Button(action: {
-                            // TODO: Open App Store rating
-                            if let url = URL(string: "https://apps.apple.com/app/id YOUR_APP_ID") {
-                                UIApplication.shared.open(url)
+                            // Request App Store review using StoreKit
+                            if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                                SKStoreReviewController.requestReview(in: scene)
                             }
                         }) {
                             HStack {

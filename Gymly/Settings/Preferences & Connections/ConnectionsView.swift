@@ -72,7 +72,7 @@ struct ConnectionsView: View {
                     .disabled(isHealthKitSyncing)
                 }
 
-                Text("To fully revoke permissions, disable HealthKit access in Settings > Privacy & Security > Health > Gymly")
+                Text("To fully revoke permissions, disable HealthKit access in Settings > Privacy & Security > Health > ShadowLift")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.leading)
@@ -164,7 +164,7 @@ struct ConnectionsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("You previously denied HealthKit access. To enable it, go to Settings > Privacy & Security > Health > Gymly and turn on all permissions.")
+            Text("You previously denied HealthKit access. To enable it, go to Settings > Privacy & Security > Health > ShadowLift and turn on all permissions.")
         }
     }
     

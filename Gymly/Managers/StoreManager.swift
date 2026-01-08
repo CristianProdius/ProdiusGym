@@ -18,8 +18,16 @@ class StoreManager: ObservableObject {
     @Published var errorMessage: String?
 
     // MARK: - Product IDs (will match App Store Connect when ready)
-    private let monthlyProductID = "com.icservis.shadowlift.pro.monthly"
-    private let yearlyProductID = "com.icservis.shadowlift.pro.yearly"
+    // Pro tier (without AI features) - €3/month
+    private let proMonthlyProductID = "com.icservis.shadowlift.pro.monthly"
+    private let proYearlyProductID = "com.icservis.shadowlift.pro.yearly"
+
+    // Pro + AI tier (with AI features) - €5/month
+    private let proAIMonthlyProductID = "com.icservis.shadowlift.proai.monthly"
+    private let proAIYearlyProductID = "com.icservis.shadowlift.proai.yearly"
+
+    // Track which tier user has
+    @Published private(set) var hasAIAccess: Bool = false
 
     // MARK: - Subscription Status
     enum SubscriptionStatus {
@@ -85,7 +93,7 @@ class StoreManager: ObservableObject {
         debugLog("🛒 StoreManager: Loading products...")
 
         do {
-            let productIDs = [monthlyProductID, yearlyProductID]
+            let productIDs = [proMonthlyProductID, proYearlyProductID, proAIMonthlyProductID, proAIYearlyProductID]
             products = try await Product.products(for: productIDs)
 
             debugLog("✅ StoreManager: Loaded \(products.count) products")
@@ -197,6 +205,11 @@ class StoreManager: ObservableObject {
         if let status = activeSubscription, let product = highestPriorityProduct {
             debugLog("✅ StoreManager: Found active subscription: \(product.displayName)")
 
+            // Check if this is an AI tier subscription
+            let isAITier = product.id == proAIMonthlyProductID || product.id == proAIYearlyProductID
+            hasAIAccess = isAITier
+            debugLog("   AI Access: \(isAITier)")
+
             // Verify the transaction
             guard let transaction = try? checkVerified(status.transaction) else {
                 debugLog("❌ StoreManager: Transaction verification failed")
@@ -263,11 +276,12 @@ class StoreManager: ObservableObject {
         } else {
             // No active subscription
             isPremium = false
+            hasAIAccess = false
             subscriptionStatus = .expired
             debugLog("⚠️ StoreManager: No active subscription found")
         }
 
-        debugLog("🛒 StoreManager: isPremium = \(isPremium)")
+        debugLog("🛒 StoreManager: isPremium = \(isPremium), hasAIAccess = \(hasAIAccess)")
     }
 
     // MARK: - Listen for Transactions
@@ -321,19 +335,65 @@ class StoreManager: ObservableObject {
         }
     }
 
+    // MARK: - Debug: Toggle Premium (for testing only)
+    #if DEBUG
+    func debugTogglePremium() {
+        isPremium.toggle()
+        debugLog("🧪 DEBUG: Premium toggled to \(isPremium)")
+    }
+
+    func debugSetPremium(_ value: Bool) {
+        isPremium = value
+        debugLog("🧪 DEBUG: Premium set to \(isPremium)")
+    }
+
+    func debugToggleAIAccess() {
+        hasAIAccess.toggle()
+        debugLog("🧪 DEBUG: AI Access toggled to \(hasAIAccess)")
+    }
+    #endif
+
     // MARK: - Helper: Get Product by ID
     func getProduct(for productID: String) -> Product? {
         return products.first(where: { $0.id == productID })
     }
 
-    // MARK: - Helper: Monthly Product
-    var monthlyProduct: Product? {
-        return getProduct(for: monthlyProductID)
+    // MARK: - Pro Tier Products (without AI)
+    var proMonthlyProduct: Product? {
+        return getProduct(for: proMonthlyProductID)
     }
 
-    // MARK: - Helper: Yearly Product
-    var yearlyProduct: Product? {
-        return getProduct(for: yearlyProductID)
+    var proYearlyProduct: Product? {
+        return getProduct(for: proYearlyProductID)
+    }
+
+    // MARK: - Pro + AI Tier Products
+    var proAIMonthlyProduct: Product? {
+        return getProduct(for: proAIMonthlyProductID)
+    }
+
+    var proAIYearlyProduct: Product? {
+        return getProduct(for: proAIYearlyProductID)
+    }
+
+    // MARK: - Check Device AI Capability
+    static var deviceSupportsAI: Bool {
+        if #available(iOS 26, *) {
+            // FoundationModels requires iPhone 15 Pro or newer (A17 Pro chip)
+            // Check using model identifier
+            var systemInfo = utsname()
+            uname(&systemInfo)
+            let machineMirror = Mirror(reflecting: systemInfo.machine)
+            let identifier = machineMirror.children.reduce("") { identifier, element in
+                guard let value = element.value as? Int8, value != 0 else { return identifier }
+                return identifier + String(UnicodeScalar(UInt8(value)))
+            }
+
+            // iPhone 15 Pro (iPhone16,1), iPhone 15 Pro Max (iPhone16,2), iPhone 16 series
+            let aiCapableDevices = ["iPhone16,1", "iPhone16,2", "iPhone17,1", "iPhone17,2", "iPhone17,3", "iPhone17,4"]
+            return aiCapableDevices.contains(identifier) || identifier.contains("iPhone17") || identifier.contains("iPhone18")
+        }
+        return false
     }
 }
 

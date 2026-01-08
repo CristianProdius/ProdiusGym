@@ -428,16 +428,26 @@ class UserProfileManager: ObservableObject {
         var maxMissedInAnyWeek = 0
 
         while checkDate < currentDate {
-            // Get the week for checkDate
-            let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: checkDate))!
-            let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart)!
+            // Get the week for checkDate - skip if calendar calculation fails
+            guard let weekStart = calendar.date(from: calendar.dateComponents([.yearForWeekOfYear, .weekOfYear], from: checkDate)),
+                  let weekEnd = calendar.date(byAdding: .day, value: 7, to: weekStart) else {
+                // If calendar calculation fails, skip to next day to prevent infinite loop
+                if let nextDay = calendar.date(byAdding: .day, value: 1, to: checkDate) {
+                    checkDate = nextDay
+                } else {
+                    break // Safety: exit loop if we can't advance
+                }
+                continue
+            }
 
             // Count missed days in this week
             var missedInThisWeek = 0
             var dayInWeek = max(lastWorkoutDate, weekStart)
 
             while dayInWeek < min(currentDate, weekEnd) {
-                let nextDay = calendar.date(byAdding: .day, value: 1, to: dayInWeek)!
+                guard let nextDay = calendar.date(byAdding: .day, value: 1, to: dayInWeek) else {
+                    break // Exit inner loop if calendar calculation fails
+                }
                 if !calendar.isDate(dayInWeek, inSameDayAs: lastWorkoutDate) {
                     missedInThisWeek += 1
                 }

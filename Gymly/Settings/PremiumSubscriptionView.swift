@@ -18,30 +18,45 @@ struct PremiumSubscriptionView: View {
     @State private var showTermsOfService = false
     @State private var showPrivacyPolicy = false
     @State private var showError = false
+    @State private var selectedTier: SubscriptionTier = .pro
+    @State private var selectedPeriod: SubscriptionPeriod = .yearly
 
-    enum SubscriptionPlan {
+    enum SubscriptionTier {
+        case pro      // €3/month - without AI
+        case proAI    // €5/month - with AI features
+    }
+
+    enum SubscriptionPeriod {
         case monthly
         case yearly
+    }
 
-        var price: String {
-            switch self {
-            case .monthly: return "2.99€"
-            case .yearly: return "29.99€"
-            }
+    // Check if device supports AI features
+    private var deviceSupportsAI: Bool {
+        StoreManager.deviceSupportsAI
+    }
+
+    // Get products for selected tier
+    private var productsForSelectedTier: [Product] {
+        switch selectedTier {
+        case .pro:
+            return [storeManager.proMonthlyProduct, storeManager.proYearlyProduct].compactMap { $0 }
+        case .proAI:
+            return [storeManager.proAIMonthlyProduct, storeManager.proAIYearlyProduct].compactMap { $0 }
         }
+    }
 
-        var period: String {
-            switch self {
-            case .monthly: return "month"
-            case .yearly: return "year"
-            }
-        }
-
-        var savings: String? {
-            switch self {
-            case .monthly: return nil
-            case .yearly: return "Save 17%"
-            }
+    // Get the selected product based on tier and period
+    private var currentSelectedProduct: Product? {
+        switch (selectedTier, selectedPeriod) {
+        case (.pro, .monthly):
+            return storeManager.proMonthlyProduct
+        case (.pro, .yearly):
+            return storeManager.proYearlyProduct
+        case (.proAI, .monthly):
+            return storeManager.proAIMonthlyProduct
+        case (.proAI, .yearly):
+            return storeManager.proAIYearlyProduct
         }
     }
 
@@ -71,12 +86,13 @@ struct PremiumSubscriptionView: View {
             }
             .task {
                 await storeManager.loadProducts()
-                // Auto-select yearly if available (better value)
-                if let yearlyProduct = storeManager.yearlyProduct {
-                    selectedProduct = yearlyProduct
-                } else if let monthlyProduct = storeManager.monthlyProduct {
-                    selectedProduct = monthlyProduct
+                // Set default tier based on device capability
+                // If device doesn't support AI, default to Pro tier
+                if !deviceSupportsAI {
+                    selectedTier = .pro
                 }
+                // Auto-select the product based on tier and period
+                selectedProduct = currentSelectedProduct
             }
             .onChange(of: storeManager.isPremium) { _, isPremium in
                 if isPremium {
@@ -87,6 +103,12 @@ struct PremiumSubscriptionView: View {
                 if newError != nil {
                     showError = true
                 }
+            }
+            .onChange(of: selectedTier) { _, _ in
+                selectedProduct = currentSelectedProduct
+            }
+            .onChange(of: selectedPeriod) { _, _ in
+                selectedProduct = currentSelectedProduct
             }
         }
     }
@@ -102,13 +124,26 @@ struct PremiumSubscriptionView: View {
                         .frame(width: 300, height: 300)
 
                     VStack(spacing: 8) {
-                        Text("You're Pro!")
+                        Text(storeManager.hasAIAccess ? "You're Pro+AI!" : "You're Pro!")
                             .font(.largeTitle)
                             .fontWeight(.bold)
 
-                        Text("Enjoy all features unlocked")
+                        Text(storeManager.hasAIAccess ? "All features including AI unlocked" : "Enjoy all premium features")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
+
+                        // Tier badge
+                        HStack(spacing: 8) {
+                            Text(storeManager.hasAIAccess ? "Pro + AI" : "Pro")
+                                .font(.caption)
+                                .fontWeight(.semibold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .background(storeManager.hasAIAccess ? Color.purple : appearanceManager.accentColor.color)
+                                .cornerRadius(20)
+                        }
+                        .padding(.top, 4)
 
                         // Subscription status
                         if let status = storeManager.subscriptionStatus {
@@ -205,7 +240,20 @@ struct PremiumSubscriptionView: View {
                     VStack(spacing: 12) {
                         PremiumFeatureRow(icon: "trophy.fill", title: "Automatic PR Tracking")
                         PremiumFeatureRow(icon: "camera.fill", title: "Progress Photo Timeline")
-                        PremiumFeatureRow(icon: "apple.intelligence", title: "AI Workout Summary")
+                        PremiumFeatureRow(
+                            icon: "apple.intelligence",
+                            title: "AI Workout Summary",
+                            requiresAI: true,
+                            hasAIAccess: storeManager.hasAIAccess,
+                            deviceSupportsAI: deviceSupportsAI
+                        )
+                        PremiumFeatureRow(
+                            icon: "wand.and.stars",
+                            title: "AI Personalized Split",
+                            requiresAI: true,
+                            hasAIAccess: storeManager.hasAIAccess,
+                            deviceSupportsAI: deviceSupportsAI
+                        )
                         PremiumFeatureRow(icon: "book.fill", title: "Workout Templates")
                         PremiumFeatureRow(icon: "flame.fill", title: "Advanced Streak Analytics")
                         PremiumFeatureRow(icon: "figure.arms.open", title: "BMI Tracking & Analysis")
@@ -259,7 +307,17 @@ struct PremiumSubscriptionView: View {
                             FeatureRow(
                                 icon: "apple.intelligence",
                                 title: "AI Workout Summary",
-                                description: "Weekly insights & recommendations \n(iPhones with Apple Inteligence only)"
+                                description: "Weekly insights & recommendations",
+                                requiresAI: true,
+                                deviceSupportsAI: deviceSupportsAI
+                            )
+
+                            FeatureRow(
+                                icon: "wand.and.stars",
+                                title: "AI Personalized Split",
+                                description: "Generate custom workout plans with AI",
+                                requiresAI: true,
+                                deviceSupportsAI: deviceSupportsAI
                             )
 
                             FeatureRow(
@@ -300,25 +358,62 @@ struct PremiumSubscriptionView: View {
                         }
                         .padding(.horizontal, 24)
 
-                        // Pricing Plans - REAL STOREKIT PRODUCTS
-                        VStack(spacing: 12) {
+                        // Tier Selection with Segmented Picker
+                        VStack(spacing: 16) {
                             Text("Choose Your Plan")
                                 .font(.headline)
                                 .padding(.top, 20)
 
+                            if deviceSupportsAI {
+                                // Segmented picker for Pro | Pro AI
+                                Picker("Plan", selection: $selectedTier) {
+                                    Text("Pro").tag(SubscriptionTier.pro)
+                                    Text("Pro + AI").tag(SubscriptionTier.proAI)
+                                }
+                                .pickerStyle(.segmented)
+
+                                // Tier description
+                                Text(selectedTier == .pro ? "All premium features" : "Premium + AI-powered features")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            } else {
+                                // Device doesn't support AI - show info
+                                Text("ShadowLift Pro")
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+
+                                HStack(spacing: 4) {
+                                    Image(systemName: "info.circle")
+                                    Text("Pro + AI requires iPhone 15 Pro or newer")
+                                }
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            }
+                        }
+                        .padding(.horizontal, 24)
+
+                        // Pricing Cards
+                        VStack(spacing: 12) {
                             if storeManager.products.isEmpty {
-                                ProgressView("Loading subscription options...")
+                                ProgressView("Loading prices...")
                                     .padding()
                             } else {
-                                ForEach(storeManager.products) { product in
-                                    PlanCardReal(
-                                        product: product,
-                                        isSelected: selectedProduct?.id == product.id,
-                                        action: {
-                                            selectedProduct = product
-                                        }
-                                    )
-                                }
+                                // Monthly option
+                                SubscriptionOptionCard(
+                                    title: "Monthly",
+                                    product: selectedTier == .pro ? storeManager.proMonthlyProduct : storeManager.proAIMonthlyProduct,
+                                    isSelected: selectedPeriod == .monthly,
+                                    action: { selectedPeriod = .monthly }
+                                )
+
+                                // Yearly option
+                                SubscriptionOptionCard(
+                                    title: "Yearly",
+                                    product: selectedTier == .pro ? storeManager.proYearlyProduct : storeManager.proAIYearlyProduct,
+                                    isSelected: selectedPeriod == .yearly,
+                                    badge: "Save 17%",
+                                    action: { selectedPeriod = .yearly }
+                                )
                             }
                         }
                         .padding(.horizontal, 24)
@@ -406,27 +501,68 @@ struct PremiumFeatureRow: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
     let icon: String
     let title: String
+    var requiresAI: Bool = false
+    var hasAIAccess: Bool = true
+    var deviceSupportsAI: Bool = true
+
+    private var isAvailable: Bool {
+        if requiresAI {
+            return hasAIAccess && deviceSupportsAI
+        }
+        return true
+    }
 
     var body: some View {
         HStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill(appearanceManager.accentColor.color.opacity(0.2))
+                    .fill((isAvailable ? appearanceManager.accentColor.color : Color.gray).opacity(0.2))
                     .frame(width: 40, height: 40)
 
                 Image(systemName: icon)
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(isAvailable ? appearanceManager.accentColor.color : Color.gray)
             }
 
-            Text(title)
-                .font(.body)
-                .foregroundColor(.primary)
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.body)
+                        .foregroundColor(isAvailable ? .primary : .secondary)
+
+                    if requiresAI && !hasAIAccess {
+                        Text("Pro+AI")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.purple)
+                            .cornerRadius(4)
+                    }
+                }
+
+                if requiresAI && !deviceSupportsAI {
+                    Text("Requires iPhone 15 Pro or newer")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                } else if requiresAI && !hasAIAccess {
+                    Text("Upgrade to Pro+AI to unlock")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
+            }
 
             Spacer()
 
-            Image(systemName: "checkmark.circle.fill")
-                .foregroundStyle(appearanceManager.accentColor.color)
-                .font(.title3)
+            if isAvailable {
+                Image(systemName: "checkmark.circle.fill")
+                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .font(.title3)
+            } else {
+                Image(systemName: "lock.fill")
+                    .foregroundStyle(Color.gray)
+                    .font(.title3)
+            }
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
@@ -441,83 +577,48 @@ struct FeatureRow: View {
     let icon: String
     let title: String
     let description: String
+    var requiresAI: Bool = false
+    var deviceSupportsAI: Bool = true
 
     var body: some View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.system(size: 28))
-                .foregroundColor(appearanceManager.accentColor.color)
+                .foregroundColor(requiresAI && !deviceSupportsAI ? .gray : appearanceManager.accentColor.color)
                 .frame(width: 40)
 
             VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                HStack(spacing: 6) {
+                    Text(title)
+                        .font(.headline)
+                        .foregroundColor(requiresAI && !deviceSupportsAI ? .secondary : .primary)
+
+                    if requiresAI {
+                        Text("Pro+AI")
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(deviceSupportsAI ? Color.purple : Color.gray)
+                            .cornerRadius(4)
+                    }
+                }
 
                 Text(description)
                     .font(.caption)
                     .foregroundStyle(.secondary)
+
+                if requiresAI && !deviceSupportsAI {
+                    Text("Requires iPhone 15 Pro or newer")
+                        .font(.caption2)
+                        .foregroundColor(.orange)
+                }
             }
 
             Spacer()
         }
         .padding(.vertical, 8)
-    }
-}
-
-// MARK: - Plan Card Component (Legacy - kept for fallback)
-struct PlanCard: View {
-    @EnvironmentObject var appearanceManager: AppearanceManager
-    let plan: PremiumSubscriptionView.SubscriptionPlan
-    let isSelected: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack {
-                        Text(plan.period.capitalized)
-                            .font(.headline)
-                            .foregroundColor(.primary)
-
-                        if let savings = plan.savings {
-                            Text(savings)
-                                .font(.caption)
-                                .fontWeight(.semibold)
-                                .foregroundColor(.green)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 4)
-                                .background(Color.green.opacity(0.2))
-                                .cornerRadius(6)
-                        }
-                    }
-
-                    Text("\(plan.price)/\(plan.period)")
-                        .font(.title2)
-                        .fontWeight(.bold)
-                        .foregroundColor(.primary)
-                }
-
-                Spacer()
-
-                if isSelected {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 24))
-                        .foregroundColor(appearanceManager.accentColor.color)
-                }
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.3))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
-                    )
-            )
-        }
-        .buttonStyle(.plain)
     }
 }
 
@@ -578,6 +679,204 @@ struct PlanCardReal: View {
             )
         }
         .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Tier Card Component
+struct TierCard: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+    let title: String
+    let price: String
+    let description: String
+    var badge: String? = nil
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                if let badge = badge {
+                    Text(badge)
+                        .font(.caption2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.green)
+                        .cornerRadius(6)
+                }
+
+                Text(title)
+                    .font(.headline)
+                    .foregroundColor(.primary)
+
+                Text(price)
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.3))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Period Card Component
+struct PeriodCard: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+    let period: PremiumSubscriptionView.SubscriptionPeriod
+    let product: Product?
+    let isSelected: Bool
+    var savings: String? = nil
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 6) {
+                HStack {
+                    Text(period == .monthly ? "Monthly" : "Yearly")
+                        .font(.headline)
+                        .foregroundColor(.primary)
+
+                    if let savings = savings {
+                        Text(savings)
+                            .font(.caption2)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.green)
+                            .padding(.horizontal, 6)
+                            .padding(.vertical, 2)
+                            .background(Color.green.opacity(0.2))
+                            .cornerRadius(4)
+                    }
+                }
+
+                if let product = product {
+                    Text(product.displayPrice)
+                        .font(.title3)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+
+                    if period == .yearly {
+                        Text("per year")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("per month")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                    }
+                } else {
+                    ProgressView()
+                        .scaleEffect(0.8)
+                }
+            }
+            .frame(maxWidth: .infinity)
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.3))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Subscription Option Card (New cleaner design)
+struct SubscriptionOptionCard: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+    let title: String
+    let product: Product?
+    let isSelected: Bool
+    var badge: String? = nil
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                // Left side - Title and badge
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack(spacing: 8) {
+                        Text(title)
+                            .font(.headline)
+                            .foregroundColor(.primary)
+
+                        if let badge = badge {
+                            Text(badge)
+                                .font(.caption2)
+                                .fontWeight(.bold)
+                                .foregroundColor(.white)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                        }
+                    }
+
+                    if let product = product {
+                        if title == "Yearly", let monthly = calculateMonthlyPrice(from: product) {
+                            Text("\(monthly)/month")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                    }
+                }
+
+                Spacer()
+
+                // Right side - Price
+                if let product = product {
+                    Text(product.displayPrice)
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.primary)
+                } else {
+                    Text("--")
+                        .font(.title2)
+                        .fontWeight(.bold)
+                        .foregroundColor(.secondary)
+                }
+
+                // Selection indicator
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.title2)
+                    .foregroundColor(isSelected ? appearanceManager.accentColor.color : .gray.opacity(0.5))
+            }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.2))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private func calculateMonthlyPrice(from product: Product) -> String? {
+        guard product.subscription?.subscriptionPeriod.unit == .year else { return nil }
+        let yearlyPrice = product.price
+        let monthlyPrice = yearlyPrice / 12
+        return monthlyPrice.formatted(.currency(code: product.priceFormatStyle.currencyCode ?? "USD"))
     }
 }
 

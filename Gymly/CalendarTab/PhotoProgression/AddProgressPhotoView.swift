@@ -92,7 +92,7 @@ struct AddProgressPhotoView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("To save progress photos, Gymly needs access to your photo library. Please enable it in Settings.")
+                Text("To save progress photos, ShadowLift needs access to your photo library. Please enable it in Settings.")
             }
         }
     }
@@ -115,7 +115,7 @@ struct AddProgressPhotoView: View {
                 .foregroundColor(.white)
             
             // Description
-            Text("To take progress photos, Gymly needs access to your camera. You can still import photos from your library.")
+            Text("To take progress photos, ShadowLift needs access to your camera. You can still import photos from your library.")
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)

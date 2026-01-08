@@ -51,7 +51,7 @@ struct NotificationsView: View {
                     .listRowBackground(Color.black.opacity(0.05))
 
                     if !notificationManager.isAuthorized {
-                        Text("Allow Gymly to send you helpful reminders and motivational notifications")
+                        Text("Allow ShadowLift to send you helpful reminders and motivational notifications")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .listRowBackground(Color.black.opacity(0.05))

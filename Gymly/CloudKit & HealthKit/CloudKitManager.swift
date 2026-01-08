@@ -1196,6 +1196,7 @@ class CloudKitManager: ObservableObject {
     // MARK: - Public Split Sharing
 
     /// Share a split publicly and get shareable link
+    /// Stores split in CloudKit public database and returns clean URL
     /// Returns: URL like https://shadowlift.app/splits/{id}
     func shareSplit(_ split: Split) async throws -> URL {
         debugLog("🔗 SHARE SPLIT: Starting public share for '\(split.name)'")
@@ -1227,13 +1228,15 @@ class CloudKitManager: ObservableObject {
         record["splitName"] = split.name as CKRecordValue
         record["splitDays"] = (split.days?.count ?? 0) as CKRecordValue
         record["createdAt"] = Date() as CKRecordValue
-        record["version"] = 1 as CKRecordValue // For future compatibility
+        record["version"] = 1 as CKRecordValue
 
-        // Calculate total exercises for preview
+        // Calculate total exercises for metadata
         let totalExercises = split.days?.reduce(0) { total, day in
             total + (day.exercises?.count ?? 0)
         } ?? 0
         record["totalExercises"] = totalExercises as CKRecordValue
+
+        debugLog("🔗 SHARE SPLIT: Split data size: \(splitData.count) bytes")
 
         do {
             _ = try await withTimeout(15.0) {
@@ -1241,9 +1244,10 @@ class CloudKitManager: ObservableObject {
             }
             debugLog("✅ SHARE SPLIT: Saved to public database")
 
-            // Return the shareable link
+            // Create clean shareable URL with just the split ID
             let shareURL = URL(string: "https://shadowlift.app/splits/\(shareID)")!
-            debugLog("🔗 SHARE SPLIT: Generated link: \(shareURL.absoluteString)")
+            debugLog("🔗 SHARE SPLIT: Generated shareable link: \(shareURL.absoluteString)")
+
             return shareURL
 
         } catch {

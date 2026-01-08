@@ -79,6 +79,8 @@ struct TodayWorkoutView: View {
             .padding(.top, 16)
             .foregroundStyle(Color.primary)
         }
+        .accessibilityLabel("Select workout day")
+        .accessibilityHint("Current day: \(selectedDay.name). Double tap to choose a different day")
     }
 
     private var exercisesList: some View {
@@ -95,6 +97,8 @@ struct TodayWorkoutView: View {
                                     Text(exercise.name)
                                 }
                             }
+                            .accessibilityLabel("\(exercise.name), \(exercise.done ? "completed" : "not completed")")
+                            .accessibilityHint("Double tap to view and log sets")
                         }
                     }
                 }
@@ -105,7 +109,7 @@ struct TodayWorkoutView: View {
 
             /// Save workout to the calendar button
             Section("") {
-                Button("Workout done") {
+                Button {
                     // Calculate workout summary before clearing exercises
                     if let summaryData = calculateWorkoutDuration() {
                         workoutSummaryData = summaryData
@@ -146,7 +150,11 @@ struct TodayWorkoutView: View {
                         }
                         debugPrint("🧹 CLEANUP: Cleared all set timestamps for next workout")
                     }
+                } label: {
+                    Text("Workout done")
                 }
+                .accessibilityLabel("Complete workout")
+                .accessibilityHint("Saves your workout to history and resets exercises for next session")
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listRowBackground(Color.black.opacity(0.1))
@@ -351,7 +359,7 @@ struct TodayWorkoutView: View {
             } ,content: {
                 CreateExerciseView(viewModel: viewModel, day: selectedDay)
                     .navigationTitle("Create Exercise")
-                    .presentationDetents([.medium])
+                    .presentationDetents([.fraction(0.8)])
                 
             })
             .sheet(isPresented: $showWorkoutSummary) {
@@ -484,10 +492,14 @@ struct TodayWorkoutView: View {
         // Sort by date to find first and last
         allCompletedSets.sort { $0.date < $1.date }
 
-        let startTime = allCompletedSets.first!.time
-        let endTime = allCompletedSets.last!.time
-        let startDate = allCompletedSets.first!.date
-        let endDate = allCompletedSets.last!.date
+        // Safely extract first and last sets
+        guard let firstSet = allCompletedSets.first,
+              let lastSet = allCompletedSets.last else { return nil }
+
+        let startTime = firstSet.time
+        let endTime = lastSet.time
+        let startDate = firstSet.date
+        let endDate = lastSet.date
 
         // Calculate duration in minutes
         let durationMinutes = Int(endDate.timeIntervalSince(startDate) / 60)

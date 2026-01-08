@@ -66,9 +66,69 @@
           "codeOffers" : [
 
           ],
-          "displayPrice" : "2.99",
+          "displayPrice" : "4.99",
           "familyShareable" : false,
           "groupNumber" : 1,
+          "internalID" : "6757539266",
+          "introductoryOffer" : {
+            "internalID" : "6757539267",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Monthly subscription with all premium features plus AI-powered insights",
+              "displayName" : "ShadowLift Pro AI Monthly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.icservis.shadowlift.proai.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "ShadowLift Pro AI Monthly",
+          "subscriptionGroupID" : "21489467",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "49.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "6757539724",
+          "introductoryOffer" : {
+            "internalID" : "6757539725",
+            "numberOfPeriods" : 1,
+            "paymentMode" : "free",
+            "subscriptionPeriod" : "P1W"
+          },
+          "localizations" : [
+            {
+              "description" : "Yearly subscription with all premium features plus AI-powered insights - Save 17%",
+              "displayName" : "ShadowLift Pro AI Yearly",
+              "locale" : "en_US"
+            }
+          ],
+          "productID" : "com.icservis.shadowlift.proai.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "ShadowLift Pro AI Yearly",
+          "subscriptionGroupID" : "21489467",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "2.99",
+          "familyShareable" : false,
+          "groupNumber" : 2,
           "internalID" : "6670832683",
           "introductoryOffer" : {
             "internalID" : "6670834201",
@@ -98,7 +158,7 @@
           ],
           "displayPrice" : "29.99",
           "familyShareable" : false,
-          "groupNumber" : 1,
+          "groupNumber" : 2,
           "internalID" : "6670832684",
           "introductoryOffer" : {
             "internalID" : "6670834202",

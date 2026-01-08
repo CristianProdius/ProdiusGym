@@ -97,7 +97,7 @@ class HealthKitManager: ObservableObject {
             requestAuthorization()
             return
         case .sharingDenied:
-            debugLog("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > Gymly")
+            debugLog("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > ShadowLift")
             return
         case .sharingAuthorized:
             debugLog("✅ HealthKit sharing authorized, proceeding to save weight")

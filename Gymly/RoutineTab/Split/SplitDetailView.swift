@@ -24,6 +24,8 @@ struct SplitDetailView: View {
     @State private var isReorderingDays: Bool = false
     @State private var editModeDays: EditMode = .inactive
     @State private var reorderingBufferDays: [Day] = []
+    @State private var showShareError: Bool = false
+    @State private var shareErrorMessage: String = ""
     private func orderNumber(for day: Day) -> Int {
         if let idx = reorderingBufferDays.firstIndex(where: { $0.id == day.id }) {
             return idx + 1
@@ -177,19 +179,27 @@ struct SplitDetailView: View {
                             Button {
                                 Task {
                                     do {
+                                        debugLog("🔗 SHARE: Attempting CloudKit share for '\(split.name)'")
                                         let shareLink = try await CloudKitManager.shared.shareSplit(split)
                                         await MainActor.run {
+                                            debugLog("✅ SHARE: CloudKit share successful: \(shareLink.absoluteString)")
                                             viewModel.editPlan = false
                                             shareURL = shareLink
                                             presentShareSheet(url: shareLink)
                                         }
                                     } catch {
-                                        debugLog("❌ Failed to share split: \(error)")
+                                        debugLog("❌ SHARE: CloudKit failed - \(error.localizedDescription)")
+                                        await MainActor.run {
+                                            shareErrorMessage = "CloudKit sharing failed: \(error.localizedDescription)\n\nFalling back to file export."
+                                            showShareError = true
+                                        }
                                         // Fallback to file export if CloudKit fails
                                         if let url = viewModel.exportSplit(split) {
-                                            viewModel.editPlan = false
-                                            shareURL = url
-                                            presentShareSheet(url: url)
+                                            await MainActor.run {
+                                                viewModel.editPlan = false
+                                                shareURL = url
+                                                // Don't present share sheet here, wait for user to dismiss alert
+                                            }
                                         }
                                     }
                                 }
@@ -219,6 +229,16 @@ struct SplitDetailView: View {
                 }
             } message: {
                 Text("Enter a name for the new workout day")
+            }
+            .alert("Share Error", isPresented: $showShareError) {
+                Button("OK") {
+                    // Present file export sheet after dismissing alert
+                    if let url = shareURL {
+                        presentShareSheet(url: url)
+                    }
+                }
+            } message: {
+                Text(shareErrorMessage)
             }
             .task {
                 days = split.days ?? []
@@ -257,24 +277,49 @@ struct SplitDetailView: View {
                 }
             }
 
+            debugLog("📤 SHARE SHEET: Presenting for URL: \(url.absoluteString), isWebURL: \(isWebURL)")
+
             // Ensure the UIActivityViewController isn't already presented
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
                let rootVC = windowScene.windows.first?.rootViewController {
                 if rootVC.presentedViewController != nil {
+                    debugLog("📤 SHARE SHEET: Dismissing existing presented view controller")
                     rootVC.dismiss(animated: false) {
-                        self.presentActivityController(url: url, rootVC: rootVC)
+                        self.presentActivityController(url: url, isWebURL: isWebURL, rootVC: rootVC)
                     }
                 } else {
-                    self.presentActivityController(url: url, rootVC: rootVC)
+                    self.presentActivityController(url: url, isWebURL: isWebURL, rootVC: rootVC)
                 }
+            } else {
+                debugLog("❌ SHARE SHEET: Could not get root view controller")
             }
         }
     }
 
-    private func presentActivityController(url: URL, rootVC: UIViewController) {
-        let activityVC = UIActivityViewController(activityItems: [url], applicationActivities: nil)
+    private func presentActivityController(url: URL, isWebURL: Bool, rootVC: UIViewController) {
+        // Share just the URL - iOS will handle the sharing appropriately
+        let activityItems: [Any] = [url]
+
+        debugLog("📤 SHARE SHEET: Creating UIActivityViewController with items: \(activityItems)")
+
+        let activityVC = UIActivityViewController(activityItems: activityItems, applicationActivities: nil)
         activityVC.popoverPresentationController?.sourceView = rootVC.view
-        rootVC.present(activityVC, animated: true, completion: nil)
+
+        // Set completion handler to log what happened
+        activityVC.completionWithItemsHandler = { activityType, completed, returnedItems, error in
+            if let error = error {
+                debugLog("❌ SHARE SHEET: Error - \(error.localizedDescription)")
+            } else if completed {
+                debugLog("✅ SHARE SHEET: Completed with activity: \(activityType?.rawValue ?? "unknown")")
+            } else {
+                debugLog("🚫 SHARE SHEET: Cancelled by user")
+            }
+        }
+
+        debugLog("📤 SHARE SHEET: Presenting UIActivityViewController")
+        rootVC.present(activityVC, animated: true) {
+            debugLog("✅ SHARE SHEET: UIActivityViewController presented")
+        }
     }
 
     // MARK: - Helper Functions

@@ -283,7 +283,7 @@ struct ExercisePreviewRow: View {
     )
 
     SplitImportPreviewView(split: previewSplit) {
-        print("Import tapped")
+        debugLog("Import tapped")
     }
     .environmentObject(AppearanceManager())
 }

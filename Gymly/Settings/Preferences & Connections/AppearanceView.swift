@@ -38,7 +38,7 @@ struct AppearanceView: View {
                             .font(.largeTitle)
                             .fontWeight(.bold)
 
-                        Text("Customize your Gymly experience")
+                        Text("Customize your ShadowLift experience")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }

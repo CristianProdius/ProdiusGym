@@ -33,6 +33,46 @@ struct SetCell: View {
         weightUnit == "Kg" ? 1.0 : 2.20462
     }
 
+    /// Build accessibility label for VoiceOver
+    private func buildSetAccessibilityLabel() -> String {
+        var parts: [String] = []
+
+        // Weight
+        let weight = Int(round(Double(set.weight) * weightConversionFactor))
+        if set.bodyWeight {
+            parts.append("Bodyweight plus \(weight) \(weightUnit)")
+        } else {
+            parts.append("\(weight) \(weightUnit)")
+        }
+
+        // Reps
+        parts.append("\(set.reps) reps")
+
+        // Set type indicators
+        if set.warmUp {
+            parts.append("warm-up set")
+        }
+        if set.failure {
+            parts.append("to failure")
+        }
+        if set.restPause {
+            parts.append("rest-pause")
+        }
+        if set.dropSet {
+            parts.append("drop set")
+        }
+        if isPR && !set.warmUp {
+            parts.append("personal record")
+        }
+
+        // Completion status
+        if !set.time.isEmpty {
+            parts.append("completed at \(set.time)")
+        }
+
+        return parts.joined(separator: ", ")
+    }
+
     var body: some View {
         Section("Set \(index + 1)") {
             Button {
@@ -109,6 +149,8 @@ struct SetCell: View {
                         .opacity(set.time.isEmpty ? 0 : 0.3)
                 }
             }
+            .accessibilityLabel(buildSetAccessibilityLabel())
+            .accessibilityHint(setForCalendar ? "View only" : "Double tap to edit this set")
 
             if !set.note.isEmpty {
                 Text(set.note)
