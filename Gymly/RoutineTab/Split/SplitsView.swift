@@ -19,6 +19,7 @@ struct SplitsView: View {
     @State var splits: [Split] = []
     @State var createSplit: Bool = false
     @State var showTemplates: Bool = false
+    @State var showAISplitGenerator: Bool = false
 
     var body: some View {
         NavigationView {
@@ -27,35 +28,32 @@ struct SplitsView: View {
                 FloatingClouds(theme: CloudsTheme.graphite(scheme))
                     .ignoresSafeArea()
                 List {
-                    // Browse Templates Button
+                    // Quick Actions Section
                     Section {
+                        // Templates Button
                         Button(action: {
                             showTemplates = true
                         }) {
-                            HStack {
-                                Image(systemName: "star.circle.fill")
-                                    .foregroundColor(appearanceManager.accentColor.color)
-                                    .font(.title2)
-
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text("Workout Templates")
-                                        .font(.headline)
-                                        .foregroundColor(.primary)
-
-                                    Text("5 pro-designed splits")
-                                        .font(.caption)
-                                        .foregroundColor(.secondary)
-                                }
-
-                                Spacer()
-
-                                Image(systemName: "chevron.right")
-                                    .foregroundColor(.secondary)
-                                    .font(.caption)
-                                    .fontWeight(.semibold)
-                            }
+                            TemplatesButtonContent()
                         }
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+
+                        // AI Personalized Split Button (iOS 26+ only)
+                        if #available(iOS 26, *) {
+                            Button(action: {
+                                if config.isPremium {
+                                    showAISplitGenerator = true
+                                } else {
+                                    // TODO: Show premium sheet
+                                    showAISplitGenerator = true // For testing
+                                }
+                            }) {
+                                AIGeneratorButtonContent()
+                            }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 4, leading: 16, bottom: 4, trailing: 16))
+                        }
                     }
 
                     Section("My Splits") {
@@ -214,6 +212,13 @@ struct SplitsView: View {
         }) {
             SplitTemplatesView(viewModel: viewModel)
         }
+        .sheet(isPresented: $showAISplitGenerator, onDismiss: {
+            splits = viewModel.getAllSplits()
+        }) {
+            if #available(iOS 26, *) {
+                AIPersonalizedSplitView(viewModel: viewModel, config: config)
+            }
+        }
     }
     /// Toggles set type and saves changes
     struct CheckToggleStyle: ToggleStyle {
@@ -241,5 +246,161 @@ struct SplitsView: View {
         return days.reduce(0) { total, day in
             total + (day.exercises?.count ?? 0)
         }
+    }
+}
+
+// MARK: - Templates Button Content
+
+private struct TemplatesButtonContent: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // Icon
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: "star.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+
+            // Text
+            VStack(alignment: .leading, spacing: 2) {
+                Text("Workout Templates")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundColor(.white)
+
+                Text("5 pro-designed splits")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white.opacity(0.5))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            appearanceManager.accentColor.color.opacity(0.8),
+                            appearanceManager.accentColor.color.opacity(0.6)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                )
+        )
+        .shadow(color: appearanceManager.accentColor.color.opacity(0.3), radius: 6, x: 0, y: 3)
+    }
+}
+
+// MARK: - AI Generator Button Content
+
+@available(iOS 26, *)
+private struct AIGeneratorButtonContent: View {
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    var body: some View {
+        HStack(spacing: 12) {
+            // AI icon
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.purple, appearanceManager.accentColor.color],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 36, height: 36)
+
+                Image(systemName: "sparkles")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundColor(.white)
+            }
+
+            // Text content
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text("AI Personalized Split")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundColor(.white)
+
+                    // "NEW" badge
+                    Text("NEW")
+                        .font(.system(size: 8, weight: .black))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 5)
+                        .padding(.vertical, 2)
+                        .background(
+                            Capsule()
+                                .fill(
+                                    LinearGradient(
+                                        colors: [.orange, .pink],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                        )
+                }
+
+                Text("Generate a custom workout plan")
+                    .font(.system(size: 11))
+                    .foregroundColor(.white.opacity(0.6))
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundColor(.white.opacity(0.5))
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(
+                    LinearGradient(
+                        colors: [
+                            Color.purple,
+                            Color.purple.opacity(0.7),
+                            appearanceManager.accentColor.color.opacity(0.8)
+                        ],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.white.opacity(0.25), .white.opacity(0.1)],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            ),
+                            lineWidth: 1
+                        )
+                )
+        )
+        .shadow(color: .purple.opacity(0.35), radius: 6, x: 0, y: 3)
     }
 }
