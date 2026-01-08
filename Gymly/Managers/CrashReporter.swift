@@ -24,6 +24,10 @@ class CrashReporter: ObservableObject {
         setupCrashDetection()
     }
 
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
     // MARK: - Crash Detection
 
     private func setupCrashDetection() {

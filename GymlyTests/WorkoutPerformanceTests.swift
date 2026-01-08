@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Gymly
+@testable import ShadowLift
 
 /// Performance tests that simulate gym usage patterns
 /// These tests measure how fast critical operations are under realistic load

@@ -10,6 +10,7 @@ import HealthKit
 import SwiftData
 import CloudKit
 
+@MainActor
 class HealthKitManager: ObservableObject {
     let healthStore = HKHealthStore()
 

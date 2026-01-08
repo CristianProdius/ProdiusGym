@@ -25,6 +25,10 @@ struct ShowSplitDayView: View {
     // Edit exercise sheet
     @State private var editingExercise: Exercise?
 
+    // MARK: - Performance: Cached grouping to avoid expensive computation on every render
+    @State private var cachedGrouped: [(String, [Exercise])] = []
+    @State private var cachedGlobalOrderMap: [UUID: Int] = [:]
+
     /// Environment and observed objects
     @Environment(\.modelContext) private var context
     @EnvironmentObject var config: Config
@@ -74,29 +78,15 @@ struct ShowSplitDayView: View {
                     }
                     .environment(\.editMode, $editModeExercises)
                 } else {
-                    let globalOrderMap: [UUID: Int] = Dictionary(uniqueKeysWithValues: (day.exercises ?? []).map { ($0.id, $0.exerciseOrder) })
+                    // Use cached values for performance (computed in updateCachedData)
                     List {
-                        // Build groups from day.exercises while preserving the order of first appearance
-                        let grouped: [(String, [Exercise])] = {
-                            var order: [String] = []
-                            var dict: [String: [Exercise]] = [:]
-                            for ex in (day.exercises ?? []).sorted(by: { $0.exerciseOrder < $1.exerciseOrder }) {
-                                if dict[ex.muscleGroup] == nil {
-                                    order.append(ex.muscleGroup)
-                                    dict[ex.muscleGroup] = []
-                                }
-                                dict[ex.muscleGroup]!.append(ex)
-                            }
-                            return order.map { ($0, dict[$0]!) }
-                        }()
-                        
-                        ForEach(grouped, id: \.0) { name, exercises in
+                        ForEach(cachedGrouped, id: \.0) { name, exercises in
                             if !exercises.isEmpty {
                                 Section(header: Text(name)) {
                                     ForEach(exercises, id: \.id) { exercise in
                                         NavigationLink(destination: ShowSplitDayExerciseView(viewModel: viewModel, exercise: exercise)) {
                                             HStack {
-                                                Text("\(globalOrderMap[exercise.id] ?? 0)")
+                                                Text("\(cachedGlobalOrderMap[exercise.id] ?? 0)")
                                                     .foregroundStyle(Color.white.opacity(0.4))
                                                 Text(exercise.name)
                                             }
@@ -301,9 +291,37 @@ struct ShowSplitDayView: View {
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .listRowBackground(Color.clear)
+            .onAppear {
+                updateCachedData()
+            }
+            .onChange(of: day.exercises) { _, _ in
+                updateCachedData()
+            }
         }
     }
-    
+
+    // MARK: - Performance Helper
+
+    /// Updates the cached grouping and order map to avoid expensive computation on every render
+    private func updateCachedData() {
+        let exercises = day.exercises ?? []
+
+        // Build global order map
+        cachedGlobalOrderMap = Dictionary(uniqueKeysWithValues: exercises.map { ($0.id, $0.exerciseOrder) })
+
+        // Build grouped exercises
+        var order: [String] = []
+        var dict: [String: [Exercise]] = [:]
+        for ex in exercises.sorted(by: { $0.exerciseOrder < $1.exerciseOrder }) {
+            if dict[ex.muscleGroup] == nil {
+                order.append(ex.muscleGroup)
+                dict[ex.muscleGroup] = []
+            }
+            dict[ex.muscleGroup]!.append(ex)
+        }
+        cachedGrouped = order.map { ($0, dict[$0]!) }
+    }
+
     /// Saves the edited workout name
     func saveDayName() {
         day.name = name

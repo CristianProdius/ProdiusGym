@@ -16,6 +16,10 @@ struct CalendarView: View {
     let calendar = Calendar.current
     let daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
+    // MARK: - Performance Optimization: Cache today's date string and recorded days set
+    @State private var todayDateString: String = ""
+    @State private var recordedDaysSet: Set<String> = []
+
     var body: some View {
         NavigationView {
             ZStack {
@@ -71,9 +75,11 @@ struct CalendarView: View {
                                     let day = daysInMonth[index]
 
                                     if day.day != 0 {
-                                        if viewModel.formattedDateString(from: day.date) == viewModel.formattedDateString(from: Date()) {
+                                        let dayDateString = viewModel.formattedDateString(from: day.date)
+                                        // Use cached todayDateString instead of recomputing
+                                        if dayDateString == todayDateString {
                                             NavigationLink("\(day.day)") {
-                                                CalendarDayView(viewModel: viewModel, date: viewModel.formattedDateString(from: day.date))
+                                                CalendarDayView(viewModel: viewModel, date: dayDateString)
                                             }
                                             .frame(width: geometry.size.width * 0.085, height: geometry.size.width * 0.085)
                                             .font(.system(size: 22))
@@ -90,7 +96,7 @@ struct CalendarView: View {
                                             .padding(3)
                                         } else {
                                             ZStack {
-                                                let dayDateString = viewModel.formattedDateString(from: day.date)
+                                                // dayDateString already computed above - no duplicate needed
 
                                                 NavigationLink("\(day.day)") {
                                                     CalendarDayView(viewModel: viewModel, date: dayDateString)
@@ -99,16 +105,9 @@ struct CalendarView: View {
                                                 .font(.system(size: 22))
                                                 .foregroundColor(Color.white)
                                                 .padding(3)
-                                                .onAppear {
-                                                    // Only log for today's date to reduce noise
-                                                    if Calendar.current.isDate(day.date, inSameDayAs: Date()) {
-                                                        debugLog("🔍 CALENDAR: Today's date is '\(dayDateString)'")
-                                                        debugLog("🔍 CALENDAR: daysRecorded contains: \(config.daysRecorded)")
-                                                        debugLog("🔍 CALENDAR: Contains today? \(config.daysRecorded.contains(dayDateString))")
-                                                    }
-                                                }
 
-                                                if config.daysRecorded.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString) {
+                                                // Use cached Set for O(1) lookup instead of O(n) array contains
+                                                if recordedDaysSet.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString) {
                                                     Circle()
                                                         .frame(width: 10, height: 10)
                                                         .foregroundColor(appearanceManager.accentColor.color)
@@ -146,6 +145,14 @@ struct CalendarView: View {
                         currentMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: Date())) ?? currentMonth
                         // Clean up any duplicate dates in the daysRecorded array
                         viewModel.cleanupDuplicateDates()
+
+                        // Initialize cached values for performance
+                        todayDateString = viewModel.formattedDateString(from: Date())
+                        recordedDaysSet = Set(config.daysRecorded)
+                    }
+                    .onChange(of: config.daysRecorded) { _, newValue in
+                        // Update cached Set when daysRecorded changes
+                        recordedDaysSet = Set(newValue)
                     }
                 }
             }

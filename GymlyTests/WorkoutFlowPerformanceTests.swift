@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Gymly
+@testable import ShadowLift
 
 /// Performance tests for the main workout flow
 /// Tests TodayWorkoutView, ExerciseDetailView, EditExerciseSetView

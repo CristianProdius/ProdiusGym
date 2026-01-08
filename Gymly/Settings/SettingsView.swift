@@ -150,9 +150,9 @@ struct SettingsView: View {
                         .frame(width: 300)
 
                         Button(action: {
-                            // Request App Store review using StoreKit
+                            // Request App Store review using modern StoreKit API
                             if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                                SKStoreReviewController.requestReview(in: scene)
+                                AppStore.requestReview(in: scene)
                             }
                         }) {
                             HStack {

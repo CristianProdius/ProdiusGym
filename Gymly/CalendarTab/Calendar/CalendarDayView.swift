@@ -65,24 +65,40 @@ struct CalendarDayView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listRowBackground(Color.clear)
-                .id(UUID())
                 .navigationTitle("\(date)")
                 .navigationBarTitleDisplayMode(.inline)
                 .task {
                     await refreshMuscleGroups()
-                    debugPrint(date)
                 }
             }
         }
     }
-    
+
     func refreshMuscleGroups() async {
         debugPrint("🔍 CalendarDayView: Fetching data for date '\(date)'")
+        // OPTIMIZATION: Fetch day data once and reuse it for sorting
         day = await viewModel.fetchCalendarDay(date: date)
         debugPrint("📋 CalendarDayView: Day name: '\(day.name)', exercises count: \(day.exercises?.count ?? 0)")
 
-        muscleGroups.removeAll() /// Clear array to trigger UI update
-        muscleGroups = await viewModel.sortDataForCalendar(date: date) /// Reassign updated data
+        // OPTIMIZATION: Sort from already-fetched day data instead of fetching again
+        let groups = sortExercisesIntoGroups(day.exercises ?? [])
+        muscleGroups = groups
         debugPrint("💪 CalendarDayView: Found \(muscleGroups.count) muscle groups with exercises")
+    }
+
+    /// OPTIMIZATION: Sort exercises locally instead of making another database fetch
+    private func sortExercisesIntoGroups(_ exercises: [Exercise]) -> [MuscleGroup] {
+        var order: [String] = []
+        var dict: [String: [Exercise]] = [:]
+
+        for ex in exercises.sorted(by: { $0.exerciseOrder < $1.exerciseOrder }) {
+            if dict[ex.muscleGroup] == nil {
+                order.append(ex.muscleGroup)
+                dict[ex.muscleGroup] = []
+            }
+            dict[ex.muscleGroup]!.append(ex)
+        }
+
+        return order.map { MuscleGroup(name: $0, exercises: dict[$0]!) }
     }
 }

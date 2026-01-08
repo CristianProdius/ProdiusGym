@@ -64,13 +64,10 @@ class iCloudSyncManager: ObservableObject {
             store.set(experience, forKey: keyExperience)
             store.set(days, forKey: keyDays)
 
-            // Synchronize happens in background
-            let synced = store.synchronize()
-            if synced {
-                debugPrint("☁️ ✅ Fitness profile synced to iCloud successfully")
-            } else {
-                debugPrint("☁️ ⚠️ iCloud sync may be delayed or unavailable")
-            }
+            // Note: synchronize() is deprecated and no longer necessary
+            // The system automatically syncs NSUbiquitousKeyValueStore
+            // Listen to didChangeExternallyNotification for sync confirmation
+            debugPrint("☁️ ✅ Fitness profile queued for iCloud sync")
         }
     }
 
@@ -103,9 +100,34 @@ class iCloudSyncManager: ObservableObject {
         debugPrint("☁️ 🔍 Fetching fitness profile from iCloud with \(timeout)s timeout...")
 
         await withCheckedContinuation { continuation in
+            // Use a class to safely track if continuation has been resumed
+            // This prevents the race condition where both timeout and completion could fire
+            final class ResumeState: @unchecked Sendable {
+                private let lock = NSLock()
+                private var _hasResumed = false
+
+                var hasResumed: Bool {
+                    lock.lock()
+                    defer { lock.unlock() }
+                    return _hasResumed
+                }
+
+                func tryResume() -> Bool {
+                    lock.lock()
+                    defer { lock.unlock() }
+                    if _hasResumed { return false }
+                    _hasResumed = true
+                    return true
+                }
+            }
+
+            let state = ResumeState()
+
             let timeoutTask = DispatchWorkItem {
-                debugPrint("☁️ ⏱️ iCloud fetch timed out, using local data")
-                continuation.resume()
+                if state.tryResume() {
+                    debugPrint("☁️ ⏱️ iCloud fetch timed out, using local data")
+                    continuation.resume()
+                }
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + timeout, execute: timeoutTask)
@@ -113,7 +135,9 @@ class iCloudSyncManager: ObservableObject {
             Task { @MainActor in
                 self.fetchFromiCloud()
                 timeoutTask.cancel()
-                continuation.resume()
+                if state.tryResume() {
+                    continuation.resume()
+                }
             }
         }
     }
@@ -135,7 +159,7 @@ class iCloudSyncManager: ObservableObject {
         store.removeObject(forKey: kEquipmentAccess)
         store.removeObject(forKey: kExperienceLevel)
         store.removeObject(forKey: kTrainingDaysPerWeek)
-        store.synchronize()
+        // Note: synchronize() removed - system syncs automatically
 
         debugPrint("☁️ ✅ Fitness profile cleared")
     }

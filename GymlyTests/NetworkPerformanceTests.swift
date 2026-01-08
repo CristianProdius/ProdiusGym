@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import Gymly
+@testable import ShadowLift
 
 /// Tests that simulate poor network conditions (like in gym)
 /// CloudKit sync might be blocking UI when network is slow

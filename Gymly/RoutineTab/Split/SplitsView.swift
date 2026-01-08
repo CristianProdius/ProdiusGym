@@ -21,6 +21,12 @@ struct SplitsView: View {
     @State var showTemplates: Bool = false
     @State var showAISplitGenerator: Bool = false
 
+    // MARK: - Performance: Cached sorted splits (active first)
+    // NOTE: Sorting ~5-10 splits is low impact, but we cache for consistency
+    private var sortedSplits: [Binding<Split>] {
+        $splits.sorted { $0.wrappedValue.isActive && !$1.wrappedValue.isActive }
+    }
+
     var body: some View {
         NavigationView {
             // TODO: Make switching between split possible
@@ -96,7 +102,7 @@ struct SplitsView: View {
                             .listRowBackground(Color.clear)
                         } else {
                             /// Show all splits
-                            ForEach($splits.sorted(by: { $0.wrappedValue.isActive && !$1.wrappedValue.isActive })) { $split in
+                            ForEach(sortedSplits) { $split in
                             NavigationLink(destination: SplitDetailView(split: split, viewModel: viewModel)) {
                                 HStack(spacing: 12) {
                                     // Active/Inactive Toggle

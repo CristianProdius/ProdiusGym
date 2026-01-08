@@ -9,7 +9,8 @@ import Foundation
 import CloudKit
 import SwiftData
 import SwiftUI
-import Network
+@preconcurrency import Dispatch
+@preconcurrency import Network
 
 @MainActor
 class CloudKitManager: ObservableObject {
@@ -160,53 +161,85 @@ class CloudKitManager: ObservableObject {
 
     // MARK: - CloudKit Status
     nonisolated func checkCloudKitStatus() async {
-        await withCheckedContinuation { continuation in
-            container.accountStatus { status, error in
-                Task { @MainActor in
-                    switch status {
-                    case .available:
-                        // CloudKit is available, check if user had it enabled before
-                        let hasExistingPreference = self.userDefaults.object(forKey: self.cloudKitEnabledKey) != nil
-                        let userPreference = self.userDefaults.bool(forKey: self.cloudKitEnabledKey)
+        // Use a class to safely track if continuation has been resumed (prevents race condition)
+        final class ResumeState: @unchecked Sendable {
+            private let lock = NSLock()
+            private var _hasResumed = false
 
-                        if hasExistingPreference {
-                            // User has a saved preference, respect it
-                            self.isCloudKitEnabled = userPreference
-                            debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, EXISTING USER PREFERENCE: \(userPreference)")
-                        } else {
-                            // First time or fresh install - enable CloudKit by default when available
-                            self.isCloudKitEnabled = true
-                            self.userDefaults.set(true, forKey: self.cloudKitEnabledKey)
-                            debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, NO EXISTING PREFERENCE - ENABLING BY DEFAULT")
-                        }
-                        self.syncError = nil
-                    case .noAccount:
-                        self.isCloudKitEnabled = false
-                        self.syncError = "iCloud account not available. Please sign in to iCloud in Settings."
-                        self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        debugLog("🔥 CLOUDKIT STATUS CHECK: NO ACCOUNT")
-                    case .restricted:
-                        self.isCloudKitEnabled = false
-                        self.syncError = "iCloud is restricted on this device."
-                        self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        debugLog("🔥 CLOUDKIT STATUS CHECK: RESTRICTED")
-                    case .couldNotDetermine:
-                        self.isCloudKitEnabled = false
-                        self.syncError = "Could not determine iCloud status."
-                        self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        debugLog("🔥 CLOUDKIT STATUS CHECK: COULD NOT DETERMINE")
-                    case .temporarilyUnavailable:
-                        self.isCloudKitEnabled = false
-                        self.syncError = "iCloud is temporarily unavailable."
-                        self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        debugLog("🔥 CLOUDKIT STATUS CHECK: TEMPORARILY UNAVAILABLE")
-                    @unknown default:
-                        self.isCloudKitEnabled = false
-                        self.syncError = "Unknown iCloud status."
-                        self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
-                        debugLog("🔥 CLOUDKIT STATUS CHECK: UNKNOWN")
+            func tryResume() -> Bool {
+                lock.lock()
+                defer { lock.unlock() }
+                if _hasResumed { return false }
+                _hasResumed = true
+                return true
+            }
+        }
+
+        let state = ResumeState()
+        let statusTimeout: TimeInterval = 10.0  // 10 second timeout for account status check
+
+        await withCheckedContinuation { continuation in
+            // Set up timeout
+            let timeoutTask = DispatchWorkItem {
+                if state.tryResume() {
+                    Task { @MainActor in
+                        debugLog("🔥 CLOUDKIT STATUS CHECK: TIMED OUT - Using cached state")
                     }
                     continuation.resume()
+                }
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + statusTimeout, execute: timeoutTask)
+
+            container.accountStatus { status, error in
+                timeoutTask.cancel()
+
+                if state.tryResume() {
+                    Task { @MainActor in
+                        switch status {
+                        case .available:
+                            // CloudKit is available, check if user had it enabled before
+                            let hasExistingPreference = self.userDefaults.object(forKey: self.cloudKitEnabledKey) != nil
+                            let userPreference = self.userDefaults.bool(forKey: self.cloudKitEnabledKey)
+
+                            if hasExistingPreference {
+                                // User has a saved preference, respect it
+                                self.isCloudKitEnabled = userPreference
+                                debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, EXISTING USER PREFERENCE: \(userPreference)")
+                            } else {
+                                // First time or fresh install - enable CloudKit by default when available
+                                self.isCloudKitEnabled = true
+                                self.userDefaults.set(true, forKey: self.cloudKitEnabledKey)
+                                debugLog("🔥 CLOUDKIT STATUS CHECK: AVAILABLE, NO EXISTING PREFERENCE - ENABLING BY DEFAULT")
+                            }
+                            self.syncError = nil
+                        case .noAccount:
+                            self.isCloudKitEnabled = false
+                            self.syncError = "iCloud account not available. Please sign in to iCloud in Settings."
+                            self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: NO ACCOUNT")
+                        case .restricted:
+                            self.isCloudKitEnabled = false
+                            self.syncError = "iCloud is restricted on this device."
+                            self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: RESTRICTED")
+                        case .couldNotDetermine:
+                            self.isCloudKitEnabled = false
+                            self.syncError = "Could not determine iCloud status."
+                            self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: COULD NOT DETERMINE")
+                        case .temporarilyUnavailable:
+                            self.isCloudKitEnabled = false
+                            self.syncError = "iCloud is temporarily unavailable."
+                            self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: TEMPORARILY UNAVAILABLE")
+                        @unknown default:
+                            self.isCloudKitEnabled = false
+                            self.syncError = "Unknown iCloud status."
+                            self.userDefaults.set(false, forKey: self.cloudKitEnabledKey)
+                            debugLog("🔥 CLOUDKIT STATUS CHECK: UNKNOWN")
+                        }
+                        continuation.resume()
+                    }
                 }
             }
         }
@@ -398,20 +431,23 @@ class CloudKitManager: ObservableObject {
 
         let recordID = CKRecord.ID(recordName: dayStorage.id.uuidString)
 
-        // Try to fetch existing record first
-        let record: CKRecord
-        do {
-            record = try await privateDatabase.record(for: recordID)
-        } catch {
-            // Record doesn't exist, create new one
-            record = CKRecord(recordType: "DayStorage", recordID: recordID)
-        }
-        record["date"] = dayStorage.date
-        record["dayId"] = dayStorage.dayId.uuidString
-        record["dayName"] = dayStorage.dayName
-        record["dayOfSplit"] = dayStorage.dayOfSplit
+        // Use timeout to prevent hanging on poor network
+        try await withTimeout(operationTimeout) {
+            // Try to fetch existing record first
+            let record: CKRecord
+            do {
+                record = try await self.privateDatabase.record(for: recordID)
+            } catch {
+                // Record doesn't exist, create new one
+                record = CKRecord(recordType: "DayStorage", recordID: recordID)
+            }
+            record["date"] = dayStorage.date
+            record["dayId"] = dayStorage.dayId.uuidString
+            record["dayName"] = dayStorage.dayName
+            record["dayOfSplit"] = dayStorage.dayOfSplit
 
-        try await privateDatabase.save(record)
+            try await self.privateDatabase.save(record)
+        }
     }
 
     // MARK: - WeightPoint Sync
@@ -422,18 +458,21 @@ class CloudKitManager: ObservableObject {
 
         let recordID = CKRecord.ID(recordName: weightPoint.cloudKitID)
 
-        // Try to fetch existing record first
-        let record: CKRecord
-        do {
-            record = try await privateDatabase.record(for: recordID)
-        } catch {
-            // Record doesn't exist, create new one
-            record = CKRecord(recordType: "WeightPoint", recordID: recordID)
-        }
-        record["weight"] = weightPoint.weight
-        record["date"] = weightPoint.date
+        // Use timeout to prevent hanging on poor network
+        try await withTimeout(operationTimeout) {
+            // Try to fetch existing record first
+            let record: CKRecord
+            do {
+                record = try await self.privateDatabase.record(for: recordID)
+            } catch {
+                // Record doesn't exist, create new one
+                record = CKRecord(recordType: "WeightPoint", recordID: recordID)
+            }
+            record["weight"] = weightPoint.weight
+            record["date"] = weightPoint.date
 
-        try await privateDatabase.save(record)
+            try await self.privateDatabase.save(record)
+        }
     }
 
 
@@ -510,7 +549,10 @@ class CloudKitManager: ObservableObject {
     }
 
     private func fetchDay(recordID: CKRecord.ID) async throws -> Day {
-        let record = try await privateDatabase.record(for: recordID)
+        // Use timeout to prevent hanging on poor network
+        let record = try await withTimeout(operationTimeout) {
+            try await self.privateDatabase.record(for: recordID)
+        }
 
         guard let name = record["name"] as? String,
               let dayOfSplit = record["dayOfSplit"] as? Int,
@@ -520,7 +562,7 @@ class CloudKitManager: ObservableObject {
 
         let id = UUID(uuidString: record.recordID.recordName) ?? UUID()
 
-        // Fetch exercises
+        // Fetch exercises (each with its own timeout)
         var exercises: [Exercise] = []
         if let exerciseReferences = record["exercises"] as? [CKRecord.Reference] {
             for reference in exerciseReferences {
@@ -534,7 +576,10 @@ class CloudKitManager: ObservableObject {
     }
 
     private func fetchExercise(recordID: CKRecord.ID) async throws -> Exercise {
-        let record = try await privateDatabase.record(for: recordID)
+        // Use timeout to prevent hanging on poor network
+        let record = try await withTimeout(operationTimeout) {
+            try await self.privateDatabase.record(for: recordID)
+        }
 
         guard let name = record["name"] as? String,
               let repGoal = record["repGoal"] as? String,

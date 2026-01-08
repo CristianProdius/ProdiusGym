@@ -21,18 +21,18 @@ struct ProgressPhotoTimelineView: View {
     @State private var showAddPhoto = false
     @State private var selectedPhoto: ProgressPhoto?
 
-    private var groupedPhotos: [(String, [ProgressPhoto])] {
-        guard let profile = userProfileManager.currentProfile else { return [] }
-        // Filter photos for current user
-        let userPhotos = allPhotos.filter { photo in
-            photo.userProfile?.id == profile.id
-        }
-        return groupPhotos(userPhotos)
-    }
-
-    private func groupPhotos(_ photos: [ProgressPhoto]) -> [(String, [ProgressPhoto])] {
+    // MARK: - Performance: Static DateFormatter (avoid creating on every render)
+    private static let monthYearFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "MMMM yyyy"
+        return formatter
+    }()
+
+    // MARK: - Performance: Cached grouped photos
+    @State private var cachedGroupedPhotos: [(String, [ProgressPhoto])] = []
+
+    private func groupPhotos(_ photos: [ProgressPhoto]) -> [(String, [ProgressPhoto])] {
+        let formatter = Self.monthYearFormatter
 
         var grouped: [String: [ProgressPhoto]] = [:]
         var order: [String] = []
@@ -48,6 +48,16 @@ struct ProgressPhotoTimelineView: View {
         }
 
         return order.map { ($0, grouped[$0]!) }
+    }
+
+    // MARK: - Performance Helper
+    private func updateCachedPhotos() {
+        guard let profile = userProfileManager.currentProfile else {
+            cachedGroupedPhotos = []
+            return
+        }
+        let userPhotos = allPhotos.filter { $0.userProfile?.id == profile.id }
+        cachedGroupedPhotos = groupPhotos(userPhotos)
     }
 
     var body: some View {
@@ -83,9 +93,14 @@ struct ProgressPhotoTimelineView: View {
                         await photoManager.migrateMissingThumbnails(for: profile, context: context)
                     }
                 }
+                // Initialize cached photos
+                updateCachedPhotos()
+            }
+            .onChange(of: allPhotos) { _, _ in
+                updateCachedPhotos()
             }
 
-            if groupedPhotos.isEmpty {
+            if cachedGroupedPhotos.isEmpty {
                 // Empty State
                 VStack(spacing: 16) {
                     Image(systemName: "photo.on.rectangle.angled")
@@ -121,7 +136,7 @@ struct ProgressPhotoTimelineView: View {
                 // Timeline
                 ScrollView {
                     LazyVStack(alignment: .leading, spacing: 24, pinnedViews: []) {
-                        ForEach(groupedPhotos, id: \.0) { month, photos in
+                        ForEach(cachedGroupedPhotos, id: \.0) { month, photos in
                             VStack(alignment: .leading, spacing: 12) {
                                 // Month Header
                                 Text(month)

@@ -876,7 +876,7 @@ struct SubscriptionOptionCard: View {
         guard product.subscription?.subscriptionPeriod.unit == .year else { return nil }
         let yearlyPrice = product.price
         let monthlyPrice = yearlyPrice / 12
-        return monthlyPrice.formatted(.currency(code: product.priceFormatStyle.currencyCode ?? "USD"))
+        return monthlyPrice.formatted(.currency(code: product.priceFormatStyle.currencyCode))
     }
 }
 

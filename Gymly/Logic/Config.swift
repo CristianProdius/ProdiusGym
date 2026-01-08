@@ -10,68 +10,117 @@ import SwiftData
 import SwiftUI
 
 
-class Config:ObservableObject {
+class Config: ObservableObject {
+
+    // MARK: - Debounced UserDefaults Save System
+    // This prevents hundreds of synchronous disk writes during workouts
+    // by batching writes and debouncing them
+
+    private var pendingWrites: [String: Any] = [:]
+    private var saveTask: Task<Void, Never>?
+    private let saveDebounceMs: UInt64 = 100  // 100ms debounce
+
+    /// Queue a UserDefaults write - will be batched and debounced
+    private func queueSave(_ key: String, _ value: Any?) {
+        if let value = value {
+            pendingWrites[key] = value
+        } else {
+            pendingWrites[key] = NSNull()  // Mark for removal
+        }
+
+        // Cancel any pending save and schedule a new one
+        saveTask?.cancel()
+        saveTask = Task { @MainActor [weak self] in
+            do {
+                try await Task.sleep(nanoseconds: (self?.saveDebounceMs ?? 100) * 1_000_000)
+                guard !Task.isCancelled else { return }
+                self?.flushPendingWrites()
+            } catch {
+                // Task was cancelled, which is expected
+            }
+        }
+    }
+
+    /// Flush all pending writes to UserDefaults
+    private func flushPendingWrites() {
+        guard !pendingWrites.isEmpty else { return }
+
+        for (key, value) in pendingWrites {
+            if value is NSNull {
+                UserDefaults.standard.removeObject(forKey: key)
+            } else {
+                UserDefaults.standard.set(value, forKey: key)
+            }
+        }
+        pendingWrites.removeAll()
+    }
+
+    /// Force immediate save of all pending writes (call before app termination)
+    func saveImmediately() {
+        saveTask?.cancel()
+        flushPendingWrites()
+    }
 
     // MARK: - App Configuration Properties (not user-specific)
-    
+
     @Published var daysRecorded: [String] {
         didSet {
-            UserDefaults.standard.set(daysRecorded, forKey: "daysRecorded")
+            queueSave("daysRecorded", daysRecorded)
         }
     }
-    
+
     @Published var splitStarted: Bool {
         didSet {
-            UserDefaults.standard.set(splitStarted, forKey: "splitStarted")
+            queueSave("splitStarted", splitStarted)
         }
     }
-    
+
     @Published var dayInSplit: Int {
         didSet {
-            UserDefaults.standard.set(dayInSplit, forKey: "dayInSplit")
+            queueSave("dayInSplit", dayInSplit)
         }
     }
-    
+
     @Published var splitLength: Int {
         didSet {
-            UserDefaults.standard.set(splitLength, forKey: "splitLength")
+            queueSave("splitLength", splitLength)
         }
     }
-    
+
     @Published var lastUpdateDate: Date {
         didSet {
-            UserDefaults.standard.set(lastUpdateDate, forKey: "lastUpdateDate")
+            queueSave("lastUpdateDate", lastUpdateDate)
         }
     }
-    
+
     @Published var isUserLoggedIn: Bool {
         didSet {
-            UserDefaults.standard.set(isUserLoggedIn, forKey: "isUserLoggedIn")
+            queueSave("isUserLoggedIn", isUserLoggedIn)
         }
     }
-    
-    
+
+
     @Published var firstSplitEdit: Bool {
         didSet {
-            UserDefaults.standard.set(firstSplitEdit, forKey: "firstSplitEdit")
+            queueSave("firstSplitEdit", firstSplitEdit)
         }
     }
-    
+
     @Published var activeExercise: Int {
         didSet {
-            UserDefaults.standard.set(activeExercise, forKey: "activeExercise")
+            queueSave("activeExercise", activeExercise)
         }
     }
-    
+
     @Published var graphDataValues: [Double] {
         didSet {
-            UserDefaults.standard.set(graphDataValues, forKey: "graphDataValues")
+            queueSave("graphDataValues", graphDataValues)
         }
     }
-    
+
     @Published var graphMaxValue: Double {
         didSet {
-            UserDefaults.standard.set(graphMaxValue, forKey: "graphMaxValue")
+            queueSave("graphMaxValue", graphMaxValue)
         }
     }
 
@@ -80,31 +129,31 @@ class Config:ObservableObject {
 
     @Published var totalWorkoutTimeMinutes: Int {
         didSet {
-            UserDefaults.standard.set(totalWorkoutTimeMinutes, forKey: "totalWorkoutTimeMinutes")
+            queueSave("totalWorkoutTimeMinutes", totalWorkoutTimeMinutes)
         }
     }
 
     @Published var isCloudKitEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isCloudKitEnabled, forKey: "isCloudKitEnabled")
+            queueSave("isCloudKitEnabled", isCloudKitEnabled)
         }
     }
 
     @Published var cloudKitSyncDate: Date? {
         didSet {
-            UserDefaults.standard.set(cloudKitSyncDate, forKey: "cloudKitSyncDate")
+            queueSave("cloudKitSyncDate", cloudKitSyncDate)
         }
     }
-    
+
     @Published var isHealtKitEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(isHealtKitEnabled, forKey: "isHealtKitEnabled")
+            queueSave("isHealtKitEnabled", isHealtKitEnabled)
         }
     }
 
     @Published var isPremium: Bool {
         didSet {
-            UserDefaults.standard.set(isPremium, forKey: "isPremium")
+            queueSave("isPremium", isPremium)
             debugLog("💎 Config: isPremium updated to \(isPremium)")
         }
     }
@@ -124,37 +173,37 @@ class Config:ObservableObject {
 
     @Published var notificationsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(notificationsEnabled, forKey: "notificationsEnabled")
+            queueSave("notificationsEnabled", notificationsEnabled)
         }
     }
 
     @Published var streakNotificationsEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(streakNotificationsEnabled, forKey: "streakNotificationsEnabled")
+            queueSave("streakNotificationsEnabled", streakNotificationsEnabled)
         }
     }
 
     @Published var workoutReminderEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(workoutReminderEnabled, forKey: "workoutReminderEnabled")
+            queueSave("workoutReminderEnabled", workoutReminderEnabled)
         }
     }
 
     @Published var workoutReminderTime: Date {
         didSet {
-            UserDefaults.standard.set(workoutReminderTime, forKey: "workoutReminderTime")
+            queueSave("workoutReminderTime", workoutReminderTime)
         }
     }
 
     @Published var progressMilestonesEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(progressMilestonesEnabled, forKey: "progressMilestonesEnabled")
+            queueSave("progressMilestonesEnabled", progressMilestonesEnabled)
         }
     }
 
     @Published var inactivityRemindersEnabled: Bool {
         didSet {
-            UserDefaults.standard.set(inactivityRemindersEnabled, forKey: "inactivityRemindersEnabled")
+            queueSave("inactivityRemindersEnabled", inactivityRemindersEnabled)
         }
     }
 
@@ -162,31 +211,31 @@ class Config:ObservableObject {
 
     @Published var hasCompletedFitnessProfile: Bool {
         didSet {
-            UserDefaults.standard.set(hasCompletedFitnessProfile, forKey: "hasCompletedFitnessProfile")
+            queueSave("hasCompletedFitnessProfile", hasCompletedFitnessProfile)
         }
     }
 
     @Published var fitnessGoal: String {
         didSet {
-            UserDefaults.standard.set(fitnessGoal, forKey: "fitnessGoal")
+            queueSave("fitnessGoal", fitnessGoal)
         }
     }
 
     @Published var equipmentAccess: String {
         didSet {
-            UserDefaults.standard.set(equipmentAccess, forKey: "equipmentAccess")
+            queueSave("equipmentAccess", equipmentAccess)
         }
     }
 
     @Published var experienceLevel: String {
         didSet {
-            UserDefaults.standard.set(experienceLevel, forKey: "experienceLevel")
+            queueSave("experienceLevel", experienceLevel)
         }
     }
 
     @Published var trainingDaysPerWeek: Int {
         didSet {
-            UserDefaults.standard.set(trainingDaysPerWeek, forKey: "trainingDaysPerWeek")
+            queueSave("trainingDaysPerWeek", trainingDaysPerWeek)
         }
     }
 
@@ -269,6 +318,12 @@ class Config:ObservableObject {
         self.experienceLevel = UserDefaults.standard.object(forKey: "experienceLevel") as? String ?? ""
         self.trainingDaysPerWeek = UserDefaults.standard.object(forKey: "trainingDaysPerWeek") as? Int ?? 4
 
+    }
+
+    deinit {
+        // Ensure any pending writes are saved before Config is deallocated
+        saveTask?.cancel()
+        flushPendingWrites()
     }
 
 }

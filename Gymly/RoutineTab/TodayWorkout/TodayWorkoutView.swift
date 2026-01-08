@@ -36,6 +36,7 @@ struct TodayWorkoutView: View {
     @State private var showWorkoutSummary = false
     @State private var workoutSummaryData: WorkoutSummaryData?
     @State private var isLoadingInitialData = true
+    @State private var hasPerformedInitialLoad = false  // OPTIMIZATION: Track initial load to avoid redundant refreshes
 
     // OPTIMIZATION: Cached grouped exercises to avoid recomputing on every render
     @State private var cachedGroupedExercises: [(String, [Exercise])] = []
@@ -301,14 +302,23 @@ struct TodayWorkoutView: View {
                     }
                 }
             }
-            /// Refresh on every appear
+            /// Refresh on initial appear only - subsequent tab switches reuse cached data
             .task {
+                // OPTIMIZATION: Skip refresh if we've already loaded data (tab switching)
+                guard !hasPerformedInitialLoad else {
+                    #if DEBUG
+                    debugLog("🔄 TODAYWORKOUTVIEW: Skipping refresh - already loaded")
+                    #endif
+                    return
+                }
+
                 // OPTIMIZATION: Load profile image only on initial appear
                 await loadProfileImage()
 
                 // Don't call loadOrCreateProfile here - it's already loaded during sign-in
                 // and calling it again will overwrite CloudKit data with default values
                 await refreshView()
+                hasPerformedInitialLoad = true
 //                if WhatsNewManager.shouldShowWhatsNew && config.isUserLoggedIn {
 //                    showWhatsNew = true
 //                }

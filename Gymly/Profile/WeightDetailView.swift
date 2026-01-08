@@ -25,71 +25,69 @@ struct WeightDetailView: View {
     @State private var saveMessage = ""
     @State private var hasUserEdited = false  // Track if user has edited the field
     @State private var isHistoryExpanded = false  // Track if weight history is expanded
-    
-    // MARK: - Computed Properties
-    
+
+    // MARK: - Performance: Cached Weight Change Calculations
+    @State private var cachedWeekChange: Double = 0
+    @State private var cachedMonthChange: Double = 0
+    @State private var cachedAllTimeChange: Double = 0
+
+    // MARK: - Computed Properties (lightweight, no logging)
+
     private var currentWeight: Double {
         userProfileManager.currentProfile?.weight ?? 0.0
     }
-    
+
     private var weightUnit: String {
         userProfileManager.currentProfile?.weightUnit ?? "Kg"
     }
-    
+
     private var weightConversionFactor: Double {
         weightUnit == "Kg" ? 1.0 : 2.20462
     }
-    
+
     private var displayWeight: Double {
         currentWeight * weightConversionFactor
     }
-    
-    // MARK: - Weight Change Calculations
-    
-    private var weekChange: Double {
-        calculateWeightChange(daysBack: 7)
+
+    // MARK: - Weight Change Calculation (called once on appear/change)
+
+    private func updateCachedWeightChanges() {
+        cachedWeekChange = calculateWeightChange(daysBack: 7)
+        cachedMonthChange = calculateWeightChange(daysBack: 30)
+        cachedAllTimeChange = calculateAllTimeChange()
+        debugLog("📊 WeightDetailView: Updated cached weight changes (7d: \(cachedWeekChange), 30d: \(cachedMonthChange), all: \(cachedAllTimeChange))")
     }
-    
-    private var monthChange: Double {
-        calculateWeightChange(daysBack: 30)
-    }
-    
-    private var allTimeChange: Double {
+
+    private func calculateAllTimeChange() -> Double {
         guard let firstPoint = weightPoints.last else {
-            debugLog("⚠️ WeightDetailView: No weight points for all-time calculation")
             return 0
         }
-        let change = (currentWeight - firstPoint.weight) * weightConversionFactor
-        debugLog("✅ WeightDetailView: All-time change = \(change) (current: \(currentWeight)kg, oldest: \(firstPoint.weight)kg from \(firstPoint.date))")
-        return change
+        return (currentWeight - firstPoint.weight) * weightConversionFactor
     }
-    
+
     private func calculateWeightChange(daysBack: Int) -> Double {
         let calendar = Calendar.current
         guard let targetDate = calendar.date(byAdding: .day, value: -daysBack, to: Date()) else {
             return 0
         }
-        
+
         // Find the weight point closest to the target date
         guard !weightPoints.isEmpty else { return 0 }
-        
+
         let closestPoint = weightPoints.min(by: { abs($0.date.timeIntervalSince(targetDate)) < abs($1.date.timeIntervalSince(targetDate)) })
-        
+
         guard let point = closestPoint else { return 0 }
-        
+
         // Adaptive tolerance based on time period
         // 7 days = ±3 days tolerance (4-10 days range)
         // 30 days = ±7 days tolerance (23-37 days range)
         let tolerance = daysBack <= 7 ? 3 : 7
         let daysDifference = abs(calendar.dateComponents([.day], from: point.date, to: targetDate).day ?? 0)
-        
+
         guard daysDifference <= tolerance else {
-            // Point is too far from target date, not enough data
-            debugLog("⚠️ WeightDetailView: No data within \(tolerance) days of \(daysBack) days ago (closest was \(daysDifference) days away)")
             return 0
         }
-        
-        debugLog("✅ WeightDetailView: \(daysBack)d change = \(currentWeight - point.weight)kg (from \(point.date))")
+
         return (currentWeight - point.weight) * weightConversionFactor
     }
     
@@ -132,21 +130,21 @@ struct WeightDetailView: View {
                             HStack(spacing: 12) {
                                 WeightStatCard(
                                     period: "7D",
-                                    change: weekChange,
+                                    change: cachedWeekChange,
                                     unit: weightUnit,
                                     accentColor: appearanceManager.accentColor.color
                                 )
-                                
+
                                 WeightStatCard(
                                     period: "30D",
-                                    change: monthChange,
+                                    change: cachedMonthChange,
                                     unit: weightUnit,
                                     accentColor: appearanceManager.accentColor.color
                                 )
-                                
+
                                 WeightStatCard(
                                     period: "All",
-                                    change: allTimeChange,
+                                    change: cachedAllTimeChange,
                                     unit: weightUnit,
                                     accentColor: appearanceManager.accentColor.color
                                 )
@@ -307,6 +305,12 @@ struct WeightDetailView: View {
                 let displayWeight = currentWeight * weightConversionFactor
                 bodyWeight = String(format: "%.1f", displayWeight)
             }
+            // Initialize cached weight changes
+            updateCachedWeightChanges()
+        }
+        .onChange(of: weightPoints) { _, _ in
+            // Update cache when weight data changes
+            updateCachedWeightChanges()
         }
     }
     

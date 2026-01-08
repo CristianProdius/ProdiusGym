@@ -11,6 +11,7 @@ import UIKit
 import SwiftData
 
 /// Manager for handling progress photos
+@MainActor
 class PhotoManager: ObservableObject {
 
     static let shared = PhotoManager()
