@@ -8,6 +8,31 @@
 import SwiftUI
 import Combine
 
+// MARK: - Appearance Mode Options
+public enum AppearanceMode: String, CaseIterable, Identifiable {
+    case system = "System"
+    case light = "Light"
+    case dark = "Dark"
+
+    public var id: String { rawValue }
+
+    public var colorScheme: ColorScheme? {
+        switch self {
+        case .system: return nil  // Follow system setting
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
+
+    public var icon: String {
+        switch self {
+        case .system: return "circle.lefthalf.filled"
+        case .light: return "sun.max.fill"
+        case .dark: return "moon.fill"
+        }
+    }
+}
+
 // MARK: - Accent Color Options
 public enum AccentColorOption: String, Codable, CaseIterable, Identifiable {
     case red = "Red"
@@ -65,8 +90,20 @@ public class AppearanceManager: ObservableObject {
         }
     }
 
+    @Published public var appearanceMode: AppearanceMode {
+        didSet {
+            saveAppearanceMode()
+        }
+    }
+
+    /// Returns the ColorScheme to apply, or nil for system default
+    public var colorScheme: ColorScheme? {
+        appearanceMode.colorScheme
+    }
+
     private let userDefaults = UserDefaults.standard
     private let accentColorKey = "selectedAccentColor"
+    private let appearanceModeKey = "selectedAppearanceMode"
 
     public init() {
         // Load saved accent color or default to red
@@ -77,7 +114,15 @@ public class AppearanceManager: ObservableObject {
             self.accentColor = .red // Default
         }
 
-        debugPrint("🎨 AppearanceManager initialized with color: \(accentColor.rawValue)")
+        // Load saved appearance mode or default to system
+        if let savedModeRaw = userDefaults.string(forKey: appearanceModeKey),
+           let savedMode = AppearanceMode(rawValue: savedModeRaw) {
+            self.appearanceMode = savedMode
+        } else {
+            self.appearanceMode = .system // Default
+        }
+
+        debugPrint("🎨 AppearanceManager initialized with color: \(accentColor.rawValue), mode: \(appearanceMode.rawValue)")
     }
 
     public func updateAccentColor(_ color: AccentColorOption) {
@@ -119,6 +164,11 @@ public class AppearanceManager: ObservableObject {
     private func saveAccentColor() {
         userDefaults.set(accentColor.rawValue, forKey: accentColorKey)
         debugPrint("🎨 Accent color saved: \(accentColor.rawValue)")
+    }
+
+    private func saveAppearanceMode() {
+        userDefaults.set(appearanceMode.rawValue, forKey: appearanceModeKey)
+        debugPrint("🎨 Appearance mode saved: \(appearanceMode.rawValue)")
     }
 }
 

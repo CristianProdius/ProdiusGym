@@ -44,6 +44,43 @@ struct AppearanceView: View {
                     LivePreviewCard(accentColor: selectedColor)
                         .padding(.horizontal, 24)
 
+                    // Appearance Mode Picker
+                    VStack(spacing: 16) {
+                        HStack {
+                            Text("Appearance Mode")
+                                .font(.title2)
+                                .fontWeight(.semibold)
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+
+                        // Custom mode selector
+                        HStack(spacing: 12) {
+                            ForEach(AppearanceMode.allCases) { mode in
+                                AppearanceModeButton(
+                                    mode: mode,
+                                    isSelected: appearanceManager.appearanceMode == mode,
+                                    accentColor: selectedColor
+                                ) {
+                                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                        appearanceManager.appearanceMode = mode
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 24)
+
+                        // Info note
+                        HStack(spacing: 8) {
+                            Image(systemName: "info.circle")
+                                .foregroundStyle(.secondary)
+                            Text("System follows your device's appearance settings")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 24)
+                    }
+
                     // Accent Color Picker
                     VStack(spacing: 16) {
                         HStack {
@@ -114,32 +151,6 @@ struct AppearanceView: View {
                             .padding(.top, 8)
                             .transition(.move(edge: .bottom).combined(with: .opacity))
                         }
-                    }
-
-                    // Coming Soon Section
-                    VStack(spacing: 16) {
-                        HStack {
-                            Text("Coming Soon")
-                                .font(.title2)
-                                .fontWeight(.semibold)
-                            Spacer()
-                        }
-                        .padding(.horizontal, 24)
-
-                        VStack(spacing: 12) {
-                            ComingSoonFeature(
-                                icon: "moon.fill",
-                                title: "Dark Mode Options",
-                                description: "Choose from Light, Dark, or Auto"
-                            )
-
-                            ComingSoonFeature(
-                                icon: "sparkles",
-                                title: "Custom Themes",
-                                description: "More theme options coming soon"
-                            )
-                        }
-                        .padding(.horizontal, 24)
                     }
 
                     Spacer(minLength: 40)
@@ -294,44 +305,98 @@ struct ColorPickerButton: View {
     }
 }
 
-// MARK: - Coming Soon Feature
-struct ComingSoonFeature: View {
+// MARK: - Appearance Mode Button
+struct AppearanceModeButton: View {
     @Environment(\.colorScheme) private var scheme
-    let icon: String
-    let title: String
-    let description: String
+    let mode: AppearanceMode
+    let isSelected: Bool
+    let accentColor: AccentColorOption
+    let action: () -> Void
+
+    private var modeColor: Color {
+        switch mode {
+        case .light: return .orange
+        case .dark: return .indigo
+        case .system: return accentColor.color
+        }
+    }
+
+    private var backgroundColor: Color {
+        switch mode {
+        case .light:
+            return isSelected ? .orange.opacity(0.15) : Color.listRowBackground(for: scheme)
+        case .dark:
+            return isSelected ? .indigo.opacity(0.15) : Color.listRowBackground(for: scheme)
+        case .system:
+            return isSelected ? accentColor.color.opacity(0.15) : Color.listRowBackground(for: scheme)
+        }
+    }
 
     var body: some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(.secondary)
-                .frame(width: 40)
+        Button(action: action) {
+            VStack(spacing: 10) {
+                // Icon with animated background
+                ZStack {
+                    // Outer glow when selected
+                    Circle()
+                        .fill(modeColor.opacity(isSelected ? 0.3 : 0))
+                        .frame(width: 56, height: 56)
+                        .blur(radius: 8)
 
-            VStack(alignment: .leading, spacing: 4) {
-                Text(title)
-                    .font(.headline)
-                    .foregroundColor(.primary)
+                    // Background circle
+                    Circle()
+                        .fill(
+                            isSelected
+                                ? LinearGradient(
+                                    colors: [modeColor.opacity(0.8), modeColor],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                                : LinearGradient(
+                                    colors: [Color.listRowBackground(for: scheme), Color.listRowBackground(for: scheme)],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                        )
+                        .frame(width: 48, height: 48)
+                        .overlay(
+                            Circle()
+                                .stroke(
+                                    isSelected ? modeColor : Color.secondary.opacity(0.3),
+                                    lineWidth: isSelected ? 2 : 1
+                                )
+                        )
 
-                Text(description)
+                    // Icon
+                    Image(systemName: mode.icon)
+                        .font(.system(size: 22, weight: .semibold))
+                        .foregroundColor(isSelected ? .white : .secondary)
+                        .symbolEffect(.bounce, value: isSelected)
+                }
+
+                // Label
+                Text(mode.rawValue)
                     .font(.caption)
-                    .foregroundStyle(.secondary)
+                    .fontWeight(isSelected ? .semibold : .regular)
+                    .foregroundColor(isSelected ? modeColor : .secondary)
             }
-
-            Spacer()
-
-            Text("Soon")
-                .font(.caption)
-                .fontWeight(.semibold)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
-                .background(Color.secondary.opacity(0.2))
-                .foregroundStyle(.secondary)
-                .cornerRadius(6)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 16)
+            .background(
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(backgroundColor)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(
+                                isSelected ? modeColor.opacity(0.5) : Color.clear,
+                                lineWidth: 1.5
+                            )
+                    )
+            )
         }
-        .padding()
-        .background(Color.listRowBackground(for: scheme))
-        .cornerRadius(12)
+        .buttonStyle(.plain)
+        .scaleEffect(isSelected ? 1.02 : 1.0)
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: isSelected)
     }
 }
 

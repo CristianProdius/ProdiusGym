@@ -13,6 +13,7 @@ struct GymlyApp: App {
     @StateObject private var config = Config()
     @StateObject private var storeManager = StoreManager()
     @StateObject private var crashReporter = CrashReporter.shared
+    @ObservedObject private var appearanceManager = AppearanceManager.shared
     @State private var importError: ImportError?
     @State private var showImportError = false
     @State private var showImportSuccess = false
@@ -57,6 +58,7 @@ struct GymlyApp: App {
             ToolBar()
                 .environmentObject(config)
                 .environmentObject(storeManager)
+                .preferredColorScheme(appearanceManager.colorScheme)
                 .onOpenURL { url in
                     handleIncomingFile(url, config: config)
                 }
