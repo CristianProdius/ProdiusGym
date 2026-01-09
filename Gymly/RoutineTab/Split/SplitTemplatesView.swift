@@ -33,11 +33,11 @@ struct SplitTemplatesView: View {
                             Text("Workout Templates")
                                 .font(.largeTitle)
                                 .bold()
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
 
                             Text("Science-backed splits designed by professionals")
                                 .font(.subheadline)
-                                .foregroundColor(.white.opacity(0.8))
+                                .foregroundColor(.secondary)
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.horizontal)
@@ -65,7 +65,7 @@ struct SplitTemplatesView: View {
                     Button("Done") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(scheme == .dark ? .white : .primary)
                 }
             }
             .sheet(isPresented: $showTemplateDetail) {
@@ -162,6 +162,7 @@ struct TemplateCard: View {
     let template: SplitTemplate
     let isPremiumUser: Bool
     let onTap: () -> Void
+    @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
 
     var body: some View {
@@ -178,11 +179,11 @@ struct TemplateCard: View {
                         Text(template.name)
                             .font(.title3)
                             .bold()
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
 
                         Text(template.targetUser)
                             .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer()
@@ -197,7 +198,7 @@ struct TemplateCard: View {
                 // Description
                 Text(template.description)
                     .font(.subheadline)
-                    .foregroundColor(.white.opacity(0.9))
+                    .foregroundColor(.secondary)
                     .lineLimit(2)
 
                 // Stats
@@ -221,7 +222,7 @@ struct TemplateCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 20)
-                    .fill(Color.black.opacity(0.3))
+                    .fill(scheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.6))
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
                             .stroke(appearanceManager.accentColor.color.opacity(0.3), lineWidth: 1)
@@ -243,7 +244,7 @@ struct StatBadge: View {
             Text(text)
                 .font(.caption)
         }
-        .foregroundColor(.white.opacity(0.8))
+        .foregroundColor(.secondary)
     }
 }
 
@@ -275,14 +276,14 @@ struct TemplateDetailView: View {
                                 Text(template.name)
                                     .font(.largeTitle)
                                     .bold()
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
 
                                 Spacer()
                             }
 
                             Text(template.description)
                                 .font(.body)
-                                .foregroundColor(.white.opacity(0.9))
+                                .foregroundColor(.secondary)
 
                             HStack(spacing: 16) {
                                 InfoPill(icon: "person.fill", text: template.targetUser, color: .blue)
@@ -301,7 +302,7 @@ struct TemplateDetailView: View {
                             Text("Split Breakdown")
                                 .font(.title2)
                                 .bold()
-                                .foregroundColor(.white)
+                                .foregroundColor(.primary)
 
                             ForEach(template.days) { day in
                                 DayCard(day: day)
@@ -334,7 +335,7 @@ struct TemplateDetailView: View {
                     Button("Close") {
                         dismiss()
                     }
-                    .foregroundColor(.white)
+                    .foregroundColor(scheme == .dark ? .white : .primary)
                 }
             }
             .alert("Add Template?", isPresented: $showConfirmation) {
@@ -373,6 +374,7 @@ struct InfoPill: View {
 struct DayCard: View {
     let day: SplitTemplateDay
     @State private var isExpanded = false
+    @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
 
     var body: some View {
@@ -386,22 +388,22 @@ struct DayCard: View {
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Day \(day.dayNumber): \(day.name)")
                             .font(.headline)
-                            .foregroundColor(.white)
+                            .foregroundColor(.primary)
 
                         Text("\(day.exercises.count) exercises")
                             .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
+                            .foregroundColor(.secondary)
                     }
 
                     Spacer()
 
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .foregroundColor(.white)
+                        .foregroundColor(.primary)
                 }
                 .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.2))
+                        .fill(scheme == .dark ? Color.black.opacity(0.2) : Color.white.opacity(0.5))
                 )
             }
             .buttonStyle(PlainButtonStyle())
@@ -415,7 +417,7 @@ struct DayCard: View {
                 .padding(.vertical, 8)
                 .background(
                     RoundedRectangle(cornerRadius: 12)
-                        .fill(Color.black.opacity(0.1))
+                        .fill(scheme == .dark ? Color.black.opacity(0.1) : Color.white.opacity(0.4))
                 )
             }
         }
@@ -426,6 +428,7 @@ struct DayCard: View {
 
 struct ExerciseRow: View {
     let exercise: SplitTemplateExercise
+    @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var appearanceManager: AppearanceManager
 
     var body: some View {
@@ -437,11 +440,11 @@ struct ExerciseRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(exercise.name)
                     .font(.subheadline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.primary)
 
                 Text("\(exercise.sets) sets × \(exercise.reps) reps")
                     .font(.caption)
-                    .foregroundColor(.white.opacity(0.6))
+                    .foregroundColor(.secondary)
             }
 
             Spacer()
@@ -450,8 +453,8 @@ struct ExerciseRow: View {
                 .font(.caption)
                 .padding(.horizontal, 8)
                 .padding(.vertical, 4)
-                .background(Color.white.opacity(0.1))
-                .foregroundColor(.white.opacity(0.8))
+                .background(scheme == .dark ? Color.white.opacity(0.1) : Color.black.opacity(0.1))
+                .foregroundColor(.secondary)
                 .cornerRadius(6)
         }
         .padding(.horizontal)

@@ -78,7 +78,7 @@ struct ConnectionsView: View {
                     .multilineTextAlignment(.leading)
 
             }
-            .listRowBackground(Color.black.opacity(0.05))
+            .listRowBackground(Color.listRowBackground(for: scheme))
 
             Section(header: Text("iCloud Sync")) {
                 Toggle("Enable iCloud Sync", isOn: Binding(
@@ -142,7 +142,7 @@ struct ConnectionsView: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.leading)
             }
-            .listRowBackground(Color.black.opacity(0.05))
+            .listRowBackground(Color.listRowBackground(for: scheme))
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)

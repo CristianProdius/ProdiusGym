@@ -78,35 +78,61 @@ class ExercisePR: ObservableObject {
         // Calculate effective weight (for bodyweight exercises)
         let effectiveWeight = set.bodyWeight ? (userWeight ?? 0) + set.weight : set.weight
 
-        // Update best weight
-        if bestWeight == nil || effectiveWeight > bestWeight! {
+        // Update best weight (safe optional comparison)
+        if let currentBest = bestWeight {
+            if effectiveWeight > currentBest {
+                bestWeight = effectiveWeight
+                bestWeightReps = set.reps
+                bestWeightDate = workoutDate
+                bestWeightWorkoutID = workoutID
+            }
+        } else {
             bestWeight = effectiveWeight
             bestWeightReps = set.reps
             bestWeightDate = workoutDate
             bestWeightWorkoutID = workoutID
         }
 
-        // Update 1RM
+        // Update 1RM (safe optional comparison)
         let calculated1RM = calculate1RM(weight: effectiveWeight, reps: set.reps)
-        if best1RM == nil || calculated1RM > best1RM! {
+        if let currentBest1RM = best1RM {
+            if calculated1RM > currentBest1RM {
+                best1RM = calculated1RM
+                best1RMDate = workoutDate
+                best1RMSourceWeight = effectiveWeight
+                best1RMSourceReps = set.reps
+            }
+        } else {
             best1RM = calculated1RM
             best1RMDate = workoutDate
             best1RMSourceWeight = effectiveWeight
             best1RMSourceReps = set.reps
         }
 
-        // Update best 5RM (only if 5+ reps)
+        // Update best 5RM (only if 5+ reps, safe optional comparison)
         if set.reps >= 5 {
-            if best5RM == nil || effectiveWeight > best5RM! {
+            if let currentBest5RM = best5RM {
+                if effectiveWeight > currentBest5RM {
+                    best5RM = effectiveWeight
+                    best5RMReps = set.reps
+                    best5RMDate = workoutDate
+                }
+            } else {
                 best5RM = effectiveWeight
                 best5RMReps = set.reps
                 best5RMDate = workoutDate
             }
         }
 
-        // Update best 10RM (only if 10+ reps)
+        // Update best 10RM (only if 10+ reps, safe optional comparison)
         if set.reps >= 10 {
-            if best10RM == nil || effectiveWeight > best10RM! {
+            if let currentBest10RM = best10RM {
+                if effectiveWeight > currentBest10RM {
+                    best10RM = effectiveWeight
+                    best10RMReps = set.reps
+                    best10RMDate = workoutDate
+                }
+            } else {
                 best10RM = effectiveWeight
                 best10RMReps = set.reps
                 best10RMDate = workoutDate
@@ -118,7 +144,14 @@ class ExercisePR: ObservableObject {
 
     /// Update volume PR for a workout
     func updateVolumePR(totalVolume: Double, sets: Int, workoutDate: Date, workoutID: UUID) {
-        if bestVolume == nil || totalVolume > bestVolume! {
+        if let currentBestVolume = bestVolume {
+            if totalVolume > currentBestVolume {
+                bestVolume = totalVolume
+                bestVolumeSets = sets
+                bestVolumeDate = workoutDate
+                bestVolumeWorkoutID = workoutID
+            }
+        } else {
             bestVolume = totalVolume
             bestVolumeSets = sets
             bestVolumeDate = workoutDate
@@ -191,41 +224,51 @@ class ExercisePR: ObservableObject {
             return
         }
 
-        // Update all fields, keeping the better PR values
-        if let weight = dict["bestWeight"] as? Double,
-           (bestWeight == nil || weight > bestWeight!) {
-            bestWeight = weight
-            bestWeightReps = dict["bestWeightReps"] as? Int
-            bestWeightDate = dict["bestWeightDate"] as? Date
+        // Update all fields, keeping the better PR values (safe optional comparisons)
+        if let weight = dict["bestWeight"] as? Double {
+            let shouldUpdate = bestWeight.map { weight > $0 } ?? true
+            if shouldUpdate {
+                bestWeight = weight
+                bestWeightReps = dict["bestWeightReps"] as? Int
+                bestWeightDate = dict["bestWeightDate"] as? Date
+            }
         }
 
-        if let rm1 = dict["best1RM"] as? Double,
-           (best1RM == nil || rm1 > best1RM!) {
-            best1RM = rm1
-            best1RMDate = dict["best1RMDate"] as? Date
-            best1RMSourceWeight = dict["best1RMSourceWeight"] as? Double
-            best1RMSourceReps = dict["best1RMSourceReps"] as? Int
+        if let rm1 = dict["best1RM"] as? Double {
+            let shouldUpdate = best1RM.map { rm1 > $0 } ?? true
+            if shouldUpdate {
+                best1RM = rm1
+                best1RMDate = dict["best1RMDate"] as? Date
+                best1RMSourceWeight = dict["best1RMSourceWeight"] as? Double
+                best1RMSourceReps = dict["best1RMSourceReps"] as? Int
+            }
         }
 
-        if let volume = dict["bestVolume"] as? Double,
-           (bestVolume == nil || volume > bestVolume!) {
-            bestVolume = volume
-            bestVolumeDate = dict["bestVolumeDate"] as? Date
-            bestVolumeSets = dict["bestVolumeSets"] as? Int
+        if let volume = dict["bestVolume"] as? Double {
+            let shouldUpdate = bestVolume.map { volume > $0 } ?? true
+            if shouldUpdate {
+                bestVolume = volume
+                bestVolumeDate = dict["bestVolumeDate"] as? Date
+                bestVolumeSets = dict["bestVolumeSets"] as? Int
+            }
         }
 
-        if let rm5 = dict["best5RM"] as? Double,
-           (best5RM == nil || rm5 > best5RM!) {
-            best5RM = rm5
-            best5RMReps = dict["best5RMReps"] as? Int
-            best5RMDate = dict["best5RMDate"] as? Date
+        if let rm5 = dict["best5RM"] as? Double {
+            let shouldUpdate = best5RM.map { rm5 > $0 } ?? true
+            if shouldUpdate {
+                best5RM = rm5
+                best5RMReps = dict["best5RMReps"] as? Int
+                best5RMDate = dict["best5RMDate"] as? Date
+            }
         }
 
-        if let rm10 = dict["best10RM"] as? Double,
-           (best10RM == nil || rm10 > best10RM!) {
-            best10RM = rm10
-            best10RMReps = dict["best10RMReps"] as? Int
-            best10RMDate = dict["best10RMDate"] as? Date
+        if let rm10 = dict["best10RM"] as? Double {
+            let shouldUpdate = best10RM.map { rm10 > $0 } ?? true
+            if shouldUpdate {
+                best10RM = rm10
+                best10RMReps = dict["best10RMReps"] as? Int
+                best10RMDate = dict["best10RMDate"] as? Date
+            }
         }
 
         if let total = dict["totalWorkouts"] as? Int {

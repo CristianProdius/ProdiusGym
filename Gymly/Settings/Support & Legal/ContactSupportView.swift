@@ -133,7 +133,7 @@ struct ContactSupportView: View {
                                             .font(.caption)
                                     }
                                     .padding()
-                                    .background(Color.black.opacity(0.2))
+                                    .background(Color.listRowBackground(for: scheme))
                                     .cornerRadius(12)
                                 }
                                 .buttonStyle(.plain)

@@ -61,7 +61,7 @@ struct HelpFAQView: View {
                     }
                 }
                 .padding(12)
-                .background(Color.black.opacity(0.2))
+                .background(Color.secondaryBackground(for: scheme))
                 .cornerRadius(10)
                 .padding(.horizontal)
                 .padding(.top, 8)

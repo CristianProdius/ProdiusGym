@@ -112,7 +112,7 @@ struct ExerciseDetailView: View {
                         )
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                         .swipeActions(edge: .leading) {
                             Button {
                                 markSetAsDone(item.set)
@@ -147,7 +147,7 @@ struct ExerciseDetailView: View {
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                         .foregroundStyle(appearanceManager.accentColor.color)
                     }
                 }

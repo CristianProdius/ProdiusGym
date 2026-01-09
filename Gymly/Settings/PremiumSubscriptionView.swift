@@ -18,6 +18,7 @@ struct PremiumSubscriptionView: View {
     @State private var showTermsOfService = false
     @State private var showPrivacyPolicy = false
     @State private var showError = false
+    @State private var showRestoreSuccess = false
     @State private var selectedTier: SubscriptionTier = .pro
     @State private var selectedPeriod: SubscriptionPeriod = .yearly
 
@@ -77,6 +78,11 @@ struct PremiumSubscriptionView: View {
                 Button("OK", role: .cancel) {}
             } message: {
                 Text(storeManager.errorMessage ?? "An unknown error occurred")
+            }
+            .alert("Restore Successful", isPresented: $showRestoreSuccess) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Your premium subscription has been restored successfully!")
             }
             .sheet(isPresented: $showTermsOfService) {
                 LegalDocumentView(documentName: "terms-of-service", title: "Terms of Service")
@@ -193,7 +199,7 @@ struct PremiumSubscriptionView: View {
                         }
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(Color.black.opacity(0.2))
+                        .background(Color.listRowBackground(for: scheme))
                         .cornerRadius(12)
 
                         // Manage Subscription Button
@@ -480,12 +486,16 @@ struct PremiumSubscriptionView: View {
                                         await storeManager.restorePurchases()
                                         if storeManager.errorMessage != nil {
                                             showError = true
+                                        } else if storeManager.isPremium {
+                                            showRestoreSuccess = true
                                         }
                                     }
                                 }
                                 .font(.caption2)
                                 .foregroundStyle(.secondary)
                                 .disabled(storeManager.purchaseInProgress)
+                                .accessibilityLabel("Restore Purchase")
+                                .accessibilityHint("Double tap to restore your previous subscription purchase")
                             }
                         }
                         .padding(.bottom, 40)
@@ -499,6 +509,7 @@ struct PremiumSubscriptionView: View {
 // MARK: - Premium Feature Row (Simple checkmark row for premium users)
 struct PremiumFeatureRow: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let icon: String
     let title: String
     var requiresAI: Bool = false
@@ -566,7 +577,7 @@ struct PremiumFeatureRow: View {
         }
         .padding(.horizontal, 16)
         .padding(.vertical, 12)
-        .background(Color.black.opacity(0.2))
+        .background(Color.listRowBackground(for: scheme))
         .cornerRadius(12)
     }
 }
@@ -625,6 +636,7 @@ struct FeatureRow: View {
 // MARK: - Plan Card Real (StoreKit Product)
 struct PlanCardReal: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let product: Product
     let isSelected: Bool
     let action: () -> Void
@@ -671,7 +683,7 @@ struct PlanCardReal: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.3))
+                    .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
@@ -685,6 +697,7 @@ struct PlanCardReal: View {
 // MARK: - Tier Card Component
 struct TierCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let title: String
     let price: String
     let description: String
@@ -724,7 +737,7 @@ struct TierCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.3))
+                    .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
@@ -738,6 +751,7 @@ struct TierCard: View {
 // MARK: - Period Card Component
 struct PeriodCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let period: PremiumSubscriptionView.SubscriptionPeriod
     let product: Product?
     let isSelected: Bool
@@ -788,7 +802,7 @@ struct PeriodCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.3))
+                    .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
@@ -802,6 +816,7 @@ struct PeriodCard: View {
 // MARK: - Subscription Option Card (New cleaner design)
 struct SubscriptionOptionCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let title: String
     let product: Product?
     let isSelected: Bool
@@ -862,7 +877,7 @@ struct SubscriptionOptionCard: View {
             .padding()
             .background(
                 RoundedRectangle(cornerRadius: 12)
-                    .fill(Color.black.opacity(0.2))
+                    .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
                             .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)

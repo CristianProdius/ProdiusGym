@@ -32,7 +32,7 @@ struct CalendarDayView: View {
                 VStack {
                     Spacer()
                     Text("Workout not recorded for the date")
-                        .foregroundStyle(.white.opacity(0.6))
+                        .foregroundStyle(Color.adaptiveSecondaryText(for: scheme))
                     Spacer()
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -58,7 +58,7 @@ struct CalendarDayView: View {
                             }
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
-                            .listRowBackground(Color.black.opacity(0.1))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                         }
                     }
                 }

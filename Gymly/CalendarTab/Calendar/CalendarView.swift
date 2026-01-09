@@ -36,9 +36,12 @@ struct CalendarView: View {
                                         .bold()
                                         .foregroundStyle(appearanceManager.accentColor.color)
                                 }
+                                .accessibilityLabel("Previous month")
+                                .accessibilityHint("Double tap to view the previous month")
                                 Spacer()
                                 Text(viewModel.monthAndYearString(from: currentMonth))
                                     .font(.title)
+                                    .accessibilityLabel("Current month: \(viewModel.monthAndYearString(from: currentMonth))")
                                 Spacer()
                                 Button(action: {
                                     currentMonth = calendar.date(byAdding: .month, value: 1, to: currentMonth) ?? currentMonth
@@ -47,6 +50,8 @@ struct CalendarView: View {
                                         .bold()
                                         .foregroundStyle(appearanceManager.accentColor.color)
                                 }
+                                .accessibilityLabel("Next month")
+                                .accessibilityHint("Double tap to view the next month")
                             }
                             .padding()
 
@@ -58,6 +63,7 @@ struct CalendarView: View {
                                         .frame(width: geometry.size.width * 0.085)
                                         .bold()
                                         .font(.subheadline)
+                                        .foregroundColor(.white)
                                     Spacer()
                                 }
                             }
@@ -76,13 +82,14 @@ struct CalendarView: View {
 
                                     if day.day != 0 {
                                         let dayDateString = viewModel.formattedDateString(from: day.date)
+                                        let hasWorkout = recordedDaysSet.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString)
                                         // Use cached todayDateString instead of recomputing
                                         if dayDateString == todayDateString {
                                             NavigationLink("\(day.day)") {
                                                 CalendarDayView(viewModel: viewModel, date: dayDateString)
                                             }
                                             .frame(width: geometry.size.width * 0.085, height: geometry.size.width * 0.085)
-                                            .font(.system(size: 22))
+                                            .font(.title3)
                                             .foregroundColor(Color.white)
                                             .padding(.horizontal, 3)
                                             .padding(.vertical, 2)
@@ -94,6 +101,8 @@ struct CalendarView: View {
                                             )
                                             .fontWeight(.bold)
                                             .padding(3)
+                                            .accessibilityLabel("Today, \(day.day)\(hasWorkout ? ", workout recorded" : "")")
+                                            .accessibilityHint("Double tap to view workout details")
                                         } else {
                                             ZStack {
                                                 // dayDateString already computed above - no duplicate needed
@@ -102,16 +111,20 @@ struct CalendarView: View {
                                                     CalendarDayView(viewModel: viewModel, date: dayDateString)
                                                 }
                                                 .frame(width: geometry.size.width * 0.085, height: geometry.size.width * 0.085)
-                                                .font(.system(size: 22))
-                                                .foregroundColor(Color.white)
+                                                .font(.title3)
+                                                .fontWeight(.bold)
+                                                .foregroundColor(Color.primary)
                                                 .padding(3)
+                                                .accessibilityLabel("Day \(day.day)\(hasWorkout ? ", workout recorded" : "")")
+                                                .accessibilityHint("Double tap to view workout details")
 
                                                 // Use cached Set for O(1) lookup instead of O(n) array contains
-                                                if recordedDaysSet.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString) {
+                                                if hasWorkout {
                                                     Circle()
                                                         .frame(width: 10, height: 10)
                                                         .foregroundColor(appearanceManager.accentColor.color)
                                                         .offset(x: 0, y: 20)
+                                                        .accessibilityHidden(true)
                                                 }
                                             }
                                         }
@@ -126,7 +139,7 @@ struct CalendarView: View {
                             .padding(2)
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
-                            .listRowBackground(Color.black.opacity(0.1))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
 
                             // Progress Photos Timeline
                             if config.isPremium {

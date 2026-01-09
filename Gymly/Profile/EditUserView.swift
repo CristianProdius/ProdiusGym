@@ -63,7 +63,7 @@ struct EditUserView: View {
                                 }
                             }
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                     Section("User credencials") {
                         HStack {
                             Text("Username")
@@ -76,7 +76,7 @@ struct EditUserView: View {
                                 .padding(.horizontal)
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                     Section("") {
                         Button("Save changes") {
                             Task {
@@ -100,7 +100,7 @@ struct EditUserView: View {
                             }
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)

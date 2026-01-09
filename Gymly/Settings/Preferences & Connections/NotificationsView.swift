@@ -48,13 +48,13 @@ struct NotificationsView: View {
                             .buttonStyle(.borderedProminent)
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     if !notificationManager.isAuthorized {
                         Text("Allow ShadowLift to send you helpful reminders and motivational notifications")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .listRowBackground(Color.black.opacity(0.05))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     if notificationManager.isAuthorized {
@@ -62,7 +62,7 @@ struct NotificationsView: View {
                             .onChange(of: config.notificationsEnabled) { oldValue, newValue in
                                 handleNotificationToggle(enabled: newValue)
                             }
-                            .listRowBackground(Color.black.opacity(0.05))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                     }
                 }
 
@@ -85,7 +85,7 @@ struct NotificationsView: View {
                         .onChange(of: config.streakNotificationsEnabled) { _, _ in
                             StreakNotificationManager.shared.rescheduleAllStreakNotifications()
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     // Workout Reminders
@@ -103,7 +103,7 @@ struct NotificationsView: View {
                                 }
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         if config.workoutReminderEnabled {
                             DatePicker(
@@ -111,7 +111,7 @@ struct NotificationsView: View {
                                 selection: $config.workoutReminderTime,
                                 displayedComponents: .hourAndMinute
                             )
-                            .listRowBackground(Color.black.opacity(0.05))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                         }
                     }
 
@@ -130,7 +130,7 @@ struct NotificationsView: View {
                                 }
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     // Re-engagement
@@ -148,12 +148,12 @@ struct NotificationsView: View {
                                 }
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Text("We'll send you a gentle reminder if you haven't worked out in a few days")
                             .font(.caption)
                             .foregroundStyle(.secondary)
-                            .listRowBackground(Color.black.opacity(0.05))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                     }
                 }
 
@@ -166,38 +166,38 @@ struct NotificationsView: View {
                                 await NotificationTestHelper.shared.testStreakWarningNotification()
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test Streak Saved") {
                             Task {
                                 await NotificationTestHelper.shared.testStreakSavedNotification()
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test Milestone") {
                             Task {
                                 await NotificationTestHelper.shared.testStreakMilestoneNotification()
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Simulate Streak At Risk") {
                             NotificationTestHelper.shared.simulateStreakAtRisk(userProfileManager: userProfileManager, config: config)
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("List Pending Notifications") {
                             Task {
                                 await NotificationTestHelper.shared.listPendingNotifications()
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Clear Test Notifications", role: .destructive) {
                             NotificationTestHelper.shared.clearAllTestNotifications()
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     Section(header: Text("🏋️ Workout Reminders")) {
@@ -206,14 +206,14 @@ struct NotificationsView: View {
                                 await testWorkoutReminder(weekday: 2, dayName: "Monday")
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test Rest Day Reminder") {
                             Task {
                                 await testRestDayReminder()
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Analyze Workout Patterns") {
                             Task {
@@ -221,7 +221,7 @@ struct NotificationsView: View {
                                 debugLog("✅ TEST: Reanalyzed workout patterns and rescheduled reminders")
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     Section(header: Text("🏆 Milestones & Achievements")) {
@@ -230,26 +230,26 @@ struct NotificationsView: View {
                                 await testPRNotification(type: .weight)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test 1RM PR Notification") {
                             Task {
                                 await testPRNotification(type: .oneRM)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test Volume PR Notification") {
                             Task {
                                 await testPRNotification(type: .volume)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test Workout Count Milestone") {
                             MilestoneNotificationManager.shared.sendWorkoutCountMilestone(count: 50)
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     Section(header: Text("😴 Inactivity Reminders")) {
@@ -258,26 +258,26 @@ struct NotificationsView: View {
                                 await testInactivityReminder(days: 4)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test 7-Day Inactivity") {
                             Task {
                                 await testInactivityReminder(days: 7)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Test 14-Day Inactivity") {
                             Task {
                                 await testInactivityReminder(days: 14)
                             }
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
 
                         Button("Check Current Inactivity Status") {
                             InactivityReminderManager.shared.checkAndScheduleInactivityReminder()
                         }
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
                 }
                 #endif

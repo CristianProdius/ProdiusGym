@@ -8,17 +8,13 @@
 import SwiftUI
 
 struct AppearanceView: View {
-    @StateObject private var appearanceManager = AppearanceManager.shared
+    @ObservedObject private var appearanceManager = AppearanceManager.shared
     @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var config: Config
     @State private var showColorChangeAnimation = false
-    @State private var selectedColor: AccentColorOption
+    @State private var selectedColor: AccentColorOption = .red
     @State private var showSaveButton = false
     @State private var showPremiumSheet = false
-
-    init() {
-        _selectedColor = State(initialValue: AppearanceManager.shared.accentColor)
-    }
 
     var body: some View {
         ZStack {
@@ -155,11 +151,17 @@ struct AppearanceView: View {
         .sheet(isPresented: $showPremiumSheet) {
             PremiumSubscriptionView()
         }
+        .onAppear {
+            // Sync selected color with saved value when view appears
+            selectedColor = appearanceManager.accentColor
+            showSaveButton = false
+        }
     }
 }
 
 // MARK: - Live Preview Card
 struct LivePreviewCard: View {
+    @Environment(\.colorScheme) private var scheme
     let accentColor: AccentColorOption
 
     var body: some View {
@@ -188,7 +190,7 @@ struct LivePreviewCard: View {
                             .font(.title2)
                             .foregroundColor(accentColor.color)
                             .frame(width: 50, height: 50)
-                            .background(Color.black.opacity(0.3))
+                            .background(Color.listRowBackground(for: scheme))
                             .cornerRadius(12)
                     }
                 }
@@ -240,7 +242,7 @@ struct LivePreviewCard: View {
                 }
             }
             .padding()
-            .background(Color.black.opacity(0.3))
+            .background(Color.listRowBackground(for: scheme))
             .cornerRadius(16)
         }
     }
@@ -294,6 +296,7 @@ struct ColorPickerButton: View {
 
 // MARK: - Coming Soon Feature
 struct ComingSoonFeature: View {
+    @Environment(\.colorScheme) private var scheme
     let icon: String
     let title: String
     let description: String
@@ -327,7 +330,7 @@ struct ComingSoonFeature: View {
                 .cornerRadius(6)
         }
         .padding()
-        .background(Color.black.opacity(0.2))
+        .background(Color.listRowBackground(for: scheme))
         .cornerRadius(12)
     }
 }

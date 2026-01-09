@@ -187,7 +187,7 @@ struct PRHistoryView: View {
                                     .padding(.horizontal, 14)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.black.opacity(0.05))
+                                            .fill(Color.listRowBackground(for: scheme))
                                     )
 
                                     // Total workouts
@@ -211,7 +211,7 @@ struct PRHistoryView: View {
                                     .padding(.horizontal, 14)
                                     .background(
                                         RoundedRectangle(cornerRadius: 12)
-                                            .fill(Color.black.opacity(0.05))
+                                            .fill(Color.listRowBackground(for: scheme))
                                     )
                                 }
                             }
@@ -310,7 +310,7 @@ struct PRHistoryView: View {
                             }
                         }
                         .pickerStyle(.segmented)
-                        .listRowBackground(Color.black.opacity(0.05))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     // All Personal Records
@@ -319,7 +319,7 @@ struct PRHistoryView: View {
                             NavigationLink(destination: ExercisePRDetailView(exercisePR: pr)) {
                                 PRExerciseCard(pr: pr)
                             }
-                            .listRowBackground(Color.black.opacity(0.05))
+                            .listRowBackground(Color.listRowBackground(for: scheme))
                         }
                     }
                 }

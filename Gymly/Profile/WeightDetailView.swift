@@ -122,7 +122,7 @@ struct WeightDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 16)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                     
                     // MARK: - Quick Stats Row
                     if !weightPoints.isEmpty {
@@ -194,7 +194,7 @@ struct WeightDetailView: View {
                     }
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                     
                     // MARK: - Weight Chart
                     Section("Weight Progress") {
@@ -203,7 +203,7 @@ struct WeightDetailView: View {
                     }
                     .scrollContentBackground(.hidden)
                     .background(Color.clear)
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                     
                     // MARK: - Weight History Timeline
                     if !weightPoints.isEmpty {
@@ -243,7 +243,7 @@ struct WeightDetailView: View {
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
                 }
                 .navigationTitle("My Weight")
@@ -525,6 +525,7 @@ struct WeightHistoryRow: View {
 
 // MARK: - Weight Stat Card Component
 struct WeightStatCard: View {
+    @Environment(\.colorScheme) private var scheme
     let period: String
     let change: Double
     let unit: String
@@ -552,7 +553,7 @@ struct WeightStatCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 12)
         .padding(.horizontal, 8)
-        .background(Color.black.opacity(0.15))
+        .background(Color.secondaryBackground(for: scheme))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)

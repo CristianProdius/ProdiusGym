@@ -19,14 +19,26 @@ struct CloudsTheme {
     // MARK: Presets (light/dark aware where useful)
     static func red(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.40, green: 0.00, blue: 0.00),
-            topLeading: scheme == .dark ? Color(red: 0.50, green: 0.00, blue: 0.00, opacity: 0.8)
-                                        : Color(red: 0.80, green: 0.20, blue: 0.20, opacity: 0.8),
-            topTrailing: scheme == .dark ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.6)
-                                         : Color(red: 0.90, green: 0.40, blue: 0.30, opacity: 0.5),
-            bottomLeading: scheme == .dark ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.45)
-                                           : Color(red: 0.90, green: 0.30, blue: 0.30, opacity: 0.55),
-            bottomTrailing: Color(red: 0.90, green: 0.50, blue: 0.50, opacity: 0.7)
+            // Dark: deep red | Light: soft coral white
+            background: scheme == .dark
+                ? Color(red: 0.40, green: 0.00, blue: 0.00)
+                : Color(red: 1.00, green: 0.96, blue: 0.95),
+
+            topLeading: scheme == .dark
+                ? Color(red: 0.50, green: 0.00, blue: 0.00, opacity: 0.8)
+                : Color(red: 1.00, green: 0.65, blue: 0.60, opacity: 0.65),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.6)
+                : Color(red: 1.00, green: 0.75, blue: 0.70, opacity: 0.55),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.45)
+                : Color(red: 0.95, green: 0.60, blue: 0.55, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.90, green: 0.50, blue: 0.50, opacity: 0.7)
+                : Color(red: 1.00, green: 0.70, blue: 0.65, opacity: 0.58)
         )
     }
 
@@ -50,56 +62,101 @@ struct CloudsTheme {
 
     static func purple(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.25, green: 0.00, blue: 0.35),
-            topLeading: scheme == .dark ? Color(red: 0.40, green: 0.15, blue: 0.55, opacity: 0.8)
-                                        : Color(red: 0.60, green: 0.30, blue: 0.75, opacity: 0.8),
-            topTrailing: scheme == .dark ? Color(red: 0.55, green: 0.25, blue: 0.70, opacity: 0.6)
-                                         : Color(red: 0.70, green: 0.40, blue: 0.85, opacity: 0.5),
-            bottomLeading: scheme == .dark ? Color(red: 0.50, green: 0.20, blue: 0.65, opacity: 0.45)
-                                           : Color(red: 0.65, green: 0.35, blue: 0.80, opacity: 0.55),
-            bottomTrailing: Color(red: 0.75, green: 0.50, blue: 0.90, opacity: 0.7)
+            // Dark: deep purple | Light: soft lavender white
+            background: scheme == .dark
+                ? Color(red: 0.25, green: 0.00, blue: 0.35)
+                : Color(red: 0.96, green: 0.94, blue: 0.99),
+
+            topLeading: scheme == .dark
+                ? Color(red: 0.40, green: 0.15, blue: 0.55, opacity: 0.8)
+                : Color(red: 0.75, green: 0.55, blue: 0.95, opacity: 0.70),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.55, green: 0.25, blue: 0.70, opacity: 0.6)
+                : Color(red: 0.85, green: 0.65, blue: 1.00, opacity: 0.55),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.50, green: 0.20, blue: 0.65, opacity: 0.45)
+                : Color(red: 0.70, green: 0.50, blue: 0.90, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.75, green: 0.50, blue: 0.90, opacity: 0.7)
+                : Color(red: 0.80, green: 0.60, blue: 0.95, opacity: 0.60)
         )
     }
 
     static func blueAccent(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.00, green: 0.15, blue: 0.40),
-            topLeading: scheme == .dark ? Color(red: 0.00, green: 0.30, blue: 0.60, opacity: 0.8)
-                                        : Color(red: 0.20, green: 0.45, blue: 0.80, opacity: 0.8),
-            topTrailing: scheme == .dark ? Color(red: 0.10, green: 0.40, blue: 0.75, opacity: 0.6)
-                                         : Color(red: 0.30, green: 0.55, blue: 0.90, opacity: 0.5),
-            bottomLeading: scheme == .dark ? Color(red: 0.05, green: 0.35, blue: 0.70, opacity: 0.45)
-                                           : Color(red: 0.25, green: 0.50, blue: 0.85, opacity: 0.55),
-            bottomTrailing: Color(red: 0.40, green: 0.65, blue: 1.00, opacity: 0.7)
+            // Dark: deep blue | Light: soft sky blue white
+            background: scheme == .dark
+                ? Color(red: 0.00, green: 0.15, blue: 0.40)
+                : Color(red: 0.94, green: 0.97, blue: 1.00),
+
+            topLeading: scheme == .dark
+                ? Color(red: 0.00, green: 0.30, blue: 0.60, opacity: 0.8)
+                : Color(red: 0.55, green: 0.75, blue: 1.00, opacity: 0.65),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.10, green: 0.40, blue: 0.75, opacity: 0.6)
+                : Color(red: 0.65, green: 0.82, blue: 1.00, opacity: 0.55),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.05, green: 0.35, blue: 0.70, opacity: 0.45)
+                : Color(red: 0.50, green: 0.70, blue: 0.95, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.40, green: 0.65, blue: 1.00, opacity: 0.7)
+                : Color(red: 0.60, green: 0.78, blue: 1.00, opacity: 0.58)
         )
     }
 
     static func pink(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.40, green: 0.00, blue: 0.30),
-            topLeading: scheme == .dark ? Color(red: 0.60, green: 0.05, blue: 0.45, opacity: 0.8)
-                                        : Color(red: 0.90, green: 0.20, blue: 0.70, opacity: 0.8),
-            topTrailing: scheme == .dark ? Color(red: 0.75, green: 0.10, blue: 0.55, opacity: 0.6)
-                                         : Color(red: 1.00, green: 0.30, blue: 0.75, opacity: 0.5),
-            bottomLeading: scheme == .dark ? Color(red: 0.70, green: 0.08, blue: 0.50, opacity: 0.45)
-                                           : Color(red: 0.95, green: 0.25, blue: 0.65, opacity: 0.55),
-            bottomTrailing: Color(red: 1.00, green: 0.40, blue: 0.80, opacity: 0.7)
+            // Dark: deep magenta | Light: soft blush white
+            background: scheme == .dark
+                ? Color(red: 0.40, green: 0.00, blue: 0.30)
+                : Color(red: 1.00, green: 0.95, blue: 0.97),
+
+            topLeading: scheme == .dark
+                ? Color(red: 0.60, green: 0.05, blue: 0.45, opacity: 0.8)
+                : Color(red: 1.00, green: 0.65, blue: 0.80, opacity: 0.65),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.75, green: 0.10, blue: 0.55, opacity: 0.6)
+                : Color(red: 1.00, green: 0.75, blue: 0.88, opacity: 0.55),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.70, green: 0.08, blue: 0.50, opacity: 0.45)
+                : Color(red: 0.95, green: 0.60, blue: 0.75, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 1.00, green: 0.40, blue: 0.80, opacity: 0.7)
+                : Color(red: 1.00, green: 0.70, blue: 0.85, opacity: 0.58)
         )
     }
     
     static func green(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.0, green: 0.35, blue: 0.0),
+            // Dark: deep forest green | Light: soft mint white
+            background: scheme == .dark
+                ? Color(red: 0.0, green: 0.35, blue: 0.0)
+                : Color(red: 0.94, green: 0.99, blue: 0.95),
+
             topLeading: scheme == .dark
                 ? Color(red: 0.0, green: 0.45, blue: 0.0, opacity: 0.8)
-                : Color(red: 0.2, green: 0.7, blue: 0.2, opacity: 0.8),
+                : Color(red: 0.55, green: 0.90, blue: 0.65, opacity: 0.65),
+
             topTrailing: scheme == .dark
                 ? Color(red: 0.0, green: 0.5, blue: 0.0, opacity: 0.6)
-                : Color(red: 0.3, green: 0.9, blue: 0.3, opacity: 0.5),
+                : Color(red: 0.65, green: 0.95, blue: 0.75, opacity: 0.55),
+
             bottomLeading: scheme == .dark
                 ? Color(red: 0.0, green: 0.6, blue: 0.0, opacity: 0.45)
-                : Color(red: 0.4, green: 0.9, blue: 0.4, opacity: 0.55),
-            bottomTrailing: Color(red: 0.5, green: 1.0, blue: 0.5, opacity: 0.7)
+                : Color(red: 0.50, green: 0.88, blue: 0.60, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.5, green: 1.0, blue: 0.5, opacity: 0.7)
+                : Color(red: 0.60, green: 0.92, blue: 0.70, opacity: 0.58)
         )
     }
     
@@ -134,37 +191,78 @@ struct CloudsTheme {
     
     static func orange(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: Color(red: 0.45, green: 0.25, blue: 0.0),
+            // Dark: deep amber | Light: soft peach white
+            background: scheme == .dark
+                ? Color(red: 0.45, green: 0.25, blue: 0.0)
+                : Color(red: 1.00, green: 0.97, blue: 0.94),
+
             topLeading: scheme == .dark
                 ? Color(red: 0.55, green: 0.3, blue: 0.0, opacity: 0.8)
-                : Color(red: 0.9, green: 0.5, blue: 0.2, opacity: 0.8),
+                : Color(red: 1.00, green: 0.75, blue: 0.50, opacity: 0.65),
+
             topTrailing: scheme == .dark
                 ? Color(red: 0.65, green: 0.35, blue: 0.0, opacity: 0.6)
-                : Color(red: 1.0, green: 0.6, blue: 0.2, opacity: 0.5),
+                : Color(red: 1.00, green: 0.82, blue: 0.60, opacity: 0.55),
+
             bottomLeading: scheme == .dark
                 ? Color(red: 0.7, green: 0.4, blue: 0.0, opacity: 0.45)
-                : Color(red: 1.0, green: 0.55, blue: 0.15, opacity: 0.55),
-            bottomTrailing: Color(red: 1.0, green: 0.65, blue: 0.3, opacity: 0.7)
+                : Color(red: 0.98, green: 0.70, blue: 0.45, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 1.0, green: 0.65, blue: 0.3, opacity: 0.7)
+                : Color(red: 1.00, green: 0.78, blue: 0.55, opacity: 0.58)
         )
     }
 
     static func black(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: scheme == .dark ? Color.black : Color(red: 0.05, green: 0.05, blue: 0.06),
-            topLeading: Color(red: 0.20, green: 0.20, blue: 0.22, opacity: 0.75),
-            topTrailing: Color(red: 0.25, green: 0.25, blue: 0.28, opacity: 0.5),
-            bottomLeading: Color(red: 0.18, green: 0.18, blue: 0.20, opacity: 0.55),
-            bottomTrailing: Color(red: 0.30, green: 0.30, blue: 0.33, opacity: 0.65)
+            // Dark mode: pure black | Light mode: clean white
+            background: scheme == .dark
+                ? Color.black
+                : Color(red: 0.97, green: 0.97, blue: 0.98),
+
+            // Light mode: use slightly more saturated blue-gray tones for visibility
+            topLeading: scheme == .dark
+                ? Color(red: 0.20, green: 0.20, blue: 0.22, opacity: 0.75)
+                : Color(red: 0.75, green: 0.78, blue: 0.88, opacity: 0.55),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.25, green: 0.25, blue: 0.28, opacity: 0.5)
+                : Color(red: 0.80, green: 0.82, blue: 0.92, opacity: 0.48),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.18, green: 0.18, blue: 0.20, opacity: 0.55)
+                : Color(red: 0.72, green: 0.75, blue: 0.85, opacity: 0.45),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.30, green: 0.30, blue: 0.33, opacity: 0.65)
+                : Color(red: 0.78, green: 0.80, blue: 0.90, opacity: 0.50)
         )
     }
     
     static func graphite(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            background: scheme == .dark ? Color.black : Color(red: 0.07, green: 0.07, blue: 0.08),
-            topLeading: Color(red: 0.25, green: 0.25, blue: 0.28, opacity: 0.75),
-            topTrailing: Color(red: 0.35, green: 0.35, blue: 0.38, opacity: 0.5),
-            bottomLeading: Color(red: 0.20, green: 0.20, blue: 0.22, opacity: 0.55),
-            bottomTrailing: Color(red: 0.40, green: 0.40, blue: 0.43, opacity: 0.65)
+            // Dark mode: deep black | Light mode: clean white with subtle cool tint
+            background: scheme == .dark
+                ? Color.black
+                : Color(red: 0.96, green: 0.96, blue: 0.98),
+
+            // Dark mode: subtle dark grays | Light mode: soft blue-gray with VISIBLE presence
+            topLeading: scheme == .dark
+                ? Color(red: 0.25, green: 0.25, blue: 0.28, opacity: 0.75)
+                : Color(red: 0.70, green: 0.75, blue: 0.85, opacity: 0.65),
+
+            topTrailing: scheme == .dark
+                ? Color(red: 0.35, green: 0.35, blue: 0.38, opacity: 0.5)
+                : Color(red: 0.75, green: 0.80, blue: 0.92, opacity: 0.55),
+
+            bottomLeading: scheme == .dark
+                ? Color(red: 0.20, green: 0.20, blue: 0.22, opacity: 0.55)
+                : Color(red: 0.65, green: 0.72, blue: 0.85, opacity: 0.50),
+
+            bottomTrailing: scheme == .dark
+                ? Color(red: 0.40, green: 0.40, blue: 0.43, opacity: 0.65)
+                : Color(red: 0.72, green: 0.78, blue: 0.90, opacity: 0.58)
         )
     }
 
@@ -202,30 +300,30 @@ struct CloudsTheme {
 
     static func premium(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            // Deep indigo/purple-black background for sophisticated luxury
+            // Dark: deep indigo/purple-black | Light: soft cream with purple tint
             background: scheme == .dark
                 ? Color(red: 0.05, green: 0.03, blue: 0.10)              // Deep indigo black
-                : Color(red: 0.08, green: 0.06, blue: 0.12),             // Dark purple charcoal
+                : Color(red: 0.98, green: 0.96, blue: 0.99),             // Soft lavender white
 
             // Royal purple shimmer - top left
             topLeading: scheme == .dark
                 ? Color(red: 0.45, green: 0.20, blue: 0.75, opacity: 0.80)  // Royal purple
-                : Color(red: 0.50, green: 0.25, blue: 0.70, opacity: 0.70),
+                : Color(red: 0.75, green: 0.55, blue: 0.95, opacity: 0.65), // Soft violet
 
             // Deep violet glow - top right
             topTrailing: scheme == .dark
                 ? Color(red: 0.60, green: 0.30, blue: 0.85, opacity: 0.70)  // Deep violet
-                : Color(red: 0.55, green: 0.30, blue: 0.75, opacity: 0.60),
+                : Color(red: 0.85, green: 0.70, blue: 1.00, opacity: 0.55), // Light purple
 
             // Rich plum warmth - bottom left
             bottomLeading: scheme == .dark
                 ? Color(red: 0.35, green: 0.15, blue: 0.55, opacity: 0.65)  // Rich plum
-                : Color(red: 0.40, green: 0.20, blue: 0.55, opacity: 0.55),
+                : Color(red: 0.70, green: 0.50, blue: 0.88, opacity: 0.50), // Soft plum
 
             // Lavender/light purple - bottom right
             bottomTrailing: scheme == .dark
                 ? Color(red: 0.65, green: 0.45, blue: 0.90, opacity: 0.75)  // Lavender purple
-                : Color(red: 0.60, green: 0.40, blue: 0.80, opacity: 0.65)
+                : Color(red: 0.80, green: 0.65, blue: 0.95, opacity: 0.58)  // Light lavender
         )
     }
 }

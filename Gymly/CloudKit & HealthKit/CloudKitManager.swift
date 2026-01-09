@@ -252,6 +252,14 @@ class CloudKitManager: ObservableObject {
         debugLog("🔥 CLOUDKIT STATE SET TO: \(enabled)")
     }
 
+    /// Updates the last sync date - call after any successful CloudKit save operation
+    func updateLastSyncDate() {
+        let now = Date()
+        userDefaults.set(now, forKey: lastSyncKey)
+        lastSyncDate = now
+        debugLog("🔥 CLOUDKIT: Updated last sync date to \(now)")
+    }
+
     func isCloudKitAvailable() async -> Bool {
         await withCheckedContinuation { continuation in
             container.accountStatus { status, error in
@@ -322,6 +330,10 @@ class CloudKitManager: ObservableObject {
                 try await self.privateDatabase.save(record)
             }
             debugLog("✅ SAVESPLIT: Split record '\(split.name)' saved successfully")
+            // Update last sync date after successful save
+            await MainActor.run {
+                updateLastSyncDate()
+            }
         } catch {
             debugLog("❌ SAVESPLIT: Failed to save split record '\(split.name)': \(error.localizedDescription)")
             throw error
@@ -448,6 +460,11 @@ class CloudKitManager: ObservableObject {
 
             try await self.privateDatabase.save(record)
         }
+
+        // Update last sync date after successful save
+        await MainActor.run {
+            updateLastSyncDate()
+        }
     }
 
     // MARK: - WeightPoint Sync
@@ -472,6 +489,11 @@ class CloudKitManager: ObservableObject {
             record["date"] = weightPoint.date
 
             try await self.privateDatabase.save(record)
+        }
+
+        // Update last sync date after successful save
+        await MainActor.run {
+            updateLastSyncDate()
         }
     }
 
@@ -968,6 +990,11 @@ class CloudKitManager: ObservableObject {
             _ = try await privateDatabase.save(record)
             debugLog("✅ USER PROFILE: Saved to CloudKit with ID: \(record.recordID.recordName)")
 
+            // Update last sync date after successful save
+            await MainActor.run {
+                updateLastSyncDate()
+            }
+
         } catch {
             debugLog("❌ USER PROFILE: Failed to save to CloudKit - \(error)")
             throw CloudKitError.syncFailed(error.localizedDescription)
@@ -1032,6 +1059,12 @@ class CloudKitManager: ObservableObject {
         do {
             _ = try await privateDatabase.save(record)
             debugLog("✅ PROFILE IMAGE: Saved to CloudKit")
+
+            // Update last sync date after successful save
+            await MainActor.run {
+                updateLastSyncDate()
+            }
+
             return "cloudkit_profile_image"
         } catch {
             debugLog("❌ PROFILE IMAGE: Failed to save to CloudKit - \(error)")
@@ -1132,6 +1165,11 @@ class CloudKitManager: ObservableObject {
                 try await self.privateDatabase.save(record)
             }
             debugLog("✅ PROGRESS PHOTO: Saved to CloudKit")
+
+            // Update last sync date after successful save
+            await MainActor.run {
+                updateLastSyncDate()
+            }
 
             // Clean up temp file
             try? FileManager.default.removeItem(at: tempURL)

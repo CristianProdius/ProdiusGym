@@ -122,7 +122,7 @@ struct CrashReportsView: View {
                     Spacer()
                 }
                 .padding()
-                .background(Color.black.opacity(0.2))
+                .background(Color.listRowBackground(for: scheme))
                 .cornerRadius(12)
                 .padding(.horizontal)
                 .padding(.top)
@@ -177,6 +177,7 @@ struct CrashReportsView: View {
 
 struct CrashReportCard: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
+    @Environment(\.colorScheme) private var scheme
     let report: CrashReport
 
     @State private var isExpanded = false
@@ -241,7 +242,7 @@ struct CrashReportCard: View {
             }
         }
         .padding()
-        .background(Color.black.opacity(0.2))
+        .background(Color.listRowBackground(for: scheme))
         .cornerRadius(12)
     }
 }

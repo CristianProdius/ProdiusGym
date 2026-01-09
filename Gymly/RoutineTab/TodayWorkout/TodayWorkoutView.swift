@@ -106,7 +106,7 @@ struct TodayWorkoutView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.clear)
-            .listRowBackground(Color.black.opacity(0.1))
+            .listRowBackground(Color.listRowBackground(for: scheme))
 
             /// Save workout to the calendar button
             Section("") {
@@ -158,7 +158,7 @@ struct TodayWorkoutView: View {
                 .accessibilityHint("Saves your workout to history and resets exercises for next session")
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
-                .listRowBackground(Color.black.opacity(0.1))
+                .listRowBackground(Color.listRowBackground(for: scheme))
                 .foregroundStyle(appearanceManager.accentColor.color)
             }
         }
@@ -224,9 +224,11 @@ struct TodayWorkoutView: View {
                                     .frame(maxWidth: .infinity)
                                     .padding()
                                     .background(appearanceManager.accentColor.color)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white)
                                     .cornerRadius(12)
                                 }
+                                .accessibilityLabel("Create Workout Split")
+                                .accessibilityHint("Double tap to create a custom workout routine from scratch")
 
                                 // Browse Templates Button
                                 Button(action: {
@@ -243,6 +245,8 @@ struct TodayWorkoutView: View {
                                     .foregroundColor(.primary)
                                     .cornerRadius(12)
                                 }
+                                .accessibilityLabel("Browse Workout Templates")
+                                .accessibilityHint("Double tap to choose from professionally designed workout routines")
                             }
                             .padding(.horizontal, 40)
                             .padding(.top, 8)
@@ -263,6 +267,8 @@ struct TodayWorkoutView: View {
                         }) {
                             ProfileImageCell(profileImage: profileImage, frameSize: 34)
                         }
+                        .accessibilityLabel("Profile and Settings")
+                        .accessibilityHint("Double tap to open your profile and app settings")
                     }
                     /// Button for showing splits view
                     ToolbarItem(placement: .topBarTrailing) {
@@ -272,14 +278,18 @@ struct TodayWorkoutView: View {
                             Label("My Splits", systemImage: "list.bullet.rectangle")
                                 .labelStyle(.iconOnly)
                         }
+                        .accessibilityLabel("My Workout Splits")
+                        .accessibilityHint("Double tap to view and manage your workout routines")
                     }
                     /// Button for adding exercise
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             viewModel.addExercise = true
                         } label: {
-                            Label("", systemImage: "plus.circle")
+                            Label("Add Exercise", systemImage: "plus.circle")
                         }
+                        .accessibilityLabel("Add Exercise")
+                        .accessibilityHint("Double tap to add a new exercise to today's workout")
                     }
                 }
                 /// OPTIMIZATION: Only update cache when exercises are added

@@ -234,7 +234,7 @@ struct StreakDetailView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 20)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // MARK: - Quick Stats Row
                     Section {
@@ -304,7 +304,7 @@ struct StreakDetailView: View {
                             }
                             .padding(.vertical, 8)
                         }
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                     }
 
                     // MARK: - Rest Day Configuration
@@ -350,7 +350,7 @@ struct StreakDetailView: View {
                     } header: {
                         Text("Configuration")
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // MARK: - Pause Toggle
                     Section {
@@ -372,7 +372,7 @@ struct StreakDetailView: View {
                         .tint(appearanceManager.accentColor.color)
                         .padding(.vertical, 4)
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // MARK: - Weekly Pattern Chart
                     Section("Your Weekly Pattern") {
@@ -380,7 +380,7 @@ struct StreakDetailView: View {
                             .frame(height: 220)
                             .padding(.vertical, 8)
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // MARK: - Milestones
                     Section("Milestones") {
@@ -388,7 +388,7 @@ struct StreakDetailView: View {
                             MilestoneRow(milestone: milestone, currentStreak: currentStreak)
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.1))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                 }
                 .navigationTitle("Streak Analytics")
                 .navigationBarTitleDisplayMode(.large)
@@ -632,6 +632,7 @@ struct StreakMilestone {
 
 // MARK: - Streak Stat Card Component
 struct StreakStatCard: View {
+    @Environment(\.colorScheme) private var scheme
     let label: String
     let value: String
     let icon: String
@@ -655,7 +656,7 @@ struct StreakStatCard: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 16)
         .padding(.horizontal, 8)
-        .background(Color.black.opacity(0.15))
+        .background(Color.secondaryBackground(for: scheme))
         .cornerRadius(12)
         .overlay(
             RoundedRectangle(cornerRadius: 12)

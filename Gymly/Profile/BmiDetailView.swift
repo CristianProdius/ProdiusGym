@@ -147,7 +147,7 @@ struct BmiDetailView: View {
                         }
                     }
                     .padding(20)
-                    .background(Color.black.opacity(0.1))
+                    .background(Color.listRowBackground(for: scheme))
                     .cornerRadius(16)
                     .padding(.horizontal)
 
@@ -279,6 +279,7 @@ let bmiCategories: [BMICategory] = [
 // MARK: - Category Card Component
 
 struct CategoryCard: View {
+    @Environment(\.colorScheme) private var scheme
     let category: BMICategory
     let isActive: Bool
     let bmi: Double
@@ -349,7 +350,7 @@ struct CategoryCard: View {
         .padding(16)
         .background(
             RoundedRectangle(cornerRadius: 12)
-                .fill(isActive ? category.color.opacity(0.1) : Color.black.opacity(0.05))
+                .fill(isActive ? category.color.opacity(0.1) : Color.listRowBackground(for: scheme))
         )
         .overlay(
             RoundedRectangle(cornerRadius: 12)

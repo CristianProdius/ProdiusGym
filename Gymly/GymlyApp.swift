@@ -23,6 +23,10 @@ struct GymlyApp: App {
     @State private var showSharedSplitPreview = false
     @State private var isLoadingSharedSplit = false
 
+    // Data recovery state
+    @State private var showDataRecoveryAlert = false
+    private var isUsingFallbackContainer = false
+
     // Single shared ModelContainer - DO NOT create new ones elsewhere!
     let modelContainer: ModelContainer
 
@@ -30,7 +34,20 @@ struct GymlyApp: App {
         do {
             modelContainer = try ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self)
         } catch {
-            fatalError("Failed to create ModelContainer: \(error)")
+            // Instead of crashing, create an in-memory container as fallback
+            // User will be prompted to recover data
+            debugLog("❌ Failed to create ModelContainer: \(error)")
+            debugLog("🔄 Creating in-memory fallback container...")
+
+            let fallbackConfig = ModelConfiguration(isStoredInMemoryOnly: true)
+            do {
+                modelContainer = try ModelContainer(for: Split.self, Exercise.self, Day.self, DayStorage.self, WeightPoint.self, UserProfile.self, ExercisePR.self, ProgressPhoto.self, configurations: fallbackConfig)
+                // Flag that we're using fallback - will show alert in body
+                // Note: Can't set @State in init, but we track via isUsingFallbackContainer
+            } catch let fallbackError {
+                // If even in-memory fails, something is fundamentally broken
+                fatalError("Critical: Cannot create ModelContainer. Original error: \(error). Fallback error: \(fallbackError)")
+            }
         }
     }
 

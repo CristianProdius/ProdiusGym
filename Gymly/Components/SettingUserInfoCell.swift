@@ -10,6 +10,7 @@ import SwiftData
 
 struct SettingUserInfoCell: View {
     @Environment(\.modelContext) var context
+    @Environment(\.colorScheme) private var scheme
     @EnvironmentObject var config: Config
     @EnvironmentObject var userProfileManager: UserProfileManager
 
@@ -68,7 +69,7 @@ struct SettingUserInfoCell: View {
                     .padding(.vertical, 65)
 
                 }
-                .background(Color.black.opacity(0.2))
+                .background(Color.listRowBackground(for: scheme))
             }
         }
         .onAppear() {

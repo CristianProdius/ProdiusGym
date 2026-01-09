@@ -134,5 +134,7 @@
 	<string>ShadowLift needs camera access to capture progress photos so you can visually track your physical transformation over time.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>ShadowLift needs permission to save your progress photos to your photo library so you can keep a permanent record of your fitness journey.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ShadowLift needs access to your photo library to display your saved progress photos and track your fitness transformation.</string>
 </dict>
 </plist>

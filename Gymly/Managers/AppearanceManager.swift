@@ -129,3 +129,55 @@ public extension Color {
         AppearanceManager.shared.accentColor.color
     }
 }
+
+// MARK: - Adaptive Colors for Light/Dark Mode
+public extension Color {
+    /// Adaptive list row background - subtle in both modes
+    static func listRowBackground(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color.black.opacity(0.1)
+            : Color.black.opacity(0.03)
+    }
+
+    /// Adaptive card background
+    static func cardBackground(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color.white.opacity(0.05)
+            : Color.black.opacity(0.03)
+    }
+
+    /// Adaptive secondary background
+    static func secondaryBackground(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color(white: 0.12)
+            : Color(white: 0.95)
+    }
+
+    /// Adaptive text on floating clouds background
+    static func adaptiveText(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color.white
+            : Color.black
+    }
+
+    /// Adaptive secondary text
+    static func adaptiveSecondaryText(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color.white.opacity(0.7)
+            : Color.black.opacity(0.6)
+    }
+
+    /// Adaptive separator color
+    static func adaptiveSeparator(for scheme: ColorScheme) -> Color {
+        scheme == .dark
+            ? Color.white.opacity(0.1)
+            : Color.black.opacity(0.1)
+    }
+}
+
+// MARK: - View Modifier for Adaptive List Row Background
+public extension View {
+    func adaptiveListRowBackground(_ scheme: ColorScheme) -> some View {
+        self.listRowBackground(Color.listRowBackground(for: scheme))
+    }
+}

@@ -92,7 +92,7 @@ struct SplitsView: View {
                                     .padding(.horizontal, 24)
                                     .padding(.vertical, 12)
                                     .background(appearanceManager.accentColor.color)
-                                    .foregroundColor(.black)
+                                    .foregroundColor(.white)
                                     .cornerRadius(25)
                                 }
                                 .padding(.top, 8)
@@ -171,7 +171,7 @@ struct SplitsView: View {
                         }
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
-                        .listRowBackground(Color.black.opacity(0.1))
+                        .listRowBackground(Color.listRowBackground(for: scheme))
                         }
                     }
                 }

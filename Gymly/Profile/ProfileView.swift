@@ -84,7 +84,7 @@ struct ProfileView: View {
                                         .font(.body)
 
                                 }
-                                .foregroundStyle(Color.black)
+                                .foregroundStyle(Color.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.trailing)
                             }
@@ -116,7 +116,7 @@ struct ProfileView: View {
                                         icon: "figure.mixed.cardio"
                                     )
                                 }
-                                .foregroundStyle(Color.white)
+                                .foregroundStyle(Color.adaptiveText(for: scheme))
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
 
@@ -135,7 +135,7 @@ struct ProfileView: View {
                                         icon: "flame.fill"
                                     )
                                 }
-                                .foregroundStyle(Color.white)
+                                .foregroundStyle(Color.adaptiveText(for: scheme))
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
 
@@ -154,7 +154,7 @@ struct ProfileView: View {
                                         icon: "dumbbell.fill"
                                     )
                                 }
-                                .foregroundStyle(Color.white)
+                                .foregroundStyle(Color.adaptiveText(for: scheme))
                                 .listRowBackground(Color.clear)
                                 .listRowSeparator(.hidden)
 
@@ -223,7 +223,7 @@ struct ProfileView: View {
                                     }
                                     .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .background(Color.black.opacity(0.2))
+                                    .background(Color.secondaryBackground(for: scheme))
                                     .cornerRadius(8)
                                 }
                                 .buttonStyle(.plain)
@@ -256,7 +256,7 @@ struct ProfileView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // AI Insights Section
                     Section("AI Insights") {
@@ -281,7 +281,7 @@ struct ProfileView: View {
                             .frame(width: 300)
                         }
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Fitness Section
                     Section("Fitness") {
@@ -294,7 +294,7 @@ struct ProfileView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
@@ -305,7 +305,7 @@ struct ProfileView: View {
                         Button("Done") {
                             dismiss()
                         }
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color.adaptiveText(for: scheme))
                     }
                 }
                 .onAppear {

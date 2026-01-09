@@ -66,6 +66,8 @@ struct SettingsView: View {
                             Text("Notifications")
                         }
                         .frame(width: 300)
+                        .accessibilityLabel("Notifications")
+                        .accessibilityHint("Double tap to manage workout reminders and alerts")
 
                         NavigationLink(destination: AppearanceView()) {
 
@@ -77,13 +79,16 @@ struct SettingsView: View {
                                     Image(systemName: "star.fill")
                                         .foregroundColor(.yellow)
                                         .font(.caption)
+                                        .accessibilityHidden(true)
                                 }
                             }
 
                         }
                         .frame(width: 300)
+                        .accessibilityLabel("Appearance\(config.isPremium ? "" : ", premium feature")")
+                        .accessibilityHint("Double tap to customize colors and app icon")
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Integrations Section
                     Section("Integrations") {
@@ -93,7 +98,7 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Premium Section
                     Section("Premium") {
@@ -114,7 +119,7 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Support Section
                     Section("Support") {
@@ -169,7 +174,7 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Legal Section
                     Section("Legal") {
@@ -191,7 +196,7 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Account Section
                     Section("Account") {
@@ -208,6 +213,8 @@ struct SettingsView: View {
                             }
                         }
                         .frame(width: 300)
+                        .accessibilityLabel("Log Out")
+                        .accessibilityHint("Double tap to sign out. Your workout data will be preserved.")
 
                         Button(action: {
                             showDeleteAccountAlert = true
@@ -222,6 +229,8 @@ struct SettingsView: View {
                         }
                         .frame(width: 300)
                         .disabled(isDeletingAccount)
+                        .accessibilityLabel("Delete Account")
+                        .accessibilityHint("Double tap to permanently delete your account and all data. This cannot be undone.")
 
                         #if DEBUG
                         NavigationLink(destination: DeveloperTestingView()) {
@@ -236,7 +245,7 @@ struct SettingsView: View {
                         .frame(width: 300)
                         #endif
                     }
-                    .listRowBackground(Color.black.opacity(0.05))
+                    .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Version Footer
                     Section {
