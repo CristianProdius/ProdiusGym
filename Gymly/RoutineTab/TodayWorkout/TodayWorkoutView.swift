@@ -39,6 +39,10 @@ struct TodayWorkoutView: View {
     @State private var hasPerformedInitialLoad = false  // OPTIMIZATION: Track initial load to avoid redundant refreshes
     @State private var openTemplatesOnAppear = false  // For "Browse Templates" button
 
+    // SWIFTDATA SYNC: Query to auto-detect when splits arrive via iCloud sync
+    @Query(filter: #Predicate<Split> { $0.isActive == true }) private var activeSplits: [Split]
+    @State private var previousSplitCount = 0
+
     // OPTIMIZATION: Cached grouped exercises to avoid recomputing on every render
     @State private var cachedGroupedExercises: [(String, [Exercise])] = []
     @State private var cachedGlobalOrderMap: [UUID: Int] = [:]
@@ -301,6 +305,16 @@ struct TodayWorkoutView: View {
                     debugPrint("🔄 TODAYWORKOUTVIEW: Exercise added, updating cache")
                     #endif
                     updateCachedGroupedExercises()
+                }
+                /// SWIFTDATA SYNC: Auto-refresh when splits arrive via iCloud sync
+                .onChange(of: activeSplits.count) { oldCount, newCount in
+                    // Only refresh if splits appeared (0 -> N) to avoid unnecessary refreshes
+                    if oldCount == 0 && newCount > 0 {
+                        debugLog("🔄 SWIFTDATA SYNC: Detected \(newCount) splits arrived via iCloud sync!")
+                        Task { @MainActor in
+                            await refreshView()
+                        }
+                    }
                 }
                 .onReceive(Publishers.Merge(
                     NotificationCenter.default.publisher(for: Notification.Name.importSplit),

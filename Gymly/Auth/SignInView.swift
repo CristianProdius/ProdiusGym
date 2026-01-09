@@ -462,7 +462,7 @@ struct SignInView: View {
         debugLog("WAITING FOR SWIFTDATA ICLOUD SYNC...")
 
         var attempts = 0
-        let maxAttempts = 12 // 12 attempts × 0.5 seconds = 6 seconds max (reduced for better UX)
+        let maxAttempts = 40 // 40 attempts × 0.5 seconds = 20 seconds max (SwiftData iCloud sync can be slow)
         var splitsFound = false
         var consecutiveErrors = 0
 
@@ -566,6 +566,46 @@ struct SignInView: View {
             }
             config.isUserLoggedIn = true
             debugLog("SIGNIN: All syncs completed, transitioning to main app")
+        }
+
+        // If no splits found, start background polling for SwiftData sync
+        // SwiftData's automatic iCloud sync may still be in progress
+        if !splitsFound {
+            debugLog("SIGNIN: Starting background polling for delayed SwiftData sync...")
+            startBackgroundSyncPolling()
+        }
+    }
+
+    /// Background polling for SwiftData sync that may complete after sign-in
+    private func startBackgroundSyncPolling() {
+        Task {
+            var backgroundAttempts = 0
+            let maxBackgroundAttempts = 60 // 60 × 1 second = 60 seconds max background polling
+
+            while backgroundAttempts < maxBackgroundAttempts {
+                try? await Task.sleep(nanoseconds: 1_000_000_000) // 1 second
+
+                do {
+                    let descriptor = FetchDescriptor<Split>()
+                    let splits = try context.fetch(descriptor)
+
+                    if !splits.isEmpty {
+                        debugLog("SIGNIN BACKGROUND: Found \(splits.count) splits after \(backgroundAttempts) seconds!")
+
+                        // Post notification to refresh views
+                        await MainActor.run {
+                            NotificationCenter.default.post(name: Notification.Name.cloudKitDataSynced, object: nil)
+                        }
+                        return // Stop polling
+                    }
+                } catch {
+                    debugLog("SIGNIN BACKGROUND: Error checking splits: \(error.localizedDescription)")
+                }
+
+                backgroundAttempts += 1
+            }
+
+            debugLog("SIGNIN BACKGROUND: Polling timeout - no splits found after 60 seconds")
         }
     }
 }
