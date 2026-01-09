@@ -12,7 +12,6 @@ struct FitnessProfileSetupView: View {
     @EnvironmentObject var config: Config
     @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.colorScheme) var scheme
-    @StateObject private var iCloudSync: iCloudSyncManager
 
     @State private var currentStep = 1
     @State private var selectedGoal: FitnessGoal?
@@ -21,10 +20,6 @@ struct FitnessProfileSetupView: View {
     @State private var selectedDaysPerWeek = 4
 
     @State private var isSaving = false
-
-    init(config: Config) {
-        _iCloudSync = StateObject(wrappedValue: iCloudSyncManager(config: config))
-    }
 
     var body: some View {
         ZStack {
@@ -166,8 +161,8 @@ struct FitnessProfileSetupView: View {
         config.fitnessProfile = profile
         config.hasCompletedFitnessProfile = true
 
-        // Sync to iCloud in background (non-blocking)
-        iCloudSync.syncToiCloud()
+        // Sync to iCloud in background (non-blocking) using singleton
+        iCloudSyncManager.shared.syncToiCloud()
 
         // Dismiss immediately for instant feedback
         dismiss()
@@ -380,6 +375,7 @@ struct SelectionCard: View {
                     .font(.system(size: 32))
                     .foregroundColor(isSelected ? appearanceManager.accentColor.color : .white)
                     .frame(width: 50)
+                    .accessibilityHidden(true)
 
                 VStack(alignment: .leading, spacing: 4) {
                     Text(title)
@@ -398,6 +394,7 @@ struct SelectionCard: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
                         .foregroundColor(appearanceManager.accentColor.color)
+                        .accessibilityHidden(true)
                 }
             }
             .padding()
@@ -412,6 +409,9 @@ struct SelectionCard: View {
         }
         .buttonStyle(.plain)
         .drawingGroup() // Render as bitmap for better performance
+        .accessibilityLabel("\(title)\(isSelected ? ", selected" : "")")
+        .accessibilityHint(description)
+        .accessibilityAddTraits(isSelected ? [.isButton, .isSelected] : .isButton)
     }
 }
 

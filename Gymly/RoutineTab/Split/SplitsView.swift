@@ -16,6 +16,9 @@ struct SplitsView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) var scheme
 
+    /// When true, opens templates sheet on appear
+    var openTemplatesOnAppear: Bool = false
+
     @State var splits: [Split] = []
     @State var createSplit: Bool = false
     @State var showTemplates: Bool = false
@@ -194,6 +197,10 @@ struct SplitsView: View {
         }
         .task {
             splits = viewModel.getAllSplits()
+            // If requested, open templates sheet on appear
+            if openTemplatesOnAppear {
+                showTemplates = true
+            }
         }
         .onReceive(NotificationCenter.default.publisher(for: Notification.Name.importSplit)) { notification in
             if let split = notification.object as? Split {

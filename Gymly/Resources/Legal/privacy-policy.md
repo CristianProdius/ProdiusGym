@@ -167,7 +167,7 @@ You can access all your data at any time within the app:
 - Export data (Premium feature)
 - Review profile information in Settings
 
-**Data Export:** Email privacy@gymly.app to request a complete copy of your data in machine-readable format (JSON).
+**Data Export:** Email sebastian.kucera@icloud.com to request a complete copy of your data in machine-readable format (JSON).
 
 ### Delete Your Data
 
@@ -178,7 +178,7 @@ You can access all your data at any time within the app:
 
 **Delete Your Account:**
 - Go to Settings → Account → Delete Account
-- Or email privacy@gymly.app with subject "Delete My Account"
+- Or email sebastian.kucera@icloud.com with subject "Delete My Account"
 - All data will be permanently deleted within 30 days
 
 ### Control Data Syncing
@@ -194,7 +194,7 @@ If you're in the European Union, you have additional rights:
 - **Right to Erasure:** Delete your data ("right to be forgotten")
 - **Right to Data Portability:** Receive your data in a portable format
 
-Email privacy@gymly.app to exercise these rights.
+Email sebastian.kucera@icloud.com to exercise these rights.
 
 ### CCPA Rights (California Users)
 
@@ -204,7 +204,7 @@ California residents have rights under CCPA:
 - Delete personal information
 - Opt-out of sale of personal information (we don't sell data)
 
-Email privacy@gymly.app with subject "CCPA Request" to exercise these rights.
+Email sebastian.kucera@icloud.com with subject "CCPA Request" to exercise these rights.
 
 ---
 
@@ -218,7 +218,7 @@ ShadowLift is not intended for children under 13 years of age.
 - If we learn we've collected data from a child under 13, we will delete it immediately
 
 **Parents/Guardians:**
-If you believe your child has provided personal information to us, contact privacy@gymly.app immediately.
+If you believe your child has provided personal information to us, contact sebastian.kucera@icloud.com immediately.
 
 ---
 
@@ -250,7 +250,7 @@ We may update this Privacy Policy to reflect changes in laws, regulations, or ou
 ## Contact Us
 
 **Privacy Officer:**
-Email: privacy@gymly.app
+Email: sebastian.kucera@icloud.com
 Subject Line: "Privacy Inquiry"
 
 **Mailing Address:**

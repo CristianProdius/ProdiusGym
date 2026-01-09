@@ -37,6 +37,7 @@ struct TodayWorkoutView: View {
     @State private var workoutSummaryData: WorkoutSummaryData?
     @State private var isLoadingInitialData = true
     @State private var hasPerformedInitialLoad = false  // OPTIMIZATION: Track initial load to avoid redundant refreshes
+    @State private var openTemplatesOnAppear = false  // For "Browse Templates" button
 
     // OPTIMIZATION: Cached grouped exercises to avoid recomputing on every render
     @State private var cachedGroupedExercises: [(String, [Exercise])] = []
@@ -232,6 +233,7 @@ struct TodayWorkoutView: View {
 
                                 // Browse Templates Button
                                 Button(action: {
+                                    openTemplatesOnAppear = true
                                     viewModel.editPlan = true
                                 }) {
                                     HStack {
@@ -351,12 +353,13 @@ struct TodayWorkoutView: View {
             }
             /// Sheet for showing splits view
             .sheet(isPresented: $viewModel.editPlan, onDismiss: {
+                openTemplatesOnAppear = false  // Reset for next time
                 Task { @MainActor in
                     await refreshView()
                     navigationTitle = viewModel.day.name
                 }
             }) {
-                SplitsView(viewModel: viewModel)
+                SplitsView(viewModel: viewModel, openTemplatesOnAppear: openTemplatesOnAppear)
             }
             /// Sheet for showing profile view
             .sheet(isPresented: $showProfileView, onDismiss: {

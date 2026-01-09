@@ -82,7 +82,8 @@ struct CalendarView: View {
 
                                     if day.day != 0 {
                                         let dayDateString = viewModel.formattedDateString(from: day.date)
-                                        let hasWorkout = recordedDaysSet.contains(dayDateString) || viewModel.hasDayStorage(for: dayDateString)
+                                        // Use cached Set for O(1) lookup - no database queries per day
+                                        let hasWorkout = recordedDaysSet.contains(dayDateString)
                                         // Use cached todayDateString instead of recomputing
                                         if dayDateString == todayDateString {
                                             NavigationLink("\(day.day)") {
@@ -161,7 +162,9 @@ struct CalendarView: View {
 
                         // Initialize cached values for performance
                         todayDateString = viewModel.formattedDateString(from: Date())
-                        recordedDaysSet = Set(config.daysRecorded)
+                        // Merge config.daysRecorded with all DayStorage dates for complete coverage
+                        let storageDates = viewModel.getAllWorkoutDates()
+                        recordedDaysSet = Set(config.daysRecorded).union(storageDates)
                     }
                     .onChange(of: config.daysRecorded) { _, newValue in
                         // Update cached Set when daysRecorded changes

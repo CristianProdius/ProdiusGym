@@ -36,61 +36,7 @@ struct EditUserView: View {
                         Spacer().frame(height: 16)
 
                         // Profile Image Section - Tappable with Camera Badge
-                        PhotosPicker(selection: $avatarItem, matching: .images) {
-                            ZStack {
-                                // Profile image with ring
-                                ZStack {
-                                    // Outer ring
-                                    Circle()
-                                        .stroke(
-                                            LinearGradient(
-                                                colors: [
-                                                    appearanceManager.accentColor.color,
-                                                    appearanceManager.accentColor.color.opacity(0.6)
-                                                ],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 4
-                                        )
-                                        .frame(width: 130, height: 130)
-
-                                    // Profile image
-                                    if let avatarImage = avatarImage {
-                                        Image(uiImage: avatarImage)
-                                            .resizable()
-                                            .scaledToFill()
-                                            .frame(width: 120, height: 120)
-                                            .clipShape(Circle())
-                                    } else {
-                                        ProfileImageCell(profileImage: profileImage, frameSize: 120)
-                                    }
-                                }
-                                .shadow(color: appearanceManager.accentColor.color.opacity(0.3), radius: 12, x: 0, y: 6)
-
-                                // Camera badge
-                                ZStack {
-                                    Circle()
-                                        .fill(appearanceManager.accentColor.color)
-                                        .frame(width: 36, height: 36)
-
-                                    Circle()
-                                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
-                                        .frame(width: 36, height: 36)
-
-                                    Image(systemName: "camera.fill")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundStyle(.white)
-                                }
-                                .offset(x: 45, y: 45)
-                            }
-                            .scaleEffect(isImagePressed ? 0.95 : 1.0)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isImagePressed)
-                        }
-                        .buttonStyle(.plain)
-                        .onLongPressGesture(minimumDuration: .infinity, pressing: { pressing in
-                            isImagePressed = pressing
-                        }, perform: {})
+                        profileImagePicker
                         .onChange(of: avatarItem) {
                             Task {
                                 if let newItem = avatarItem,
@@ -232,5 +178,79 @@ struct EditUserView: View {
         await MainActor.run {
             profileImage = userProfileManager.currentProfile?.profileImage
         }
+    }
+
+    // MARK: - Profile Image Picker View
+    /// Extracted to avoid @Sendable closure issues with @MainActor properties
+    @ViewBuilder
+    private var profileImagePicker: some View {
+        let accentColor = appearanceManager.accentColor.color
+        let currentAvatarImage = avatarImage
+        let currentProfileImage = profileImage
+        let pressed = isImagePressed
+
+        PhotosPicker(selection: $avatarItem, matching: .images) {
+            ZStack {
+                // Profile image with ring
+                ZStack {
+                    // Outer ring
+                    Circle()
+                        .stroke(
+                            LinearGradient(
+                                colors: [
+                                    accentColor,
+                                    accentColor.opacity(0.6)
+                                ],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            lineWidth: 4
+                        )
+                        .frame(width: 130, height: 130)
+
+                    // Profile image
+                    if let avatarImage = currentAvatarImage {
+                        Image(uiImage: avatarImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 120, height: 120)
+                            .clipShape(Circle())
+                    } else {
+                        ProfileImageCell(profileImage: currentProfileImage, frameSize: 120)
+                    }
+                }
+                .shadow(color: accentColor.opacity(0.3), radius: 12, x: 0, y: 6)
+
+                // Camera badge
+                ZStack {
+                    Circle()
+                        .fill(accentColor)
+                        .frame(width: 36, height: 36)
+
+                    Circle()
+                        .stroke(Color.white.opacity(0.3), lineWidth: 2)
+                        .frame(width: 36, height: 36)
+
+                    Image(systemName: "camera.fill")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(.white)
+                }
+                .offset(x: 45, y: 45)
+            }
+            .scaleEffect(pressed ? 0.95 : 1.0)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: pressed)
+        }
+        .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    if !isImagePressed {
+                        isImagePressed = true
+                    }
+                }
+                .onEnded { _ in
+                    isImagePressed = false
+                }
+        )
     }
 }

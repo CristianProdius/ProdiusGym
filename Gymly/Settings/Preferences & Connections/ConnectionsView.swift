@@ -82,12 +82,11 @@ struct ConnectionsView: View {
 
             Section(header: Text("iCloud Sync")) {
                 Toggle("Enable iCloud Sync", isOn: Binding(
-                    get: { config.isCloudKitEnabled },
+                    get: { cloudKitManager.isCloudKitEnabled },
                     set: { newValue in
                         Task {
                             if newValue && isCloudKitAvailable {
                                 cloudKitManager.setCloudKitEnabled(true)
-                                config.isCloudKitEnabled = true
 
                                 // First fetch data from CloudKit (restore from cloud)
                                 debugLog("☁️ Fetching data from CloudKit...")
@@ -97,7 +96,6 @@ struct ConnectionsView: View {
                                 viewModel.performFullCloudKitSync()
                             } else if !newValue {
                                 cloudKitManager.setCloudKitEnabled(false)
-                                config.isCloudKitEnabled = false
                             } else {
                                 // CloudKit not available but user wants to enable it
                                 debugLog("❌ CloudKit not available, cannot enable sync")
@@ -130,7 +128,7 @@ struct ConnectionsView: View {
                         .foregroundColor(.secondary)
                 }
 
-                if config.isCloudKitEnabled && cloudKitManager.isCloudKitEnabled {
+                if cloudKitManager.isCloudKitEnabled {
                     Button("Sync Now") {
                         viewModel.performFullCloudKitSync()
                     }
@@ -151,10 +149,6 @@ struct ConnectionsView: View {
         .task {
             await cloudKitManager.checkCloudKitStatus()
             isCloudKitAvailable = await cloudKitManager.isCloudKitAvailable()
-            // Sync the config state with CloudKit manager state
-            if cloudKitManager.isCloudKitEnabled && !config.isCloudKitEnabled {
-                config.isCloudKitEnabled = true
-            }
         }
         .alert("Enable HealthKit in Settings", isPresented: $showHealthKitSettingsAlert) {
             Button("Open Settings") {

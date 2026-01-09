@@ -233,7 +233,7 @@ Settings → Connections → iCloud Sync (toggle on/off)
 4. Tap **Export**
 5. Share via AirDrop, email, or save to Files app
 
-**Free users**: Contact privacy@shadowLift.app to request a data export (GDPR/CCPA right).
+**Free users**: Contact sebastian.kucera@icloud.com to request a data export (GDPR/CCPA right).
 
 ---
 
@@ -311,7 +311,7 @@ This was a known issue (the "gym lag" problem) that has been fixed in recent upd
    - iPhone Settings → General → iPhone Storage
    - Need at least 1GB free space
 
-If lag persists, contact support@shadowLift.app with your iPhone model and iOS version.
+If lag persists, contact sebastian.kucera@icloud.com with your iPhone model and iOS version.
 
 ### My workout streak is wrong. How do I fix it?
 
@@ -329,7 +329,7 @@ If lag persists, contact support@shadowLift.app with your iPhone model and iOS v
    - Example: 2 rest days = 3 day max gap
 
 **To manually adjust:**
-Contact support@shadowLift.app if your streak needs correction.
+Contact sebastian.kucera@icloud.com if your streak needs correction.
 
 ### I can't find a specific exercise. What do I do?
 
@@ -339,7 +339,7 @@ Contact support@shadowLift.app if your streak needs correction.
 - Search by equipment type
 
 **Exercise not in library?**
-Email hello@shadowLift.app with the exercise name and we'll consider adding it in future updates.
+Email sebastian.kucera@icloud.com with the exercise name and we'll consider adding it in future updates.
 
 **Workaround**: Use a similar exercise and add notes to specify your variation.
 
@@ -376,7 +376,7 @@ Your Apple ID credentials secure your account. To change your Apple ID password:
 2. Confirm deletion (this is permanent!)
 3. All your data will be deleted within 30 days
 
-**Or email**: privacy@shadowLift.app with subject "Delete My Account"
+**Or email**: sebastian.kucera@icloud.com with subject "Delete My Account"
 
 **Warning**: This cannot be undone. Export your data first if you want to keep it!
 
@@ -575,7 +575,7 @@ Not currently, but we're exploring this for future updates!
 
 **We love hearing from users!**
 
-**Email**: hello@ShadowLift.app
+**Email**: sebastian.kucera@icloud.com
 **Subject**: "Feature Request: [Your Idea]"
 
 **Please include:**
@@ -587,7 +587,7 @@ Popular requests may be added in future updates!
 
 ### Can I suggest exercises to add?
 
-**Yes!** Email hello@ShadowLift.app with:
+**Yes!** Email sebastian.kucera@icloud.com with:
 - Exercise name
 - Target muscle group
 - Equipment needed
@@ -597,7 +597,7 @@ We review all exercise suggestions!
 
 ### How do I report a bug?
 
-**Email**: support@ShadowLift.app
+**Email**: sebastian.kucera@icloud.com
 **Subject**: "Bug Report: [Brief Description]"
 
 **Please include:**
@@ -618,8 +618,8 @@ We aim to respond within 24 hours on weekdays.
 - App Store → ShadowLift → What's New section
 
 **Direct contact:**
-- General: hello@shadowLift.app
-- Support: support@shadowLift.app
+- General: sebastian.kucera@icloud.com
+- Support: sebastian.kucera@icloud.com
 
 ---
 
@@ -627,7 +627,7 @@ We aim to respond within 24 hours on weekdays.
 
 ### Contact Support
 
-**Email**: support@shadowLift.app
+**Email**: sebastian.kucera@icloud.com
 **Response time**: Within 24 hours on weekdays
 
 **Before contacting support, please:**

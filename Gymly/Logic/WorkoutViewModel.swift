@@ -120,7 +120,7 @@ final class WorkoutViewModel: ObservableObject {
             }
 
             // Sync to CloudKit if enabled
-            if config.isCloudKitEnabled {
+            if CloudKitManager.shared.isCloudKitEnabled {
                 debugLog("🔧 CloudKit sync is enabled, syncing split...")
                 syncSplitToCloudKit(newSplit)
             } else {
@@ -238,7 +238,7 @@ final class WorkoutViewModel: ObservableObject {
             try context.save()
             debugPrint("Deleted split: \(split.name)")
             // Delete from CloudKit too
-            if config.isCloudKitEnabled {
+            if CloudKitManager.shared.isCloudKitEnabled {
                 Task {
                     try? await CloudKitManager.shared.deleteSplit(splitId)
                 }
@@ -561,6 +561,20 @@ final class WorkoutViewModel: ObservableObject {
         } catch {
             debugPrint("❌ Error checking DayStorage for date '\(dateString)': \(error)")
             return false
+        }
+    }
+
+    /// Get all workout dates from DayStorage (for efficient calendar rendering)
+    @MainActor
+    func getAllWorkoutDates() -> Set<String> {
+        let descriptor = FetchDescriptor<DayStorage>()
+
+        do {
+            let allStorages = try context.fetch(descriptor)
+            return Set(allStorages.map { $0.date })
+        } catch {
+            debugPrint("❌ Error fetching all workout dates: \(error)")
+            return []
         }
     }
 
@@ -1304,7 +1318,7 @@ final class WorkoutViewModel: ObservableObject {
     // MARK: - CloudKit Sync Methods
     @MainActor
     func syncSplitToCloudKit(_ split: Split) {
-        guard config.isCloudKitEnabled else { return }
+        guard CloudKitManager.shared.isCloudKitEnabled else { return }
 
         Task {
             do {
@@ -1318,7 +1332,7 @@ final class WorkoutViewModel: ObservableObject {
 
     @MainActor
     func syncDayStorageToCloudKit(_ dayStorage: DayStorage) {
-        guard config.isCloudKitEnabled else { return }
+        guard CloudKitManager.shared.isCloudKitEnabled else { return }
 
         Task {
             do {
@@ -1332,7 +1346,7 @@ final class WorkoutViewModel: ObservableObject {
 
     @MainActor
     func syncWeightPointToCloudKit(_ weightPoint: WeightPoint) {
-        guard config.isCloudKitEnabled else { return }
+        guard CloudKitManager.shared.isCloudKitEnabled else { return }
 
         Task {
             do {
@@ -1346,7 +1360,7 @@ final class WorkoutViewModel: ObservableObject {
 
     @MainActor
     func performFullCloudKitSync() {
-        guard config.isCloudKitEnabled else { return }
+        guard CloudKitManager.shared.isCloudKitEnabled else { return }
 
         Task {
             await CloudKitManager.shared.performFullSync(context: context, config: config)
@@ -1355,7 +1369,7 @@ final class WorkoutViewModel: ObservableObject {
 
     @MainActor
     func fetchFromCloudKit() {
-        guard config.isCloudKitEnabled else { return }
+        guard CloudKitManager.shared.isCloudKitEnabled else { return }
 
         Task {
             await CloudKitManager.shared.fetchAndMergeData(context: context, config: config)

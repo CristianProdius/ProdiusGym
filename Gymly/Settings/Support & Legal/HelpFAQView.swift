@@ -112,13 +112,12 @@ struct HelpFAQView: View {
             content = """
             # Help & FAQ
 
-            Unable to load FAQ content. Please contact support at support@shadowlift.app
+            Unable to load FAQ content. Please contact support at sebastian.kucera@icloud.com
 
             ## Common Questions
 
             For immediate assistance, please email:
-            - **Support**: support@shadowlift.app
-            - **General**: hello@shadowlift.app
+            - **Support**: sebastian.kucera@icloud.com
 
             We typically respond within 24 hours on weekdays.
             """

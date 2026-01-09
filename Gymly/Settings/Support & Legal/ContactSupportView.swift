@@ -25,13 +25,13 @@ struct ContactSupportView: View {
         var email: String {
             switch self {
             case .general:
-                return "support@shadowlift.app"
+                return "sebastian.kucera@icloud.com"
             case .bug:
-                return "support@shadowlift.app"
+                return "sebastian.kucera@icloud.com"
             case .feature:
-                return "hello@shadowlift.app"
+                return "sebastian.kucera@icloud.com"
             case .billing:
-                return "support@shadowlift.app"
+                return "sebastian.kucera@icloud.com"
             }
         }
 

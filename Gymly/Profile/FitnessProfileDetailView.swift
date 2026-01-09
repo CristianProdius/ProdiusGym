@@ -12,13 +12,8 @@ struct FitnessProfileDetailView: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.colorScheme) var scheme
     @Environment(\.dismiss) var dismiss
-    @StateObject private var iCloudSync: iCloudSyncManager
     @State private var showEditProfile = false
     @State private var showResetAlert = false
-
-    init(config: Config) {
-        _iCloudSync = StateObject(wrappedValue: iCloudSyncManager(config: config))
-    }
 
     var body: some View {
         ZStack {
@@ -163,12 +158,12 @@ struct FitnessProfileDetailView: View {
         .navigationTitle("Fitness Profile")
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(isPresented: $showEditProfile) {
-            FitnessProfileSetupView(config: config)
+            FitnessProfileSetupView()
         }
         .alert("Reset Fitness Profile", isPresented: $showResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
-                iCloudSync.clearProfile()
+                iCloudSyncManager.shared.clearProfile()
                 dismiss()
             }
         } message: {

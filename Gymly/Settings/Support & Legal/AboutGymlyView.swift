@@ -105,8 +105,7 @@ struct AboutGymlyView: View {
 
             ## Contact
 
-            **Support**: support@shadowlift.app
-            **General**: hello@shadowlift.app
+            **Support**: sebastian.kucera@icloud.com
 
             © 2024 ShadowLift. All rights reserved.
             """

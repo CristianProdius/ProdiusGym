@@ -54,7 +54,7 @@ struct ToolBar: View {
                     }
                     .tint(appearanceManager.accentColor.color)
                     .fullScreenCover(isPresented: $showFitnessProfileSetup) {
-                        FitnessProfileSetupView(config: config)
+                        FitnessProfileSetupView()
                     }
                     .onChange(of: config.hasCompletedFitnessProfile) { _, hasCompleted in
                         // If user hasn't completed profile, show setup
@@ -92,6 +92,9 @@ struct ToolBar: View {
         .task {
             // Initialize UserProfileManager with SwiftData context
             userProfileManager.setup(modelContext: context)
+
+            // Initialize iCloudSyncManager with Config
+            iCloudSyncManager.shared.setup(config: config)
 
             // Initialize PRManager with SwiftData context
             prManager.setup(modelContext: context, userProfileManager: userProfileManager)
@@ -142,7 +145,7 @@ struct ToolBar: View {
                     // No local profile - try CloudKit first before creating default
                     debugLog("🔍 TOOLBAR: No local profile found, checking CloudKit...")
 
-                    if config.isCloudKitEnabled {
+                    if CloudKitManager.shared.isCloudKitEnabled {
                         await userProfileManager.syncFromCloudKit()
 
                         if userProfileManager.currentProfile != nil {
@@ -157,6 +160,14 @@ struct ToolBar: View {
                         debugLog("⚠️ TOOLBAR: CloudKit not available, creating default profile")
                         userProfileManager.loadOrCreateProfile()
                     }
+                }
+
+                // CRITICAL: Sync workout data from CloudKit on app launch
+                // This ensures multi-device sync works properly
+                if CloudKitManager.shared.isCloudKitEnabled {
+                    debugLog("🔄 TOOLBAR: Syncing workout data from CloudKit...")
+                    await CloudKitManager.shared.fetchAndMergeData(context: context, config: config)
+                    debugLog("✅ TOOLBAR: CloudKit workout data sync complete")
                 }
 
                 // Check streak status on app launch

@@ -10,7 +10,6 @@ import CloudKit
 
 struct CloudKitSyncStatus: View {
     @StateObject private var cloudKitManager = CloudKitManager.shared
-    @EnvironmentObject var config: Config
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -55,7 +54,7 @@ struct CloudKitSyncStatus: View {
             return .blue
         } else if cloudKitManager.syncError != nil {
             return .red
-        } else if cloudKitManager.isCloudKitEnabled && config.isCloudKitEnabled {
+        } else if cloudKitManager.isCloudKitEnabled {
             return .green
         } else {
             return .gray
@@ -67,12 +66,10 @@ struct CloudKitSyncStatus: View {
             return "Syncing..."
         } else if cloudKitManager.syncError != nil {
             return "Sync unavailable"
-        } else if cloudKitManager.isCloudKitEnabled && config.isCloudKitEnabled {
+        } else if cloudKitManager.isCloudKitEnabled {
             return "Sync enabled"
-        } else if !cloudKitManager.isCloudKitEnabled {
-            return "iCloud unavailable"
         } else {
-            return "Sync disabled"
+            return "iCloud unavailable"
         }
     }
 }

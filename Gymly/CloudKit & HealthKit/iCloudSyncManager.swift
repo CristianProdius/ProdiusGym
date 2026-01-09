@@ -10,8 +10,10 @@ import Combine
 
 @MainActor
 class iCloudSyncManager: ObservableObject {
+    static let shared = iCloudSyncManager()
+
     private let store = NSUbiquitousKeyValueStore.default
-    private let config: Config
+    private weak var config: Config?
 
     // Keys for iCloud storage
     private let kHasCompletedProfile = "hasCompletedFitnessProfile"
@@ -20,9 +22,9 @@ class iCloudSyncManager: ObservableObject {
     private let kExperienceLevel = "experienceLevel"
     private let kTrainingDaysPerWeek = "trainingDaysPerWeek"
 
-    init(config: Config) {
-        self.config = config
+    private var isSetup = false
 
+    private init() {
         // Listen for iCloud changes
         NotificationCenter.default.addObserver(
             self,
@@ -31,7 +33,15 @@ class iCloudSyncManager: ObservableObject {
             object: store
         )
 
-        debugPrint("☁️ iCloudSyncManager initialized")
+        debugPrint("☁️ iCloudSyncManager singleton initialized")
+    }
+
+    /// Setup with Config - call once during app initialization
+    func setup(config: Config) {
+        guard !isSetup else { return }
+        self.config = config
+        isSetup = true
+        debugPrint("☁️ iCloudSyncManager setup with Config")
     }
 
     deinit {
@@ -42,6 +52,11 @@ class iCloudSyncManager: ObservableObject {
 
     /// Sync profile to iCloud (non-blocking)
     func syncToiCloud() {
+        guard let config = config else {
+            debugPrint("☁️ ⚠️ iCloudSyncManager: Config not set, skipping sync")
+            return
+        }
+
         // Capture values to avoid Sendable issues
         let hasCompleted = config.hasCompletedFitnessProfile
         let goal = config.fitnessGoal
@@ -73,6 +88,11 @@ class iCloudSyncManager: ObservableObject {
 
     /// Fetch profile from iCloud
     func fetchFromiCloud() {
+        guard let config = config else {
+            debugPrint("☁️ ⚠️ iCloudSyncManager: Config not set, skipping fetch")
+            return
+        }
+
         debugPrint("☁️ 🔍 Fetching fitness profile from iCloud...")
 
         // Check if profile exists in iCloud
@@ -147,11 +167,13 @@ class iCloudSyncManager: ObservableObject {
         debugPrint("☁️ 🗑️ Clearing fitness profile...")
 
         // Clear from Config (UserDefaults)
-        config.hasCompletedFitnessProfile = false
-        config.fitnessGoal = ""
-        config.equipmentAccess = ""
-        config.experienceLevel = ""
-        config.trainingDaysPerWeek = 4
+        if let config = config {
+            config.hasCompletedFitnessProfile = false
+            config.fitnessGoal = ""
+            config.equipmentAccess = ""
+            config.experienceLevel = ""
+            config.trainingDaysPerWeek = 4
+        }
 
         // Clear from iCloud
         store.removeObject(forKey: kHasCompletedProfile)

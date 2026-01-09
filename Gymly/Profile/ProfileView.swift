@@ -358,7 +358,7 @@ struct ProfileView: View {
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 20)
 
-                            NavigationLink(destination: FitnessProfileDetailView(config: config)) {
+                            NavigationLink(destination: FitnessProfileDetailView()) {
                                 HStack {
                                     Image(systemName: "figure.strengthtraining.traditional")
                                         .foregroundStyle(.green)

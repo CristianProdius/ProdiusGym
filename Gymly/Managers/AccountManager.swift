@@ -48,7 +48,7 @@ class AccountManager: ObservableObject {
 
         do {
             // STEP 1: Delete from CloudKit (if enabled and requested)
-            if includeCloudKit && config.isCloudKitEnabled {
+            if includeCloudKit && CloudKitManager.shared.isCloudKitEnabled {
                 debugLog("🗑️ DELETE ACCOUNT: Deleting CloudKit data...")
                 try await deleteCloudKitData()
             }
@@ -202,7 +202,7 @@ class AccountManager: ObservableObject {
         config.graphDataValues = []
         config.graphMaxValue = 1.0
         config.totalWorkoutTimeMinutes = 0
-        config.isCloudKitEnabled = false
+        CloudKitManager.shared.isCloudKitEnabled = false
         config.cloudKitSyncDate = nil
         config.isHealtKitEnabled = false
         config.isPremium = false

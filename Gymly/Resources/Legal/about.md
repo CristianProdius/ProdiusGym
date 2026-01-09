@@ -150,13 +150,13 @@ All product names, logos, and brands are property of their respective owners. Ap
 ## Support & Feedback
 
 **Need Help?**
-- Email: support@shadowlift.app
+- Email: sebastian.kucera@icloud.com
 - Response time: Within 24 hours on weekdays
 
 **Have Feedback?**
-- Feature requests: hello@shadowlift.app
-- Bug reports: support@shadowlift.app
-- General feedback: hello@shadowlift.app
+- Feature requests: sebastian.kucera@icloud.com
+- Bug reports: sebastian.kucera@icloud.com
+- General feedback: sebastian.kucera@icloud.com
 
 **Follow Us:**
 - Website: shadowlift.app
@@ -211,8 +211,8 @@ Every rep counts. Every set matters. Every workout is progress.
 **ShadowLift**
 [Your Address Here]
 
-**General Inquiries:** hello@shadowlift.app
-**Support:** support@shadowlift.app
-**Privacy:** privacy@shadowlift.app
+**General Inquiries:** sebastian.kucera@icloud.com
+**Support:** sebastian.kucera@icloud.com
+**Privacy:** sebastian.kucera@icloud.com
 
 © 2024 ShadowLift. All rights reserved.

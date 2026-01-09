@@ -348,7 +348,7 @@ TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY FOR ALL CLAIMS SHALL
 
 You may terminate at any time by:
 - Deleting your account in Settings → Account → Delete Account
-- Emailing support@ShadowLift.app to request account deletion
+- Emailing sebastian.kucera@icloud.com to request account deletion
 
 **Effect:** Access to Service immediately ends; Premium features stop; data deleted within 30 days.
 
@@ -384,7 +384,7 @@ We reserve the right to:
 ### Informal Resolution
 
 Before filing legal action, you must:
-- Contact us at hello@shadowLift.app
+- Contact us at sebastian.kucera@icloud.com
 - Describe your dispute in detail
 - Provide 30 days for us to respond and resolve
 
@@ -426,7 +426,7 @@ Our failure to enforce any right does not constitute a waiver.
 **Questions About These Terms?**
 
 **General Inquiries:**
-Email: hello@shadowLift.app
+Email: sebastian.kucera@icloud.com
 Subject: "Terms of Service Question"
 
 **Support:**

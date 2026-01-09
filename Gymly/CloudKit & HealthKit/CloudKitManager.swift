@@ -48,9 +48,23 @@ class CloudKitManager: ObservableObject {
     // Timeout for individual CloudKit operations (prevents hanging on poor connection)
     private let operationTimeout: TimeInterval = 5.0
 
-    // Queue for background sync operations
-    private var pendingSyncQueue: [() async throws -> Void] = []
+    // MARK: - Retry Queue for Failed Operations
+    struct PendingOperation: Identifiable {
+        let id = UUID()
+        let description: String
+        let operation: @Sendable () async throws -> Void
+        var retryCount: Int = 0
+        let maxRetries: Int = 3
+        let createdAt: Date = Date()
+
+        var canRetry: Bool {
+            retryCount < maxRetries
+        }
+    }
+
+    private var pendingOperations: [PendingOperation] = []
     private var isProcessingQueue = false
+    @Published var pendingOperationsCount: Int = 0
 
     init() {
         self.privateDatabase = container.privateCloudDatabase
@@ -88,6 +102,8 @@ class CloudKitManager: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self = self else { return }
 
+                let previousQuality = self.networkQuality
+
                 if path.status != .satisfied {
                     self.networkQuality = .offline
                 } else if path.usesInterfaceType(.wifi) {
@@ -99,10 +115,83 @@ class CloudKitManager: ObservableObject {
                 }
 
                 debugLog("📡 Network Quality: \(self.networkQuality), Auto-sync: \(self.networkQuality.shouldEnableAutoSync)")
+
+                // If network quality improved from poor/offline to good/excellent, process pending operations
+                if !previousQuality.shouldEnableAutoSync && self.networkQuality.shouldEnableAutoSync {
+                    debugLog("📡 Network improved - processing pending operations")
+                    await self.processPendingOperations()
+                }
             }
         }
 
         networkMonitor.start(queue: networkQueue)
+    }
+
+    // MARK: - Retry Queue Management
+
+    /// Queue an operation for retry when it fails due to network issues
+    func queueForRetry(description: String, operation: @escaping @Sendable () async throws -> Void) {
+        let pendingOp = PendingOperation(description: description, operation: operation)
+        pendingOperations.append(pendingOp)
+        pendingOperationsCount = pendingOperations.count
+        debugLog("📋 Queued operation for retry: \(description) (total pending: \(pendingOperations.count))")
+    }
+
+    /// Process all pending operations when network is available
+    func processPendingOperations() async {
+        guard !isProcessingQueue else {
+            debugLog("📋 Already processing queue, skipping")
+            return
+        }
+        guard networkQuality.shouldEnableAutoSync else {
+            debugLog("📋 Network quality too poor for retry, skipping")
+            return
+        }
+        guard !pendingOperations.isEmpty else {
+            return
+        }
+
+        isProcessingQueue = true
+        debugLog("📋 Processing \(pendingOperations.count) pending operations...")
+
+        var completedIndices: [Int] = []
+        var failedPermanently: [Int] = []
+
+        for (index, var operation) in pendingOperations.enumerated() {
+            do {
+                try await operation.operation()
+                completedIndices.append(index)
+                debugLog("✅ Retry succeeded: \(operation.description)")
+            } catch {
+                operation.retryCount += 1
+                pendingOperations[index] = operation
+
+                if !operation.canRetry {
+                    failedPermanently.append(index)
+                    debugLog("❌ Retry failed permanently: \(operation.description)")
+                } else {
+                    debugLog("⚠️ Retry failed, will try again later: \(operation.description) (attempt \(operation.retryCount)/\(operation.maxRetries))")
+                }
+            }
+        }
+
+        // Remove completed and permanently failed operations
+        let indicesToRemove = Set(completedIndices + failedPermanently)
+        pendingOperations = pendingOperations.enumerated()
+            .filter { !indicesToRemove.contains($0.offset) }
+            .map { $0.element }
+
+        pendingOperationsCount = pendingOperations.count
+        isProcessingQueue = false
+
+        debugLog("📋 Queue processing complete. Remaining: \(pendingOperations.count)")
+    }
+
+    /// Clear all pending operations (use with caution)
+    func clearPendingOperations() {
+        pendingOperations.removeAll()
+        pendingOperationsCount = 0
+        debugLog("📋 Cleared all pending operations")
     }
 
     // MARK: - Timeout Wrapper
@@ -756,9 +845,22 @@ class CloudKitManager: ObservableObject {
                         debugLog("✅ PERFORMFULLSYNC: Split '\(split.name)' uploaded successfully")
                         successCount += 1
                     } catch let error as CloudKitError where error == .timeout {
-                        debugLog("⏱️ PERFORMFULLSYNC: Split '\(split.name)' timed out - will retry later")
+                        debugLog("⏱️ PERFORMFULLSYNC: Split '\(split.name)' timed out - queuing for retry")
                         timeoutCount += 1
-                        // Don't throw - continue with other splits
+
+                        // Queue for retry - capture split ID for later lookup
+                        let splitId = split.id
+                        let splitName = split.name
+                        await MainActor.run {
+                            self.queueForRetry(description: "Save split '\(splitName)'") { [weak self] in
+                                guard let self = self else { return }
+                                // Re-fetch split from context when retrying
+                                let descriptor = FetchDescriptor<Split>(predicate: #Predicate { $0.id == splitId })
+                                if let refreshedSplit = try? context.fetch(descriptor).first {
+                                    try await self.saveSplit(refreshedSplit)
+                                }
+                            }
+                        }
                     } catch {
                         debugLog("❌ PERFORMFULLSYNC: Failed to upload split '\(split.name)': \(error.localizedDescription)")
                         // Continue with other splits even if one fails

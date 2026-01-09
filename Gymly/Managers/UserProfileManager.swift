@@ -211,19 +211,46 @@ class UserProfileManager: ObservableObject {
         guard let profile = currentProfile else { return }
 
         profile.setProfileImage(image)
+
+        // Mark profile as pending CloudKit sync
+        if image != nil {
+            profile.profileImageCloudKitID = nil // Clear old ID to indicate pending sync
+        }
+
         saveProfile()
 
-        // Handle CloudKit image sync separately
-        if let image = image {
-            Task {
+        // Handle CloudKit image sync separately with proper state tracking
+        if let image = image, CloudKitManager.shared.isCloudKitEnabled {
+            syncProfileImageToCloudKit(image, profile: profile)
+        }
+    }
+
+    /// Sync profile image to CloudKit with retry logic
+    private func syncProfileImageToCloudKit(_ image: UIImage, profile: UserProfile) {
+        Task {
+            var retryCount = 0
+            let maxRetries = 3
+
+            while retryCount < maxRetries {
                 do {
                     let cloudKitID = try await CloudKitManager.shared.saveProfileImage(image)
                     await MainActor.run {
-                        profile.profileImageCloudKitID = cloudKitID
-                        try? modelContext?.save()
+                        // Only update if this is still the current profile
+                        if self.currentProfile?.id == profile.id {
+                            profile.profileImageCloudKitID = cloudKitID
+                            try? self.modelContext?.save()
+                            debugLog("✅ Profile image synced to CloudKit (attempt \(retryCount + 1))")
+                        }
                     }
+                    return // Success, exit retry loop
                 } catch {
-                    debugLog("❌ Failed to sync profile image to CloudKit: \(error)")
+                    retryCount += 1
+                    if retryCount < maxRetries {
+                        debugLog("⚠️ Profile image sync failed (attempt \(retryCount)), retrying...")
+                        try? await Task.sleep(nanoseconds: UInt64(retryCount) * 1_000_000_000) // Exponential backoff
+                    } else {
+                        debugLog("❌ Failed to sync profile image to CloudKit after \(maxRetries) attempts: \(error)")
+                    }
                 }
             }
         }

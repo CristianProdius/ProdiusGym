@@ -255,7 +255,7 @@ struct SettingsView: View {
                                 Text("ShadowLift")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
-                                Text("Version 1.0.0")
+                                Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))")
                                     .font(.caption2)
                                     .foregroundColor(.secondary)
                             }
