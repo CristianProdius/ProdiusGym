@@ -3,14 +3,15 @@
 **ShadowLift** is a production-ready iOS fitness tracking app built with 100% native Apple technologies. This sophisticated, performance-optimized workout logging and planning app delivers a complete training experience with AI-powered insights, HealthKit integration, and advanced analytics—all with zero external dependencies.
 
 > **🚀 Currently in TestFlight Beta** - Real users, real workouts, real results.
-  <img src="images/Screenshot 2025-11-28 at 16.10.44.png" alt="Hero section website">
+
+<img src="images/Hero image.png" alt="Hero section website">
 
 ## 📸 Screenshots
 
 <div align="center">
-  <img src="images/TodayWorkout.png" width="200" alt="Today's Workout">
+  <img src="images/MainView.png" width="200" alt="Today's Workout">
   <img src="images/Calendar.png" width="200" alt="Workout Calendar">
-  <img src="images/MusleGraph.png" width="200" alt="Muscle Progress Graph">
+  <img src="images/Graph.png" width="200" alt="Muscle Progress Graph">
   <img src="images/AISummary.png" width="200" alt="AI Workout Summary">
 </div>
 
@@ -24,7 +25,7 @@
 - **Auto Day Progression** – Automatically advances through your split based on calendar
 - **Workout Timer** – Automatic workout duration tracking
 
-  <img src="images/TodayWorkout.png" width="300" alt="Today's Workout">
+  <img src="images/MainView.png" width="300" alt="Today's Workout">
 
 ### 📅 Calendar & History
 - **Workout Calendar** – Visual history with date-based workout retrieval
@@ -322,8 +323,8 @@ Split files use JSON-based `.shadowliftsplit` format:
 ## 📈 Analytics & Progress
 
 <div align="center">
-  <img src="images/MusleGraph.png" width="300" alt="Muscle Group Analytics">
-  <img src="images/MyWeightGraph.png" width="300" alt="Weight Tracking Graph">
+  <img src="images/Graph.png" width="300" alt="Muscle Group Analytics">
+  <img src="images/MyWeight.png" width="300" alt="Weight Tracking Graph">
 </div>
 
 - **Muscle Group Radar Charts** – Visualize training balance across 10 muscle groups

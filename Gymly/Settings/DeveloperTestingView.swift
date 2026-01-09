@@ -101,6 +101,22 @@ struct DeveloperTestingView: View {
                 .disabled(isDeletingAccount)
             }
 
+            Section("AI Summary Testing") {
+                NavigationLink(destination: AISummaryView(forceMockup: true)) {
+                    HStack {
+                        Image(systemName: "sparkles")
+                            .foregroundColor(.purple)
+                        VStack(alignment: .leading) {
+                            Text("View AI Summary Mockup")
+                            Text("Display example AI summary data")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                    }
+                }
+            }
+
             Section("Crash Reporter Testing") {
                 Button(action: {
                     CrashReporter.shared.recordError(

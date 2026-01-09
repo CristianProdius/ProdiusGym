@@ -22,6 +22,9 @@ struct AISummaryView: View {
     @State private var cachedData: CachedSummaryData?
     @State private var showPremiumSheet = false
 
+    /// When true, forces display of mockup data (for developer testing)
+    var forceMockup: Bool = false
+
     // Example summary for free users
     private var exampleSummary: CachedSummaryData {
         CachedSummaryData(
@@ -59,20 +62,25 @@ struct AISummaryView: View {
                 VStack(spacing: 20) {
                     headerView
 
-                    // Show premium banner for free users
-                    if !config.isPremium {
-                        premiumBannerView
-                    }
-
-                    if summarizer.isGenerating && !hasStartedGeneration {
-                        loadingView
-                    } else if hasStartedGeneration || summarizer.workoutSummary != nil {
-                        streamingContent
-                    } else if !config.isPremium {
-                        // Show example for free users
+                    // Show mockup data for developer testing (clean for screenshots)
+                    if forceMockup {
                         cachedSummaryContent(exampleSummary)
                     } else {
-                        emptyStateView
+                        // Show premium banner for free users
+                        if !config.isPremium {
+                            premiumBannerView
+                        }
+
+                        if summarizer.isGenerating && !hasStartedGeneration {
+                            loadingView
+                        } else if hasStartedGeneration || summarizer.workoutSummary != nil {
+                            streamingContent
+                        } else if !config.isPremium {
+                            // Show example for free users
+                            cachedSummaryContent(exampleSummary)
+                        } else {
+                            emptyStateView
+                        }
                     }
                 }
                 .padding()
@@ -597,6 +605,35 @@ struct AISummaryView: View {
         .background(
             LinearGradient(
                 colors: [Color.yellow.opacity(0.15), Color.orange.opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
+    }
+
+    private var mockupBannerView: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "testtube.2")
+                .foregroundStyle(.orange)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Developer Mockup")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+
+                Text("This is example data for testing the AI Summary UI")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+        }
+        .padding()
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.15), Color.red.opacity(0.1)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ),

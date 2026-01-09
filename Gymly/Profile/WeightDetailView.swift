@@ -25,6 +25,8 @@ struct WeightDetailView: View {
     @State private var saveMessage = ""
     @State private var hasUserEdited = false  // Track if user has edited the field
     @State private var isHistoryExpanded = false  // Track if weight history is expanded
+    @State private var isEditingWeight = false  // Track if user is editing the big weight display
+    @FocusState private var weightFieldFocused: Bool
 
     // MARK: - Performance: Cached Weight Change Calculations
     @State private var cachedWeekChange: Double = 0
@@ -98,20 +100,102 @@ struct WeightDetailView: View {
                     .ignoresSafeArea()
                 
                 List {
-                    // MARK: - Current Weight Hero Card
+                    // MARK: - Current Weight Hero Card (Tappable to Edit)
                     Section {
                         VStack(spacing: 12) {
-                            // Large weight display
-                            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text(String(format: "%.1f", displayWeight))
-                                    .font(.system(size: 56, weight: .bold))
-                                    .foregroundColor(.primary)
-                                
-                                Text(weightUnit)
-                                    .font(.title3)
-                                    .foregroundColor(.secondary)
+                            if isEditingWeight {
+                                // Editing mode - show text field
+                                VStack(spacing: 16) {
+                                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                        TextField("0.0", text: $bodyWeight)
+                                            .font(.system(size: 56, weight: .bold))
+                                            .foregroundColor(.primary)
+                                            .keyboardType(.decimalPad)
+                                            .multilineTextAlignment(.center)
+                                            .focused($weightFieldFocused)
+                                            .frame(width: 180)
+                                            .onChange(of: bodyWeight) { _, _ in
+                                                hasUserEdited = true
+                                            }
+
+                                        Text(weightUnit)
+                                            .font(.title3)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    // Save button
+                                    HStack(spacing: 12) {
+                                        Button(action: {
+                                            withAnimation(.spring(response: 0.3)) {
+                                                isEditingWeight = false
+                                                weightFieldFocused = false
+                                            }
+                                        }) {
+                                            Text("Cancel")
+                                                .font(.subheadline)
+                                                .fontWeight(.medium)
+                                                .foregroundColor(.secondary)
+                                                .padding(.horizontal, 24)
+                                                .padding(.vertical, 10)
+                                                .background(Color.secondaryBackground(for: scheme))
+                                                .cornerRadius(10)
+                                        }
+
+                                        Button(action: {
+                                            saveWeight()
+                                            withAnimation(.spring(response: 0.3)) {
+                                                isEditingWeight = false
+                                                weightFieldFocused = false
+                                            }
+                                        }) {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: "checkmark")
+                                                    .font(.subheadline.weight(.semibold))
+                                                Text("Save")
+                                                    .font(.subheadline)
+                                                    .fontWeight(.semibold)
+                                            }
+                                            .foregroundColor(.white)
+                                            .padding(.horizontal, 24)
+                                            .padding(.vertical, 10)
+                                            .background(appearanceManager.accentColor.color)
+                                            .cornerRadius(10)
+                                        }
+                                        .disabled(bodyWeight.isEmpty || parseWeight(bodyWeight) == nil)
+                                    }
+                                }
+                            } else {
+                                // Display mode - tappable
+                                Button(action: {
+                                    withAnimation(.spring(response: 0.3)) {
+                                        isEditingWeight = true
+                                        weightFieldFocused = true
+                                    }
+                                }) {
+                                    VStack(spacing: 8) {
+                                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                            Text(String(format: "%.1f", displayWeight))
+                                                .font(.system(size: 56, weight: .bold))
+                                                .foregroundColor(.primary)
+
+                                            Text(weightUnit)
+                                                .font(.title3)
+                                                .foregroundColor(.secondary)
+                                        }
+
+                                        // Tap to edit hint
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "pencil")
+                                                .font(.caption2)
+                                            Text("Tap to update")
+                                                .font(.caption)
+                                        }
+                                        .foregroundColor(appearanceManager.accentColor.color.opacity(0.8))
+                                    }
+                                }
+                                .buttonStyle(.plain)
                             }
-                            
+
                             // BMI display
                             if let bmi = userProfileManager.currentProfile?.bmi {
                                 Text("BMI: \(bmi, specifier: "%.1f")")
@@ -153,48 +237,6 @@ struct WeightDetailView: View {
                         }
                         .listRowBackground(Color.clear)
                     }
-                    
-                    // MARK: - Update Weight
-                    Section("Update Weight") {
-                        VStack(spacing: 12) {
-                            HStack {
-                                Text("Weight (\(weightUnit))")
-                                    .foregroundStyle(.white.opacity(0.6))
-                                
-                                Spacer()
-                                
-                                TextField("0.0", text: $bodyWeight)
-                                    .keyboardType(.numbersAndPunctuation)
-                                    .multilineTextAlignment(.trailing)
-                                    .font(.headline)
-                                    .frame(width: 100)
-                                    .onChange(of: bodyWeight) { _, _ in
-                                        hasUserEdited = true
-                                    }
-                                    .onSubmit {
-                                        saveWeight()
-                                    }
-                            }
-                            
-                            Button(action: saveWeight) {
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                    Text("Save Weight")
-                                        .bold()
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(appearanceManager.accentColor.color)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                            .disabled(bodyWeight.isEmpty || Double(bodyWeight) == nil)
-                        }
-                        .padding(.vertical, 4)
-                    }
-                    .scrollContentBackground(.hidden)
-                    .background(Color.clear)
-                    .listRowBackground(Color.listRowBackground(for: scheme))
                     
                     // MARK: - Weight Chart
                     Section("Weight Progress") {
@@ -254,11 +296,17 @@ struct WeightDetailView: View {
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
-                            // Save weight if user has edited and has valid input
-                            if hasUserEdited && !bodyWeight.isEmpty && Double(bodyWeight) != nil {
-                                saveWeight()
-                                // Small delay to ensure save completes
-                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+                            // If editing, save and close editing mode first
+                            if isEditingWeight {
+                                if hasUserEdited && !bodyWeight.isEmpty && parseWeight(bodyWeight) != nil {
+                                    saveWeight()
+                                }
+                                withAnimation(.spring(response: 0.3)) {
+                                    isEditingWeight = false
+                                    weightFieldFocused = false
+                                }
+                                // Small delay then dismiss
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                                     dismiss()
                                 }
                             } else {
@@ -343,9 +391,16 @@ struct WeightDetailView: View {
         }
     }
     
+    // MARK: - Parse Weight (handles both comma and period decimal separators)
+    private func parseWeight(_ input: String) -> Double? {
+        // Replace comma with period to handle European locale
+        let normalizedInput = input.replacingOccurrences(of: ",", with: ".")
+        return Double(normalizedInput)
+    }
+
     // MARK: - Save Weight Function
     private func saveWeight() {
-        guard let inputWeight = Double(bodyWeight), inputWeight > 0 else {
+        guard let inputWeight = parseWeight(bodyWeight), inputWeight > 0 else {
             debugLog("❌ Invalid weight input: \(bodyWeight)")
             return
         }

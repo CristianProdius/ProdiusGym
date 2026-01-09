@@ -9,6 +9,7 @@ import SwiftUI
 import PhotosUI
 import Foundation
 
+@MainActor
 struct EditUserView: View {
     @ObservedObject var viewModel: WorkoutViewModel
     @State private var avatarItem: PhotosPickerItem?

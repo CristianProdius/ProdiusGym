@@ -160,9 +160,10 @@ final class SplitGeneratorService: ObservableObject {
             )
             newSession.prewarm()
 
-            await MainActor.run {
-                self?._session = newSession
-                self?.isPrewarming = false
+            await MainActor.run { [weak self] in
+                guard let self else { return }
+                self._session = newSession
+                self.isPrewarming = false
             }
         }
     }
