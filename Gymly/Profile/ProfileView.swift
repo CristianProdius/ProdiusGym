@@ -61,243 +61,324 @@ struct ProfileView: View {
                 FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
                     .ignoresSafeArea()
 
-                List {
-                    // Profile Header - Tappable to edit
-                    Button(action: {
-                        editUser = true
-                    }) {
-                        ZStack {
-                            LinearGradient(
-                                gradient: Gradient(colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color]),
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                            .cornerRadius(20)
+                ScrollView {
+                    VStack(spacing: 16) {
+                        Spacer().frame(height: 8)
 
-                            HStack {
-                                ProfileImageCell(profileImage: profileImage, frameSize: 80)
-                                    .padding()
-                                
-                                VStack(spacing: 8) {
-                                    Text("\(userProfileManager.currentProfile?.username ?? "User")")
-                                        .bold()
-                                        .font(.body)
-
-                                }
-                                .foregroundStyle(Color.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.trailing)
-                            }
-                        }
-                    }
-                    .listRowBackground(Color.clear)
-                    .frame(width: 340, height: 120)
-                    .listRowSeparator(.hidden)
-
-                    // Body Stats Cards
-                    HStack {
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 16) {
-                                Button(action: {
-                                    showWeightDetail = true
-                                }) {
-                                    SettingUserInfoCell(
-                                        value: String(
-                                            format: "%.1f",
-                                            {
-                                                let weight = userProfileManager.currentProfile?.weight ?? 0.0
-                                                let unit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
-                                                let factor = unit == "Kg" ? 1.0 : 2.20462262
-                                                return weight * factor
-                                            }()),
-                                        metric: userProfileManager.currentProfile?.weightUnit ?? "Kg",
-                                        headerColor: appearanceManager.accentColor.color,
-                                        additionalInfo: "Body weight",
-                                        icon: "figure.mixed.cardio"
-                                    )
-                                }
-                                .foregroundStyle(Color.adaptiveText(for: scheme))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-
-                                Button(action: {
-                                    if config.isPremium {
-                                        showStreakDetail = true
-                                    } else {
-                                        showPremiumSheet = true
-                                    }
-                                }) {
-                                    SettingUserInfoCell(
-                                        value: String(format: "%d", userProfileManager.currentProfile?.currentStreak ?? 0),
-                                        metric: "Days",
-                                        headerColor: .orange,
-                                        additionalInfo: "Streak 🔥",
-                                        icon: "flame.fill"
-                                    )
-                                }
-                                .foregroundStyle(Color.adaptiveText(for: scheme))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-
-                                Button(action: {
-                                    if config.isPremium {
-                                        showBmiDetail = true
-                                    } else {
-                                        showPremiumSheet = true
-                                    }
-                                }) {
-                                    SettingUserInfoCell(
-                                        value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
-                                        metric: "BMI",
-                                        headerColor: bmiColor,
-                                        additionalInfo: bmiStatus,
-                                        icon: "dumbbell.fill"
-                                    )
-                                }
-                                .foregroundStyle(Color.adaptiveText(for: scheme))
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-
-                                SettingUserInfoCell(
-                                    value: String(format: "%.2f", (userProfileManager.currentProfile?.height ?? 0.0) / 100.0),
-                                    metric: "m",
-                                    headerColor: appearanceManager.accentColor.color,
-                                    additionalInfo: "Height",
-                                    icon: "figure.wave"
-                                )
-
-                                SettingUserInfoCell(
-                                    value: String(format: "%.0f", Double(userProfileManager.currentProfile?.age ?? 0)),
-                                    metric: "yo",
-                                    headerColor: appearanceManager.accentColor.color,
-                                    additionalInfo: "Age",
-                                    icon: "person.text.rectangle"
-                                )
-                            }
-                        }
-                    }
-                    .scrollClipDisabled(true)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .id(weightUpdatedTrigger)
-
-                    // Progress Section - Graph
-                    Section(header: HStack {
-                        Text("Progress")
-                    }) {
-                        VStack(spacing: 8) {
-                            Picker(selection: $graphSortingSelected, label: Text("")) {
-                                ForEach(graphSorting, id: \.self) { option in
-                                    Text(option).tag(option)
-                                }
-                            }
-                            .pickerStyle(.segmented)
-                            .frame(width: 350)
-
-                            ZStack {
-                                ContentViewGraph(range: selectedTimeRange)
-                                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
-                                    .id(selectedTimeRange)
-                                RadarLabels()
-                            }
-                            .frame(width: 300, height: 300)
-                            .animation(.easeInOut(duration: 0.3), value: selectedTimeRange)
-
-                            // Premium banner for graph filters
-                            if !config.isPremium {
-                                Button(action: {
-                                    showPremiumSheet = true
-                                }) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: "lock.fill")
-                                            .foregroundStyle(.yellow)
-                                            .font(.caption)
-                                        Text("Upgrade to unlock Week, Month & All Time views")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                        Spacer()
-                                        Image(systemName: "arrow.right")
-                                            .foregroundStyle(.secondary)
-                                            .font(.caption2)
-                                    }
-                                    .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .background(Color.secondaryBackground(for: scheme))
-                                    .cornerRadius(8)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                    .listRowBackground(Color.clear)
-                    .padding(.horizontal)
-
-                    // Personal Records Section
-                    Section("Personal Records") {
-                        NavigationLink(destination: Group {
-                            if config.isPremium {
-                                PRHistoryView()
-                            } else {
-                                PRHistoryLockedView()
-                            }
+                        // Profile Header - Elevated Design (Outside List for clean background)
+                        Button(action: {
+                            editUser = true
                         }) {
-                            HStack {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundStyle(.yellow)
-                                Text("View All Records")
-                                Spacer()
-                                if !config.isPremium {
-                                    Image(systemName: "lock.fill")
-                                        .font(.caption)
-                                        .foregroundStyle(.yellow)
+                            ZStack {
+                                // Multi-tone gradient background
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        appearanceManager.accentColor.color,
+                                        appearanceManager.accentColor.color.opacity(0.8),
+                                        appearanceManager.accentColor.color.opacity(0.6)
+                                    ]),
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+
+                                // Subtle pattern overlay
+                                LinearGradient(
+                                    gradient: Gradient(colors: [
+                                        Color.white.opacity(0.1),
+                                        Color.clear,
+                                        Color.black.opacity(0.1)
+                                    ]),
+                                    startPoint: .top,
+                                    endPoint: .bottom
+                                )
+
+                                HStack(spacing: 16) {
+                                    // Profile Image with ring
+                                    ZStack {
+                                        Circle()
+                                            .stroke(Color.white.opacity(0.3), lineWidth: 3)
+                                            .frame(width: 88, height: 88)
+
+                                        ProfileImageCell(profileImage: profileImage, frameSize: 80)
+                                    }
+
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(userProfileManager.currentProfile?.username ?? "User")
+                                            .font(.title2)
+                                            .fontWeight(.bold)
+                                            .foregroundStyle(.white)
+
+                                        // Quick stats row
+                                        HStack(spacing: 4) {
+                                            Image(systemName: "flame.fill")
+                                                .font(.caption2)
+                                            Text("\(userProfileManager.currentProfile?.currentStreak ?? 0) day streak")
+                                                .font(.caption)
+                                                .fontWeight(.medium)
+                                        }
+                                        .foregroundStyle(.white.opacity(0.9))
+
+                                        // Edit hint
+                                        HStack(spacing: 4) {
+                                            Text("Tap to edit profile")
+                                                .font(.caption2)
+                                            Image(systemName: "pencil")
+                                                .font(.caption2)
+                                        }
+                                        .foregroundStyle(.white.opacity(0.6))
+                                    }
+
+                                    Spacer()
                                 }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 16)
+                            }
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(color: appearanceManager.accentColor.color.opacity(0.4), radius: 16, x: 0, y: 8)
+                            .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
+                        }
+                        .buttonStyle(.plain)
+                        .padding(.horizontal, 16)
+
+                        // Body Stats Cards - Glassmorphism Design
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Your Stats")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 20)
+
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    Button(action: {
+                                        showWeightDetail = true
+                                    }) {
+                                        SettingUserInfoCell(
+                                            value: String(
+                                                format: "%.1f",
+                                                {
+                                                    let weight = userProfileManager.currentProfile?.weight ?? 0.0
+                                                    let unit = userProfileManager.currentProfile?.weightUnit ?? "Kg"
+                                                    let factor = unit == "Kg" ? 1.0 : 2.20462262
+                                                    return weight * factor
+                                                }()),
+                                            metric: userProfileManager.currentProfile?.weightUnit ?? "Kg",
+                                            headerColor: appearanceManager.accentColor.color,
+                                            additionalInfo: "Body Weight",
+                                            icon: "scalemass.fill"
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Button(action: {
+                                        if config.isPremium {
+                                            showStreakDetail = true
+                                        } else {
+                                            showPremiumSheet = true
+                                        }
+                                    }) {
+                                        SettingUserInfoCell(
+                                            value: String(format: "%d", userProfileManager.currentProfile?.currentStreak ?? 0),
+                                            metric: "Days",
+                                            headerColor: .orange,
+                                            additionalInfo: "Current Streak",
+                                            icon: "flame.fill"
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    Button(action: {
+                                        if config.isPremium {
+                                            showBmiDetail = true
+                                        } else {
+                                            showPremiumSheet = true
+                                        }
+                                    }) {
+                                        SettingUserInfoCell(
+                                            value: String(format: "%.1f", userProfileManager.currentProfile?.bmi ?? 0.0),
+                                            metric: "BMI",
+                                            headerColor: bmiColor,
+                                            additionalInfo: bmiStatus,
+                                            icon: "heart.fill"
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+
+                                    SettingUserInfoCell(
+                                        value: String(format: "%.0f", (userProfileManager.currentProfile?.height ?? 0.0)),
+                                        metric: "cm",
+                                        headerColor: .cyan,
+                                        additionalInfo: "Height",
+                                        icon: "ruler.fill"
+                                    )
+
+                                    SettingUserInfoCell(
+                                        value: String(format: "%.0f", Double(userProfileManager.currentProfile?.age ?? 0)),
+                                        metric: "years",
+                                        headerColor: .purple,
+                                        additionalInfo: "Age",
+                                        icon: "birthday.cake.fill"
+                                    )
+                                }
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
                             }
                         }
-                        .frame(width: 300)
-                    }
-                    .listRowBackground(Color.listRowBackground(for: scheme))
+                        .scrollClipDisabled(true)
+                        .id(weightUpdatedTrigger)
 
-                    // AI Insights Section
-                    Section("AI Insights") {
-                        if #available(iOS 18.1, *) {
-                            NavigationLink(destination: AISummaryView()) {
+                        // Progress Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Progress")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 20)
+
+                            VStack(spacing: 8) {
+                                Picker(selection: $graphSortingSelected, label: Text("")) {
+                                    ForEach(graphSorting, id: \.self) { option in
+                                        Text(option).tag(option)
+                                    }
+                                }
+                                .pickerStyle(.segmented)
+                                .frame(width: 350)
+
+                                ZStack {
+                                    ContentViewGraph(range: selectedTimeRange)
+                                        .transition(.opacity.combined(with: .scale(scale: 0.95)))
+                                        .id(selectedTimeRange)
+                                    RadarLabels()
+                                }
+                                .frame(width: 300, height: 300)
+                                .animation(.easeInOut(duration: 0.3), value: selectedTimeRange)
+
+                                // Premium banner for graph filters
+                                if !config.isPremium {
+                                    Button(action: {
+                                        showPremiumSheet = true
+                                    }) {
+                                        HStack(spacing: 8) {
+                                            Image(systemName: "lock.fill")
+                                                .foregroundStyle(.yellow)
+                                                .font(.caption)
+                                            Text("Upgrade to unlock Week, Month & All Time views")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                            Spacer()
+                                            Image(systemName: "arrow.right")
+                                                .foregroundStyle(.secondary)
+                                                .font(.caption2)
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 8)
+                                        .background(Color.secondaryBackground(for: scheme))
+                                        .cornerRadius(8)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding()
+                        }
+
+                        // Personal Records Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Personal Records")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 20)
+
+                            NavigationLink(destination: Group {
+                                if config.isPremium {
+                                    PRHistoryView()
+                                } else {
+                                    PRHistoryLockedView()
+                                }
+                            }) {
                                 HStack {
-                                    Image(systemName: "apple.intelligence")
-                                        .foregroundStyle(.linearGradient(
-                                            colors: [.purple, .blue],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        ))
-                                    Text("Week AI Summary")
+                                    Image(systemName: "trophy.fill")
+                                        .foregroundStyle(.yellow)
+                                    Text("View All Records")
                                     Spacer()
                                     if !config.isPremium {
                                         Image(systemName: "lock.fill")
-                                            .foregroundColor(.yellow)
                                             .font(.caption)
+                                            .foregroundStyle(.yellow)
                                     }
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
                                 }
+                                .padding()
+                                .background(Color.listRowBackground(for: scheme))
+                                .cornerRadius(25)
                             }
-                            .frame(width: 300)
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 16)
                         }
-                    }
-                    .listRowBackground(Color.listRowBackground(for: scheme))
 
-                    // Fitness Section
-                    Section("Fitness") {
-                        NavigationLink(destination: FitnessProfileDetailView(config: config)) {
-                            HStack {
-                                Image(systemName: "figure.strengthtraining.traditional")
-                                    .foregroundStyle(.green)
-                                Text("Your Fitness Profile")
+                        // AI Insights Section
+                        if #available(iOS 18.1, *) {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Text("AI Insights")
+                                    .font(.headline)
+                                    .foregroundStyle(.secondary)
+                                    .padding(.leading, 20)
+
+                                NavigationLink(destination: AISummaryView()) {
+                                    HStack {
+                                        Image(systemName: "apple.intelligence")
+                                            .foregroundStyle(.linearGradient(
+                                                colors: [.purple, .blue],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ))
+                                        Text("Week AI Summary")
+                                        Spacer()
+                                        if !config.isPremium {
+                                            Image(systemName: "lock.fill")
+                                                .foregroundColor(.yellow)
+                                                .font(.caption)
+                                        }
+                                        Image(systemName: "chevron.right")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .padding()
+                                    .background(Color.listRowBackground(for: scheme))
+                                    .cornerRadius(25)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.horizontal, 16)
                             }
                         }
-                        .frame(width: 300)
+
+                        // Fitness Section
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text("Fitness")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .padding(.leading, 20)
+
+                            NavigationLink(destination: FitnessProfileDetailView(config: config)) {
+                                HStack {
+                                    Image(systemName: "figure.strengthtraining.traditional")
+                                        .foregroundStyle(.green)
+                                    Text("Your Fitness Profile")
+                                    Spacer()
+                                    Image(systemName: "chevron.right")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding()
+                                .background(Color.listRowBackground(for: scheme))
+                                .cornerRadius(25)
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal, 16)
+                        }
+
+                        Spacer(minLength: 100)
                     }
-                    .listRowBackground(Color.listRowBackground(for: scheme))
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color.clear)
                 .navigationTitle("Profile")
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
