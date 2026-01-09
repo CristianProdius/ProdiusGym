@@ -125,12 +125,11 @@ struct TutorialView: View {
     var body: some View {
         GeometryReader { geometry in
             ZStack {
-                // App-like skeleton background
+                // App-like skeleton background (handles its own safe area)
                 SkeletonAppBackground(geometry: geometry, colorScheme: colorScheme)
-                    .ignoresSafeArea()
 
-                // Dark overlay
-                Color.black.opacity(0.75)
+                // Dark overlay - lighter to show skeleton better
+                Color.black.opacity(0.55)
                     .ignoresSafeArea()
 
                 // Spotlight cutout (only for steps that show spotlight)
@@ -207,31 +206,37 @@ struct TutorialView: View {
     // MARK: - Positioning Helpers
 
     private func spotlightPosition(for step: TutorialHighlight, in geometry: GeometryProxy) -> CGPoint {
-        let safeArea = geometry.safeAreaInsets
         let width = geometry.size.width
         let height = geometry.size.height
 
+        // Tab bar calculations (matching MockUIOverlay padding)
+        let tabPadding: CGFloat = 24
+        let tabWidth = max((width - tabPadding * 2) / 3, 1)
+
+        // Note: Top elements use y=26 (not safeArea.top + 26) because skeleton uses .ignoresSafeArea()
+        // and positions content at safeArea.top + 4 + 22 (half icon) from screen top,
+        // but our coordinate space already starts below safe area
         switch step {
         case .welcome, .done:
             return CGPoint(x: width / 2, y: height / 2)
         case .profile:
-            // Top left - profile button (centered on 34pt icon with 16pt leading padding)
-            return CGPoint(x: 33, y: safeArea.top + 22)
+            // Top left - profile button
+            return CGPoint(x: 34, y: 26)
         case .splits:
-            // Second from right in toolbar - aligned with the icon center
-            return CGPoint(x: width - 60, y: safeArea.top + 22)
+            // Toolbar: second from right
+            return CGPoint(x: width - 90, y: 26)
         case .addExercise:
-            // Far right in toolbar - aligned with the icon center
-            return CGPoint(x: width - 20, y: safeArea.top + 22)
+            // Toolbar: far right
+            return CGPoint(x: width - 30, y: 26)
         case .daySelector:
             // Below nav bar (no spotlight, just mock UI)
-            return CGPoint(x: 100, y: safeArea.top + 80)
+            return CGPoint(x: 100, y: 80)
         case .calendar:
-            // Center tab in tab bar (exact center)
-            return CGPoint(x: width / 2, y: height - safeArea.bottom - 34)
+            // Center tab in tab bar - positioned at very bottom
+            return CGPoint(x: width / 2, y: height - 5)
         case .settings:
-            // Right tab in tab bar (2/3 across + some offset)
-            return CGPoint(x: width * 5 / 6, y: height - safeArea.bottom - 34)
+            // Right tab: padding + 2.5 tab widths
+            return CGPoint(x: tabPadding + tabWidth * 2.5, y: height - 5)
         }
     }
 
@@ -304,30 +309,36 @@ struct SkeletonAppBackground: View {
     let colorScheme: ColorScheme
 
     private var bgColor: Color {
-        colorScheme == .dark ? Color(white: 0.08) : Color(white: 0.95)
+        colorScheme == .dark ? Color(white: 0.1) : Color(white: 0.95)
     }
 
     private var cardColor: Color {
-        colorScheme == .dark ? Color(white: 0.12) : Color(white: 0.88)
+        colorScheme == .dark ? Color(white: 0.18) : Color(white: 0.88)
     }
 
     private var shimmerColor: Color {
-        colorScheme == .dark ? Color(white: 0.18) : Color(white: 0.82)
+        colorScheme == .dark ? Color(white: 0.25) : Color(white: 0.82)
     }
 
     var body: some View {
+        let width = geometry.size.width
+        let tabPadding: CGFloat = 24
+        let tabWidth = max((width - tabPadding * 2) / 3, 1)
+
         ZStack {
-            // Base background
+            // Base background - extends to edges
             bgColor
+                .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Navigation bar area
-                HStack {
-                    // Profile placeholder
+                // Navigation bar area - y=26 is center of icons (matching MockUIOverlay)
+                // 4pt from top of safe area + 22pt (half of 44pt icon) = 26
+                HStack(spacing: 0) {
+                    // Profile placeholder - center at x=34
                     Circle()
                         .fill(cardColor)
-                        .frame(width: 34, height: 34)
-                        .padding(.leading, 16)
+                        .frame(width: 44, height: 44)
+                        .padding(.leading, 12)
 
                     Spacer()
 
@@ -338,18 +349,20 @@ struct SkeletonAppBackground: View {
 
                     Spacer()
 
-                    // Toolbar buttons placeholder
+                    // Toolbar buttons - splits at width-90, addExercise at width-30
                     HStack(spacing: 16) {
+                        // Splits button - center at width - 90
                         Circle()
                             .fill(cardColor)
-                            .frame(width: 28, height: 28)
+                            .frame(width: 44, height: 44)
+                        // Add exercise button - center at width - 30
                         Circle()
                             .fill(cardColor)
-                            .frame(width: 28, height: 28)
+                            .frame(width: 44, height: 44)
                     }
-                    .padding(.trailing, 16)
+                    .padding(.trailing, 8)
                 }
-                .padding(.top, geometry.safeAreaInsets.top + 8)
+                .padding(.top, 4)
                 .padding(.bottom, 12)
 
                 // Day title placeholder
@@ -395,23 +408,50 @@ struct SkeletonAppBackground: View {
 
                 Spacer()
 
-                // Tab bar skeleton
+                // Tab bar skeleton - aligned with spotlight positions
+                // Calendar at center (width/2), Settings at tabPadding + tabWidth * 2.5
+                // Tab bar center should be at height - 38 from screen top
                 HStack(spacing: 0) {
-                    ForEach(0..<3, id: \.self) { _ in
-                        VStack(spacing: 4) {
-                            Circle()
-                                .fill(cardColor)
-                                .frame(width: 24, height: 24)
-                            RoundedRectangle(cornerRadius: 2)
-                                .fill(cardColor)
-                                .frame(width: 44, height: 10)
-                        }
-                        .frame(maxWidth: .infinity)
+                    // Routine tab
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(cardColor)
+                            .frame(width: 24, height: 24)
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(cardColor)
+                            .frame(width: 44, height: 10)
                     }
+                    .frame(width: tabWidth)
+
+                    // Calendar tab - center at width/2
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(cardColor)
+                            .frame(width: 24, height: 24)
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(cardColor)
+                            .frame(width: 44, height: 10)
+                    }
+                    .frame(width: tabWidth)
+
+                    // Settings tab - center at tabPadding + tabWidth * 2.5
+                    VStack(spacing: 4) {
+                        Circle()
+                            .fill(cardColor)
+                            .frame(width: 24, height: 24)
+                        RoundedRectangle(cornerRadius: 2)
+                            .fill(cardColor)
+                            .frame(width: 44, height: 10)
+                    }
+                    .frame(width: tabWidth)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, geometry.safeAreaInsets.bottom + 8)
+                .padding(.horizontal, tabPadding)
+                // Icon center should be at height - 38
+                // Tab item is 38pt tall, icon center is 26pt from bottom (10 label + 4 spacing + 12 half-circle)
+                // So bottom padding = 38 - 26 = 12
+                .padding(.bottom, 12)
             }
+            .ignoresSafeArea(edges: .bottom)
         }
     }
 }
@@ -515,121 +555,95 @@ struct MockUIOverlay: View {
     let currentStep: TutorialHighlight
     let geometry: GeometryProxy
 
+    private var safeArea: EdgeInsets { geometry.safeAreaInsets }
+    private var width: CGFloat { geometry.size.width }
+    private var height: CGFloat { geometry.size.height }
+    private var tabPadding: CGFloat { 24 }
+    private var tabWidth: CGFloat { max((width - tabPadding * 2) / 3, 1) }
+
     var body: some View {
         ZStack {
-            // Mock toolbar items
-            VStack {
-                HStack(alignment: .center) {
-                    // Profile button area (left side)
-                    if currentStep == .profile {
-                        ZStack {
-                            Circle()
-                                .fill(Color.pink.opacity(0.3))
-                                .frame(width: 44, height: 44)
+            // Profile icon - y=26 (coordinate space starts below safe area)
+            if currentStep == .profile {
+                ZStack {
+                    Circle()
+                        .fill(Color.pink.opacity(0.3))
+                        .frame(width: 44, height: 44)
 
-                            Image(systemName: "person.crop.circle.fill")
-                                .font(.system(size: 28))
-                                .foregroundColor(.white)
-                        }
-                        .padding(.leading, 12)
-                    } else if currentStep == .splits || currentStep == .addExercise {
-                        Circle()
-                            .fill(Color.white.opacity(0.15))
-                            .frame(width: 34, height: 34)
-                            .padding(.leading, 16)
-                    }
-
-                    Spacer()
-
-                    // Toolbar buttons (right side) - splits then add exercise
-                    HStack(spacing: 16) {
-                        if currentStep == .splits || currentStep == .addExercise {
-                            // Splits button (second from right)
-                            ZStack {
-                                if currentStep == .splits {
-                                    Circle()
-                                        .fill(Color.purple.opacity(0.3))
-                                        .frame(width: 44, height: 44)
-                                }
-
-                                Image(systemName: "list.bullet.rectangle")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(currentStep == .splits ? .white : .white.opacity(0.4))
-                            }
-
-                            // Add exercise button (far right)
-                            ZStack {
-                                if currentStep == .addExercise {
-                                    Circle()
-                                        .fill(Color.blue.opacity(0.3))
-                                        .frame(width: 44, height: 44)
-                                }
-
-                                Image(systemName: "plus.circle")
-                                    .font(.system(size: 20))
-                                    .foregroundColor(currentStep == .addExercise ? .white : .white.opacity(0.4))
-                            }
-                        }
-                    }
-                    .padding(.trailing, 8)
+                    Image(systemName: "person.crop.circle.fill")
+                        .font(.system(size: 28))
+                        .foregroundColor(.white)
                 }
-                .padding(.top, geometry.safeAreaInsets.top + 4)
+                .position(x: 34, y: 26)
+            }
 
-                // Day selector mock
-                if currentStep == .daySelector {
-                    HStack {
-                        HStack(spacing: 8) {
-                            Text("Push Day")
-                                .font(.title)
-                                .bold()
-                                .foregroundColor(.white)
+            // Splits icon
+            if currentStep == .splits {
+                ZStack {
+                    Circle()
+                        .fill(Color.purple.opacity(0.3))
+                        .frame(width: 44, height: 44)
 
-                            Image(systemName: "chevron.down")
-                                .foregroundColor(.white)
-                        }
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(
-                            RoundedRectangle(cornerRadius: 12)
-                                .fill(Color.green.opacity(0.2))
-                                .stroke(Color.green.opacity(0.5), lineWidth: 2)
-                        )
-                        .padding(.leading, 16)
-
-                        Spacer()
-                    }
-                    .padding(.top, 16)
+                    Image(systemName: "list.bullet.rectangle")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
                 }
+                .position(x: width - 90, y: 26)
+            }
 
-                Spacer()
+            // Add exercise icon
+            if currentStep == .addExercise {
+                ZStack {
+                    Circle()
+                        .fill(Color.blue.opacity(0.3))
+                        .frame(width: 44, height: 44)
 
-                // Mock tab bar
-                if currentStep == .calendar || currentStep == .settings {
-                    HStack(spacing: 0) {
-                        TabBarMockItem(
-                            icon: "dumbbell",
-                            label: "Routine",
-                            isHighlighted: false
-                        )
-                        .frame(maxWidth: .infinity)
-
-                        TabBarMockItem(
-                            icon: "calendar",
-                            label: "Calendar",
-                            isHighlighted: currentStep == .calendar
-                        )
-                        .frame(maxWidth: .infinity)
-
-                        TabBarMockItem(
-                            icon: "gearshape",
-                            label: "Settings",
-                            isHighlighted: currentStep == .settings
-                        )
-                        .frame(maxWidth: .infinity)
-                    }
-                    .padding(.horizontal, 24)
-                    .padding(.bottom, geometry.safeAreaInsets.bottom + 8)
+                    Image(systemName: "plus.circle")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
                 }
+                .position(x: width - 30, y: 26)
+            }
+
+            // Day selector - positioned below nav bar
+            if currentStep == .daySelector {
+                HStack(spacing: 8) {
+                    Text("Push Day")
+                        .font(.title)
+                        .bold()
+                        .foregroundColor(.white)
+
+                    Image(systemName: "chevron.down")
+                        .foregroundColor(.white)
+                }
+                .padding(.horizontal, 20)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 12)
+                        .fill(Color.green.opacity(0.2))
+                        .stroke(Color.green.opacity(0.5), lineWidth: 2)
+                )
+                .position(x: 110, y: 90)
+            }
+
+            // Calendar tab - positioned at very bottom
+            if currentStep == .calendar {
+                TabBarMockItem(
+                    icon: "calendar",
+                    label: "Calendar",
+                    isHighlighted: true
+                )
+                .position(x: width / 2, y: height - 5)
+            }
+
+            // Settings tab
+            if currentStep == .settings {
+                TabBarMockItem(
+                    icon: "gearshape",
+                    label: "Settings",
+                    isHighlighted: true
+                )
+                .position(x: tabPadding + tabWidth * 2.5, y: height - 5)
             }
         }
     }
@@ -667,90 +681,147 @@ struct TooltipCard: View {
     @Environment(\.colorScheme) var colorScheme
 
     var body: some View {
-        VStack(spacing: 20) {
-            // Icon
+        VStack(spacing: 24) {
+            // Icon with glow
             ZStack {
+                // Outer glow
+                Circle()
+                    .fill(step.iconColor.opacity(0.2))
+                    .frame(width: 100, height: 100)
+                    .blur(radius: 20)
+
+                // Icon background
                 Circle()
                     .fill(
                         LinearGradient(
                             colors: [
-                                step.iconColor.opacity(0.3),
+                                step.iconColor.opacity(0.25),
                                 step.iconColor.opacity(0.1)
                             ],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 80, height: 80)
+                    .frame(width: 72, height: 72)
+
+                // Icon border
+                Circle()
+                    .stroke(step.iconColor.opacity(0.3), lineWidth: 1.5)
+                    .frame(width: 72, height: 72)
 
                 Image(systemName: step.icon)
-                    .font(.system(size: 36))
+                    .font(.system(size: 32, weight: .medium))
                     .foregroundColor(step.iconColor)
             }
 
-            // Title
-            Text(step.title)
-                .font(.title2)
-                .bold()
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
+            // Text content
+            VStack(spacing: 12) {
+                Text(step.title)
+                    .font(.title3)
+                    .fontWeight(.bold)
+                    .foregroundColor(.white)
+                    .multilineTextAlignment(.center)
 
-            // Description
-            Text(step.description)
-                .font(.body)
-                .foregroundColor(.white.opacity(0.8))
-                .multilineTextAlignment(.center)
-                .lineSpacing(4)
+                Text(step.description)
+                    .font(.subheadline)
+                    .foregroundColor(.white.opacity(0.75))
+                    .multilineTextAlignment(.center)
+                    .lineSpacing(3)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
 
             // Buttons
-            HStack(spacing: 16) {
-                if !isFirstStep && !isLastStep {
-                    Button(action: onBack) {
-                        HStack {
-                            Image(systemName: "arrow.left")
-                            Text("Back")
+            VStack(spacing: 12) {
+                HStack(spacing: 12) {
+                    if !isFirstStep && !isLastStep {
+                        Button(action: onBack) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "chevron.left")
+                                    .font(.system(size: 14, weight: .semibold))
+                                Text("Back")
+                            }
+                            .font(.subheadline)
+                            .fontWeight(.medium)
+                            .foregroundColor(.white.opacity(0.8))
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12)
+                                    .fill(Color.white.opacity(0.1))
+                                    .stroke(Color.white.opacity(0.15), lineWidth: 1)
+                            )
+                        }
+                    }
+
+                    Button(action: isLastStep ? onSkip : onNext) {
+                        HStack(spacing: 6) {
+                            Text(isLastStep ? "Get Started" : "Next")
+                                .fontWeight(.semibold)
+                            if !isLastStep {
+                                Image(systemName: "chevron.right")
+                                    .font(.system(size: 14, weight: .semibold))
+                            }
                         }
                         .font(.subheadline)
-                        .foregroundColor(.white.opacity(0.7))
-                        .padding(.horizontal, 20)
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 24)
                         .padding(.vertical, 12)
-                        .background(Color.white.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .frame(maxWidth: isFirstStep || isLastStep ? .infinity : nil)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12)
+                                .fill(
+                                    LinearGradient(
+                                        colors: [accentColor, accentColor.opacity(0.8)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        )
+                        .shadow(color: accentColor.opacity(0.3), radius: 8, x: 0, y: 4)
                     }
                 }
 
-                Button(action: isLastStep ? onSkip : onNext) {
-                    HStack {
-                        Text(isLastStep ? "Get Started" : "Next")
-                            .fontWeight(.semibold)
-                        if !isLastStep {
-                            Image(systemName: "arrow.right")
-                        }
+                // Skip button (not on first or last step)
+                if !isLastStep && !isFirstStep {
+                    Button(action: onSkip) {
+                        Text("Skip Tutorial")
+                            .font(.caption)
+                            .foregroundColor(.white.opacity(0.4))
                     }
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 24)
-                    .padding(.vertical, 14)
-                    .frame(maxWidth: isFirstStep || isLastStep ? .infinity : nil)
-                    .background(accentColor)
-                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
-            }
-
-            // Skip button (not on last step)
-            if !isLastStep && !isFirstStep {
-                Button(action: onSkip) {
-                    Text("Skip Tutorial")
-                        .font(.caption)
-                        .foregroundColor(.white.opacity(0.5))
-                }
-                .padding(.top, 8)
             }
         }
-        .padding(24)
+        .padding(28)
         .background(
-            RoundedRectangle(cornerRadius: 24)
-                .fill(Color(white: 0.15))
-                .shadow(color: .black.opacity(0.3), radius: 20, x: 0, y: 10)
+            ZStack {
+                // Gradient background
+                RoundedRectangle(cornerRadius: 28)
+                    .fill(
+                        LinearGradient(
+                            colors: [
+                                Color(white: 0.18),
+                                Color(white: 0.12)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+
+                // Subtle border
+                RoundedRectangle(cornerRadius: 28)
+                    .stroke(
+                        LinearGradient(
+                            colors: [
+                                Color.white.opacity(0.15),
+                                Color.white.opacity(0.05)
+                            ],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1
+                    )
+            }
+            .shadow(color: .black.opacity(0.4), radius: 30, x: 0, y: 15)
         )
     }
 }

@@ -848,16 +848,9 @@ class CloudKitManager: ObservableObject {
                         debugLog("⏱️ PERFORMFULLSYNC: Split '\(split.name)' timed out - queuing for retry")
                         timeoutCount += 1
 
-                        // Queue for retry - capture split directly (it's Sendable as a reference)
-                        let splitName = split.name
-                        let splitToRetry = split
-                        await MainActor.run {
-                            self.queueForRetry(description: "Save split '\(splitName)'") { [weak self] in
-                                guard let self = self else { return }
-                                // Save the split directly - no need to re-fetch
-                                try await self.saveSplit(splitToRetry)
-                            }
-                        }
+                        // Log the rate limit - can't queue retry since Split is not Sendable
+                        // The next full sync will retry this split
+                        debugLog("⏳ PERFORMFULLSYNC: Rate limited saving split '\(split.name)', will retry on next sync")
                     } catch {
                         debugLog("❌ PERFORMFULLSYNC: Failed to upload split '\(split.name)': \(error.localizedDescription)")
                         // Continue with other splits even if one fails
