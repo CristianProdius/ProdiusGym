@@ -24,6 +24,7 @@ struct AIPersonalizedSplitView: View {
     @State private var showModifySheet = false
     @State private var showSaveConfirmation = false
     @State private var isSaving = false
+    @State private var aiAvailabilityError: String?
 
     enum GenerationPhase {
         case questionnaire
@@ -50,22 +51,30 @@ struct AIPersonalizedSplitView: View {
                     .ignoresSafeArea()
 
                 // Main content based on phase
-                Group {
-                    switch currentPhase {
-                    case .questionnaire:
-                        SplitQuestionnaireView(
-                            preferences: $preferences,
-                            currentStep: $currentStep,
-                            onComplete: startGeneration
-                        )
+                VStack(spacing: 16) {
+                    // Show AI unavailability banner if applicable
+                    if let availabilityError = aiAvailabilityError {
+                        aiUnavailableBannerView(reason: availabilityError)
+                            .padding(.horizontal)
+                    }
 
-                    case .generating, .preview:
-                        GeneratedSplitPreviewView(
-                            generatedSplit: generator.generatedSplit,
-                            isGenerating: generator.isGenerating,
-                            onSave: { showSaveConfirmation = true },
-                            onModify: { showModifySheet = true }
-                        )
+                    Group {
+                        switch currentPhase {
+                        case .questionnaire:
+                            SplitQuestionnaireView(
+                                preferences: $preferences,
+                                currentStep: $currentStep,
+                                onComplete: startGeneration
+                            )
+
+                        case .generating, .preview:
+                            GeneratedSplitPreviewView(
+                                generatedSplit: generator.generatedSplit,
+                                isGenerating: generator.isGenerating,
+                                onSave: { showSaveConfirmation = true },
+                                onModify: { showModifySheet = true }
+                            )
+                        }
                     }
                 }
             }
@@ -113,8 +122,61 @@ struct AIPersonalizedSplitView: View {
             }
         }
         .onAppear {
+            // Check AI availability
+            let availability = generator.checkAvailability()
+            if !availability.available {
+                aiAvailabilityError = availability.reason
+            }
             generator.prewarm()
         }
+    }
+
+    // MARK: - AI Unavailable Banner
+
+    private func aiUnavailableBannerView(reason: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Apple Intelligence Unavailable")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+
+                Text(reason)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if reason.contains("Settings") {
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("Settings")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.orange)
+                        .foregroundStyle(.white)
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.15), Color.yellow.opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
     }
 
     // MARK: - Computed Properties

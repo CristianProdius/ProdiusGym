@@ -12,11 +12,23 @@ import SwiftUI
 
 enum WorkoutSummaryError: LocalizedError {
     case noWorkoutData
+    case modelNotAvailable(reason: String)
+    case contextWindowExceeded
+    case contentBlocked
+    case languageNotSupported
 
     var errorDescription: String? {
         switch self {
         case .noWorkoutData:
             return "No completed workouts found in the selected time period. Complete some workouts and try again."
+        case .modelNotAvailable(let reason):
+            return reason
+        case .contextWindowExceeded:
+            return "Too much workout data to analyze at once. Try selecting a shorter time period."
+        case .contentBlocked:
+            return "The summary couldn't be generated due to content restrictions."
+        case .languageNotSupported:
+            return "Your current language is not supported by Apple Intelligence."
         }
     }
 }
@@ -28,6 +40,32 @@ final class WorkoutSummarizer: ObservableObject {
 
     @Published var error: Error?
     @Published var isGenerating = false
+
+    /// Check if Apple Intelligence is available on this device
+    func checkAvailability() -> (available: Bool, reason: String?) {
+        let model = SystemLanguageModel.default
+        switch model.availability {
+        case .available:
+            return (true, nil)
+        case .unavailable(let reason):
+            switch reason {
+            case .deviceNotEligible:
+                return (false, "This device doesn't support Apple Intelligence. Requires iPhone 15 Pro or newer.")
+            case .appleIntelligenceNotEnabled:
+                return (false, "Apple Intelligence is not enabled. Enable it in Settings > Apple Intelligence & Siri.")
+            case .modelNotReady:
+                return (false, "Apple Intelligence is still downloading. Please try again later.")
+            @unknown default:
+                return (false, "Apple Intelligence is currently unavailable.")
+            }
+        }
+    }
+
+    /// Check if the current language is supported
+    func checkLanguageSupport() -> Bool {
+        let locale = Locale.current
+        return SystemLanguageModel.default.supportsLanguage(for: locale)
+    }
 
     init() {
         self.session = LanguageModelSession(
@@ -68,6 +106,17 @@ final class WorkoutSummarizer: ObservableObject {
         isGenerating = true
         defer { isGenerating = false }
 
+        // Check if Apple Intelligence is available
+        let availability = checkAvailability()
+        guard availability.available else {
+            throw WorkoutSummaryError.modelNotAvailable(reason: availability.reason ?? "Apple Intelligence unavailable")
+        }
+
+        // Check language support
+        guard checkLanguageSupport() else {
+            throw WorkoutSummaryError.languageNotSupported
+        }
+
         // Validate that there is meaningful workout data to analyze
         let hasThisWeekData = !thisWeek.isEmpty && thisWeek.contains { !$0.exercises.isEmpty }
         let hasLastWeekData = !lastWeek.isEmpty && lastWeek.contains { !$0.exercises.isEmpty }
@@ -82,7 +131,6 @@ final class WorkoutSummarizer: ObservableObject {
 
         let stream = session.streamResponse(
             generating: WorkoutSummary.self,
-            includeSchemaInPrompt: false,
             options: GenerationOptions(sampling: .greedy)
         ) {
             "Analyze the following workout data and generate a comprehensive summary:"
@@ -321,13 +369,26 @@ final class WorkoutSummarizer: ObservableObject {
             "Make it personal, specific, and actionable. Do not make up or hallucinate data that wasn't provided."
         }
 
-        for try await partialResponse in stream {
-            workoutSummary = partialResponse.content
-        }
+        do {
+            for try await partialResponse in stream {
+                workoutSummary = partialResponse.content
+            }
 
-        // Save the completed summary to cache
-        if let finalSummary = workoutSummary {
-            AISummaryCache.shared.saveSummary(finalSummary)
+            // Save the completed summary to cache
+            if let finalSummary = workoutSummary {
+                AISummaryCache.shared.saveSummary(finalSummary)
+            }
+        } catch let error as LanguageModelSession.GenerationError {
+            switch error {
+            case .exceededContextWindowSize:
+                throw WorkoutSummaryError.contextWindowExceeded
+            case .guardrailViolation:
+                throw WorkoutSummaryError.contentBlocked
+            case .unsupportedLanguageOrLocale:
+                throw WorkoutSummaryError.languageNotSupported
+            default:
+                throw error
+            }
         }
     }
 

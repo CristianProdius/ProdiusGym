@@ -12,15 +12,33 @@ import FoundationModels
 
 @Generable
 public struct WorkoutSummary: Codable, Sendable {
+    // Version first for parsing
     public var version: String                // "1.0"
-    public var headline: String               // e.g., "Solid Pull Day — 2 PRs"
-    public var overview: String               // 2–3 sentences in plain language
+
+    // Data/stats first - these inform the analysis
+    @Guide(.maximumCount(3))
     public var keyStats: [KeyStat]            // compact, UI-friendly metrics
+
     public var session: SessionBreakdown      // per-exercise rollup
+
+    @Guide(.maximumCount(4))
     public var trends: [Trend]                // short-term patterns (1–4 weeks)
+
+    @Guide(.maximumCount(5))
     public var prs: [PersonalRecords]          // any PRs detected
+
+    @Guide(.maximumCount(3))
     public var issues: [Issue]                // injuries, form flags, anomalies
+
+    @Guide(.maximumCount(3))
     public var recommendations: [Recommendation] // next-steps you can act on
+
+    // Analysis/summary LAST for best quality (generated after seeing all data)
+    @Guide(description: "A motivating headline capturing the week's key achievement, max 10 words")
+    public var headline: String               // e.g., "Solid Pull Day — 2 PRs"
+
+    @Guide(description: "2-3 sentences summarizing overall performance in plain language")
+    public var overview: String               // 2–3 sentences in plain language
 }
 
 
@@ -55,7 +73,10 @@ public struct ExerciseSummary: Codable, Sendable {
 @Generable
 public struct Trend: Codable, Sendable {
     public var label: String                  // "Bench strength"
+
+    @Guide(.anyOf(["up", "flat", "down"]))
     public var direction: String              // "up" | "flat" | "down"
+
     public var evidence: String               // "Top set +5 kg vs last week"
 }
 
@@ -63,7 +84,10 @@ public struct Trend: Codable, Sendable {
 @Generable
 public struct PersonalRecords: Codable, Sendable {
     public var exercise: String               // "Deadlift"
-    public var type: String                   // "1RM est" | "rep PR" | "volume PR"
+
+    @Guide(.anyOf(["Weight PR", "Rep PR", "Volume PR", "1RM Est"]))
+    public var type: String                   // "Weight PR" | "Rep PR" | "Volume PR" | "1RM Est"
+
     public var value: String                  // "180 kg (est 1RM)"
 }
 
@@ -72,6 +96,8 @@ public struct PersonalRecords: Codable, Sendable {
 public struct Issue: Codable, Sendable {
     public var category: String               // "Form" | "Pain" | "Consistency"
     public var detail: String                 // "Knees caved on last 2 reps"
+
+    @Guide(.anyOf(["low", "medium", "high"]))
     public var severity: String               // "low" | "medium" | "high"
 }
 

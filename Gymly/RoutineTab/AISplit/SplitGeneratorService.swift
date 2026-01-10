@@ -15,6 +15,10 @@ enum SplitGeneratorError: LocalizedError {
     case missingPreferences
     case generationFailed(String)
     case invalidMuscleGroups
+    case modelNotAvailable(reason: String)
+    case contextWindowExceeded
+    case contentBlocked
+    case languageNotSupported
 
     var errorDescription: String? {
         switch self {
@@ -24,6 +28,14 @@ enum SplitGeneratorError: LocalizedError {
             return "Failed to generate split: \(reason)"
         case .invalidMuscleGroups:
             return "Generated split contains invalid muscle groups. Please try again."
+        case .modelNotAvailable(let reason):
+            return reason
+        case .contextWindowExceeded:
+            return "The request was too complex. Try simplifying your preferences."
+        case .contentBlocked:
+            return "The split couldn't be generated due to content restrictions."
+        case .languageNotSupported:
+            return "Your current language is not supported by Apple Intelligence."
         }
     }
 }
@@ -51,6 +63,32 @@ final class SplitGeneratorService: ObservableObject {
         // Don't initialize session here - do it lazily
     }
 
+    /// Check if Apple Intelligence is available on this device
+    func checkAvailability() -> (available: Bool, reason: String?) {
+        let model = SystemLanguageModel.default
+        switch model.availability {
+        case .available:
+            return (true, nil)
+        case .unavailable(let reason):
+            switch reason {
+            case .deviceNotEligible:
+                return (false, "This device doesn't support Apple Intelligence. Requires iPhone 15 Pro or newer.")
+            case .appleIntelligenceNotEnabled:
+                return (false, "Apple Intelligence is not enabled. Enable it in Settings > Apple Intelligence & Siri.")
+            case .modelNotReady:
+                return (false, "Apple Intelligence is still downloading. Please try again later.")
+            @unknown default:
+                return (false, "Apple Intelligence is currently unavailable.")
+            }
+        }
+    }
+
+    /// Check if the current language is supported
+    func checkLanguageSupport() -> Bool {
+        let locale = Locale.current
+        return SystemLanguageModel.default.supportsLanguage(for: locale)
+    }
+
     private func createSession() -> LanguageModelSession {
         LanguageModelSession(
             instructions: Instructions {
@@ -66,13 +104,23 @@ final class SplitGeneratorService: ObservableObject {
         error = nil
         defer { isGenerating = false }
 
+        // Check if Apple Intelligence is available
+        let availability = checkAvailability()
+        guard availability.available else {
+            throw SplitGeneratorError.modelNotAvailable(reason: availability.reason ?? "Apple Intelligence unavailable")
+        }
+
+        // Check language support
+        guard checkLanguageSupport() else {
+            throw SplitGeneratorError.languageNotSupported
+        }
+
         // Build compact prompt
         let muscleList = preferences.musclePriority.isEmpty ? "balanced" : preferences.musclePriority.joined(separator: ", ")
         let limitations = preferences.limitations ?? "none"
 
         let stream = session.streamResponse(
             generating: GeneratedSplit.self,
-            includeSchemaInPrompt: false,
             options: GenerationOptions(sampling: .greedy)
         ) {
             "Create \(preferences.daysPerWeek)-day \(preferences.splitType.displayName) split."
@@ -81,12 +129,25 @@ final class SplitGeneratorService: ObservableObject {
             "RULES: Use ONLY: Chest, Back, Biceps, Triceps, Shoulders, Quads, Hamstrings, Calves, Glutes, Abs. 4-8 exercises/day. Compounds first."
         }
 
-        for try await partialResponse in stream {
-            generatedSplit = partialResponse.content
-        }
+        do {
+            for try await partialResponse in stream {
+                generatedSplit = partialResponse.content
+            }
 
-        if let finalSplit = generatedSplit, let name = finalSplit.name, !name.isEmpty {
-            debugLog("AI Split generated successfully: \(name)")
+            if let finalSplit = generatedSplit, let name = finalSplit.name, !name.isEmpty {
+                debugLog("AI Split generated successfully: \(name)")
+            }
+        } catch let error as LanguageModelSession.GenerationError {
+            switch error {
+            case .exceededContextWindowSize:
+                throw SplitGeneratorError.contextWindowExceeded
+            case .guardrailViolation:
+                throw SplitGeneratorError.contentBlocked
+            case .unsupportedLanguageOrLocale:
+                throw SplitGeneratorError.languageNotSupported
+            default:
+                throw error
+            }
         }
     }
 
@@ -100,12 +161,17 @@ final class SplitGeneratorService: ObservableObject {
         error = nil
         defer { isGenerating = false }
 
+        // Check if Apple Intelligence is available
+        let availability = checkAvailability()
+        guard availability.available else {
+            throw SplitGeneratorError.modelNotAvailable(reason: availability.reason ?? "Apple Intelligence unavailable")
+        }
+
         // Build compact representation of current split
         let splitSummary = buildSplitSummary(currentSplit)
 
         let stream = session.streamResponse(
             generating: GeneratedSplit.self,
-            includeSchemaInPrompt: false,
             options: GenerationOptions(sampling: .greedy)
         ) {
             "CURRENT SPLIT: \(splitSummary)"
@@ -113,8 +179,21 @@ final class SplitGeneratorService: ObservableObject {
             "Keep everything unchanged except what user asked. Use ONLY: Chest, Back, Biceps, Triceps, Shoulders, Quads, Hamstrings, Calves, Glutes, Abs."
         }
 
-        for try await partialResponse in stream {
-            generatedSplit = partialResponse.content
+        do {
+            for try await partialResponse in stream {
+                generatedSplit = partialResponse.content
+            }
+        } catch let error as LanguageModelSession.GenerationError {
+            switch error {
+            case .exceededContextWindowSize:
+                throw SplitGeneratorError.contextWindowExceeded
+            case .guardrailViolation:
+                throw SplitGeneratorError.contentBlocked
+            case .unsupportedLanguageOrLocale:
+                throw SplitGeneratorError.languageNotSupported
+            default:
+                throw error
+            }
         }
     }
 

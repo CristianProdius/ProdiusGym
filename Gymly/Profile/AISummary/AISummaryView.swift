@@ -22,6 +22,7 @@ struct AISummaryView: View {
     @State private var cacheAge: String?
     @State private var cachedData: CachedSummaryData?
     @State private var showPremiumSheet = false
+    @State private var aiAvailabilityError: String?
 
     /// When true, forces display of mockup data (for developer testing)
     var forceMockup: Bool = false
@@ -72,6 +73,11 @@ struct AISummaryView: View {
                             premiumBannerView
                         }
 
+                        // Show AI unavailability banner if applicable
+                        if let availabilityError = aiAvailabilityError, storeManager.hasAIAccess {
+                            aiUnavailableBannerView(reason: availabilityError)
+                        }
+
                         if summarizer.isGenerating && !hasStartedGeneration {
                             loadingView
                         } else if hasStartedGeneration || summarizer.workoutSummary != nil {
@@ -79,6 +85,13 @@ struct AISummaryView: View {
                         } else if !storeManager.hasAIAccess {
                             // Show example for users without AI access (free or Pro-only users)
                             cachedSummaryContent(exampleSummary)
+                        } else if aiAvailabilityError != nil {
+                            // Show cached data if available, otherwise show example
+                            if let cached = cachedData {
+                                cachedSummaryContent(cached)
+                            } else {
+                                cachedSummaryContent(exampleSummary)
+                            }
                         } else {
                             emptyStateView
                         }
@@ -91,6 +104,11 @@ struct AISummaryView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             setupDataFetcher()
+            // Check AI availability
+            let availability = summarizer.checkAvailability()
+            if !availability.available {
+                aiAvailabilityError = availability.reason
+            }
             // Load cached summary if available
             if summarizer.workoutSummary == nil && cachedData == nil {
                 cachedData = AISummaryCache.shared.loadCachedData()
@@ -119,7 +137,7 @@ struct AISummaryView: View {
                         showPremiumSheet = true
                     }
                 }
-                .disabled(summarizer.isGenerating)
+                .disabled(summarizer.isGenerating || (aiAvailabilityError != nil && storeManager.hasAIAccess))
             }
         }
         .sheet(isPresented: $showPremiumSheet) {
@@ -614,6 +632,52 @@ struct AISummaryView: View {
         .background(
             LinearGradient(
                 colors: [Color.purple.opacity(0.15), Color.blue.opacity(0.1)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            ),
+            in: RoundedRectangle(cornerRadius: 12)
+        )
+    }
+
+    private func aiUnavailableBannerView(reason: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.triangle.fill")
+                .foregroundStyle(.orange)
+                .font(.title3)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Apple Intelligence Unavailable")
+                    .font(.subheadline)
+                    .fontWeight(.bold)
+
+                Text(reason)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if reason.contains("Settings") {
+                Button {
+                    if let url = URL(string: UIApplication.openSettingsURLString) {
+                        UIApplication.shared.open(url)
+                    }
+                } label: {
+                    Text("Settings")
+                        .font(.caption)
+                        .fontWeight(.bold)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(.orange)
+                        .foregroundStyle(.white)
+                        .cornerRadius(8)
+                }
+            }
+        }
+        .padding()
+        .background(
+            LinearGradient(
+                colors: [Color.orange.opacity(0.15), Color.yellow.opacity(0.1)],
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             ),
