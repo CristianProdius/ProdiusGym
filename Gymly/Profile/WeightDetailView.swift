@@ -1,6 +1,6 @@
 //
 //  WeightDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 26.03.2025.
 //
@@ -158,7 +158,7 @@ struct WeightDetailView: View {
                                             .foregroundColor(.white)
                                             .padding(.horizontal, 24)
                                             .padding(.vertical, 10)
-                                            .background(appearanceManager.accentColor.color)
+                                            .background(PremiumColors.gold)
                                             .cornerRadius(10)
                                         }
                                         .disabled(bodyWeight.isEmpty || parseWeight(bodyWeight) == nil)
@@ -190,7 +190,7 @@ struct WeightDetailView: View {
                                             Text("Tap to update")
                                                 .font(.caption)
                                         }
-                                        .foregroundColor(appearanceManager.accentColor.color.opacity(0.8))
+                                        .foregroundColor(PremiumColors.gold.opacity(0.8))
                                     }
                                 }
                                 .buttonStyle(.plain)
@@ -216,21 +216,21 @@ struct WeightDetailView: View {
                                     period: "7D",
                                     change: cachedWeekChange,
                                     unit: weightUnit,
-                                    accentColor: appearanceManager.accentColor.color
+                                    accentColor: PremiumColors.gold
                                 )
 
                                 WeightStatCard(
                                     period: "30D",
                                     change: cachedMonthChange,
                                     unit: weightUnit,
-                                    accentColor: appearanceManager.accentColor.color
+                                    accentColor: PremiumColors.gold
                                 )
 
                                 WeightStatCard(
                                     period: "All",
                                     change: cachedAllTimeChange,
                                     unit: weightUnit,
-                                    accentColor: appearanceManager.accentColor.color
+                                    accentColor: PremiumColors.gold
                                 )
                             }
                             .padding(.vertical, 8)
@@ -255,7 +255,7 @@ struct WeightDetailView: View {
                                     weightPoint: point,
                                     weightUnit: weightUnit,
                                     conversionFactor: weightConversionFactor,
-                                    accentColor: appearanceManager.accentColor.color
+                                    accentColor: PremiumColors.gold
                                 )
                             }
                             .onDelete { indexSet in
@@ -273,10 +273,10 @@ struct WeightDetailView: View {
                                         Spacer()
                                         Text(isHistoryExpanded ? "Show Less" : "Show More (\(weightPoints.count - 3) more)")
                                             .font(.subheadline)
-                                            .foregroundColor(appearanceManager.accentColor.color)
+                                            .foregroundColor(PremiumColors.gold)
                                         Image(systemName: isHistoryExpanded ? "chevron.up" : "chevron.down")
                                             .font(.caption)
-                                            .foregroundColor(appearanceManager.accentColor.color)
+                                            .foregroundColor(PremiumColors.gold)
                                         Spacer()
                                     }
                                     .padding(.vertical, 8)
@@ -313,7 +313,7 @@ struct WeightDetailView: View {
                                 dismiss()
                             }
                         }
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                         .bold()
                     }
                 }

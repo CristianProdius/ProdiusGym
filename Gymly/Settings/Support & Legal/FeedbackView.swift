@@ -1,6 +1,6 @@
 //
 //  FeedbackView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 29.11.2024.
 //
@@ -27,13 +27,13 @@ struct FeedbackView: View {
         var subject: String {
             switch self {
             case .general:
-                return "ShadowLift Feedback"
+                return "ProdiusGym Feedback"
             case .feature:
                 return "Feature Suggestion: [Your Idea]"
             case .improvement:
-                return "ShadowLift Improvement Suggestion"
+                return "ProdiusGym Improvement Suggestion"
             case .praise:
-                return "ShadowLift - Positive Feedback"
+                return "ProdiusGym - Positive Feedback"
             }
         }
 
@@ -70,7 +70,7 @@ struct FeedbackView: View {
             case .feature:
                 return "Suggest a new feature you'd love to see"
             case .improvement:
-                return "Help us make ShadowLift even better"
+                return "Help us make ProdiusGym even better"
             case .praise:
                 return "Let us know what you love!"
             }
@@ -79,7 +79,7 @@ struct FeedbackView: View {
 
     var body: some View {
         ZStack {
-            FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
                 .ignoresSafeArea()
 
             ScrollView {
@@ -88,7 +88,7 @@ struct FeedbackView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "bubble.left.and.bubble.right.fill")
                             .font(.system(size: 60))
-                            .foregroundColor(appearanceManager.accentColor.color)
+                            .foregroundColor(PremiumColors.gold)
 
                         Text("Send Feedback")
                             .font(.largeTitle)

@@ -1,6 +1,6 @@
 //
 //  CrashReporter.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 04.12.2025.
 //
@@ -193,7 +193,7 @@ class CrashReporter: ObservableObject {
 
     /// Export crash reports for sending to developer
     func exportReports() -> String {
-        var output = "ShadowLift Crash Reports\n"
+        var output = "ProdiusGym Crash Reports\n"
         output += "=========================\n\n"
 
         for report in pendingCrashReports {

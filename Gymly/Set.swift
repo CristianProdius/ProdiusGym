@@ -1,6 +1,6 @@
 //
 //  Set.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 27.02.2025.
 //

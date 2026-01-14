@@ -36,12 +36,12 @@ struct PRHistoryLockedView: View {
                 // Lock Icon
                 ZStack {
                     Circle()
-                        .fill(appearanceManager.accentColor.color.opacity(0.2))
+                        .fill(PremiumColors.gold.opacity(0.2))
                         .frame(width: 100, height: 100)
 
                     Image(systemName: "lock.fill")
                         .font(.system(size: 50))
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                 }
 
                 // Title
@@ -78,7 +78,7 @@ struct PRHistoryLockedView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(appearanceManager.accentColor.color)
+                    .background(PremiumColors.gold)
                     .foregroundColor(.black)
                     .cornerRadius(16)
                 }

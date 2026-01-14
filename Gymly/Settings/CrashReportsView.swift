@@ -1,6 +1,6 @@
 //
 //  CrashReportsView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 04.12.2025.
 //
@@ -56,7 +56,7 @@ struct CrashReportsView: View {
             }
             .sheet(isPresented: $showMailComposer) {
                 MailComposeView(
-                    subject: "ShadowLift Crash Reports",
+                    subject: "ProdiusGym Crash Reports",
                     body: crashReporter.exportReports(),
                     recipient: "sebastian.kucera@icloud.com"
                 )
@@ -107,11 +107,11 @@ struct CrashReportsView: View {
                 // Info Banner
                 HStack(alignment: .top, spacing: 12) {
                     Image(systemName: "info.circle.fill")
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                         .font(.title3)
 
                     VStack(alignment: .leading, spacing: 4) {
-                        Text("Help Improve ShadowLift")
+                        Text("Help Improve ProdiusGym")
                             .font(.headline)
 
                         Text("Send these reports to help identify and fix issues. No personal workout data is included.")
@@ -144,7 +144,7 @@ struct CrashReportsView: View {
                     .bold()
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(appearanceManager.accentColor.color)
+                    .background(PremiumColors.gold)
                     .foregroundColor(.black)
                     .cornerRadius(12)
                 }

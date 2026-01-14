@@ -1,6 +1,6 @@
 //
 //  ProfileView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 19.10.2025.
 //
@@ -58,7 +58,7 @@ struct ProfileView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+                FloatingClouds(theme: CloudsTheme.premium(scheme))
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -73,9 +73,9 @@ struct ProfileView: View {
                                 // Multi-tone gradient background
                                 LinearGradient(
                                     gradient: Gradient(colors: [
-                                        appearanceManager.accentColor.color,
-                                        appearanceManager.accentColor.color.opacity(0.8),
-                                        appearanceManager.accentColor.color.opacity(0.6)
+                                        PremiumColors.gold,
+                                        PremiumColors.gold.opacity(0.8),
+                                        PremiumColors.gold.opacity(0.6)
                                     ]),
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -134,16 +134,17 @@ struct ProfileView: View {
                                 .padding(.vertical, 16)
                             }
                             .clipShape(RoundedRectangle(cornerRadius: 20))
-                            .shadow(color: appearanceManager.accentColor.color.opacity(0.4), radius: 16, x: 0, y: 8)
+                            .shadow(color: PremiumColors.gold.opacity(0.4), radius: 16, x: 0, y: 8)
                             .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
                         }
                         .buttonStyle(.plain)
                         .padding(.horizontal, 16)
 
                         // Body Stats Cards - Glassmorphism Design
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Your Stats")
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("YOUR STATS")
                                 .font(.headline)
+                                .classicalSection()
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 20)
 
@@ -162,7 +163,7 @@ struct ProfileView: View {
                                                     return weight * factor
                                                 }()),
                                             metric: userProfileManager.currentProfile?.weightUnit ?? "Kg",
-                                            headerColor: appearanceManager.accentColor.color,
+                                            headerColor: PremiumColors.gold,
                                             additionalInfo: "Body Weight",
                                             icon: "scalemass.fill"
                                         )
@@ -227,9 +228,10 @@ struct ProfileView: View {
                         .id(weightUpdatedTrigger)
 
                         // Progress Section
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Progress")
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("PROGRESS")
                                 .font(.headline)
+                                .classicalSection()
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 20)
 
@@ -280,9 +282,10 @@ struct ProfileView: View {
                         }
 
                         // Personal Records Section
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Personal Records")
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("PERSONAL RECORDS")
                                 .font(.headline)
+                                .classicalSection()
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 20)
 
@@ -317,9 +320,10 @@ struct ProfileView: View {
 
                         // AI Insights Section
                         if #available(iOS 18.1, *) {
-                            VStack(alignment: .leading, spacing: 12) {
-                                Text("AI Insights")
+                            VStack(alignment: .leading, spacing: 16) {
+                                Text("AI INSIGHTS")
                                     .font(.headline)
+                                    .classicalSection()
                                     .foregroundStyle(.secondary)
                                     .padding(.leading, 20)
 
@@ -352,9 +356,10 @@ struct ProfileView: View {
                         }
 
                         // Fitness Section
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("Fitness")
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("FITNESS")
                                 .font(.headline)
+                                .classicalSection()
                                 .foregroundStyle(.secondary)
                                 .padding(.leading, 20)
 

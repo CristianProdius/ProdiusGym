@@ -1,6 +1,6 @@
 //
 //  ExerciseExtensions.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by CloudKit Integration on 18.09.2025.
 //

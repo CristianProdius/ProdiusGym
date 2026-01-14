@@ -1,6 +1,6 @@
 //
 //  WorkoutSummary.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 22.09.2025.
 //

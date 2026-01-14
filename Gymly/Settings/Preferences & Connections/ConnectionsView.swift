@@ -1,6 +1,6 @@
 //
 //  ConnectionsView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 29.01.2025.
 //
@@ -72,7 +72,7 @@ struct ConnectionsView: View {
                     .disabled(isHealthKitSyncing)
                 }
 
-                Text("To fully revoke permissions, disable HealthKit access in Settings > Privacy & Security > Health > ShadowLift")
+                Text("To fully revoke permissions, disable HealthKit access in Settings > Privacy & Security > Health > ProdiusGym")
                     .font(.caption)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.leading)
@@ -158,7 +158,7 @@ struct ConnectionsView: View {
             }
             Button("Cancel", role: .cancel) {}
         } message: {
-            Text("You previously denied HealthKit access. To enable it, go to Settings > Privacy & Security > Health > ShadowLift and turn on all permissions.")
+            Text("You previously denied HealthKit access. To enable it, go to Settings > Privacy & Security > Health > ProdiusGym and turn on all permissions.")
         }
     }
     

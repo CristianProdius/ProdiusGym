@@ -1,6 +1,6 @@
 //
 //  ContactSupportView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 13.11.2024.
 //
@@ -77,7 +77,7 @@ struct ContactSupportView: View {
 
     var body: some View {
         ZStack {
-            FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
                 .ignoresSafeArea()
 
             ScrollView {
@@ -86,7 +86,7 @@ struct ContactSupportView: View {
                     VStack(spacing: 12) {
                         Image(systemName: "envelope.circle.fill")
                             .font(.system(size: 60))
-                            .foregroundColor(appearanceManager.accentColor.color)
+                            .foregroundColor(PremiumColors.gold)
 
                         Text("Contact Support")
                             .font(.largeTitle)

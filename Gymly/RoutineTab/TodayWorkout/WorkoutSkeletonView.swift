@@ -1,6 +1,6 @@
 //
 //  WorkoutSkeletonView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 25.11.2024.
 //

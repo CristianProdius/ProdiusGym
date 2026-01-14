@@ -1,6 +1,6 @@
 //
 //  CalendarExerciseView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 01.10.2024.
 //
@@ -47,12 +47,12 @@ struct CalendarExerciseView: View {
             VStack {
             HStack {
                 Text("\(exercise.sets?.count ?? 0) Sets")
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(PremiumColors.gold)
                     .padding()
                     .bold()
                 Spacer()
                 Text("\(exercise.repGoal) Reps")
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(PremiumColors.gold)
                     .padding()
                     .bold()
             }

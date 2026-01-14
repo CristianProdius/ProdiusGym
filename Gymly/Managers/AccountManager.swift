@@ -1,6 +1,6 @@
 //
 //  AccountManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 29.11.2025.
 //
@@ -18,20 +18,6 @@ class AccountManager: ObservableObject {
     @Published var deletionError: String?
 
     private init() {}
-
-    // MARK: - Logout
-
-    /// Simple logout - returns to sign-in screen, keeps ALL data intact
-    /// User can sign back in with same Apple ID and see all their data
-    func logout(config: Config) {
-        debugLog("🔓 LOGOUT: Returning to sign-in screen...")
-
-        // Only change: set logged out state
-        config.isUserLoggedIn = false
-
-        // That's it! All data stays intact for when they sign back in
-        debugLog("✅ LOGOUT: Complete - Data preserved, user can sign back in")
-    }
 
     // MARK: - Account Deletion
 
@@ -64,10 +50,6 @@ class AccountManager: ObservableObject {
             // STEP 4: Reset Config
             debugLog("🗑️ DELETE ACCOUNT: Resetting app state...")
             resetConfig(config: config)
-
-            // STEP 5: Sign out
-            debugLog("🗑️ DELETE ACCOUNT: Signing out...")
-            config.isUserLoggedIn = false
 
             debugLog("✅ DELETE ACCOUNT: Complete - All data deleted")
             isDeletingAccount = false
@@ -200,7 +182,6 @@ class AccountManager: ObservableObject {
         config.dayInSplit = 1
         config.splitLength = 1
         config.lastUpdateDate = Date()
-        config.isUserLoggedIn = false
         config.firstSplitEdit = true
         config.activeExercise = 1
         config.graphDataValues = []

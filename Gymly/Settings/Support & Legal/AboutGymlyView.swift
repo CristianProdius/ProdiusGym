@@ -1,6 +1,6 @@
 //
 //  AboutGymlyView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 13.11.2024.
 //
@@ -16,7 +16,7 @@ struct AboutGymlyView: View {
 
     var body: some View {
         ZStack {
-            FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -37,7 +37,7 @@ struct AboutGymlyView: View {
                                     .cornerRadius(20)
                                     .shadow(radius: 5)
 
-                                Text("ShadowLift")
+                                Text("ProdiusGym")
                                     .font(.largeTitle)
                                     .fontWeight(.bold)
 
@@ -64,7 +64,7 @@ struct AboutGymlyView: View {
                 }
             }
         }
-        .navigationTitle("About ShadowLift")
+        .navigationTitle("About ProdiusGym")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             loadDocument()
@@ -94,11 +94,11 @@ struct AboutGymlyView: View {
               let text = try? String(contentsOf: finalUrl, encoding: .utf8) else {
             let currentYear = Calendar.current.component(.year, from: Date())
             content = """
-            # About ShadowLift
+            # About ProdiusGym
 
             **Built for lifters, by lifters.**
 
-            ShadowLift is a modern fitness tracking app designed for strength training enthusiasts.
+            ProdiusGym is a modern fitness tracking app designed for strength training enthusiasts.
 
             ## Our Mission
 
@@ -108,7 +108,7 @@ struct AboutGymlyView: View {
 
             **Support**: sebastian.kucera@icloud.com
 
-            © \(currentYear) ShadowLift. All rights reserved.
+            © \(currentYear) ProdiusGym. All rights reserved.
             """
             isLoading = false
             return

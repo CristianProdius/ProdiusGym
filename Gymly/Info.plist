@@ -6,14 +6,14 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>ShadowLift Split</string>
+			<string>ProdiusGym Split</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
 			<key>LSItemContentTypes</key>
 			<array>
-				<string>com.shadowlift.split</string>
+				<string>com.prodius.prodiusgym.split</string>
 			</array>
 		</dict>
 	</array>
@@ -77,12 +77,12 @@
 	</dict>
 	<key>NSUbiquitousContainers</key>
 	<dict>
-		<key>iCloud.com.gymly.app</key>
+		<key>iCloud.com.prodius.prodiusgym</key>
 		<dict>
 			<key>NSUbiquitousContainerIsDocumentScopePublic</key>
 			<false/>
 			<key>NSUbiquitousContainerName</key>
-			<string>ShadowLift</string>
+			<string>ProdiusGym</string>
 			<key>NSUbiquitousContainerSupportedFolderLevels</key>
 			<string>None</string>
 		</dict>
@@ -93,10 +93,10 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.shadowlift.app</string>
+			<string>com.prodius.prodiusgym.app</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>shadowlift</string>
+				<string>prodiusgym</string>
 			</array>
 		</dict>
 	</array>
@@ -112,14 +112,14 @@
 				<string>public.data</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>ShadowLift Split File</string>
+			<string>ProdiusGym Split File</string>
 			<key>UTTypeIdentifier</key>
-			<string>com.shadowlift.split</string>
+			<string>com.prodius.prodiusgym.split</string>
 			<key>UTTypeTagSpecification</key>
 			<dict>
 				<key>public.filename-extension</key>
 				<array>
-					<string>shadowliftsplit</string>
+					<string>prodiusgymsplit</string>
 				</array>
 				<key>public.mime-type</key>
 				<string>application/json</string>
@@ -127,15 +127,15 @@
 		</dict>
 	</array>
 	<key>NSHealthShareUsageDescription</key>
-	<string>ShadowLift needs access to your health data to sync your weight, height, and BMI for accurate fitness tracking and progress visualization.</string>
+	<string>ProdiusGym needs access to your health data to sync your weight, height, and BMI for accurate fitness tracking and progress visualization.</string>
 	<key>NSHealthUpdateUsageDescription</key>
-	<string>ShadowLift needs permission to save your workout data and weight measurements to Apple Health so you can track your fitness progress across all your health apps.</string>
+	<string>ProdiusGym needs permission to save your workout data and weight measurements to Apple Health so you can track your fitness progress across all your health apps.</string>
 	<key>NSCameraUsageDescription</key>
-	<string>ShadowLift needs camera access to capture progress photos so you can visually track your physical transformation over time.</string>
+	<string>ProdiusGym needs camera access to capture progress photos so you can visually track your physical transformation over time.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>ShadowLift needs permission to save your progress photos to your photo library so you can keep a permanent record of your fitness journey.</string>
+	<string>ProdiusGym needs permission to save your progress photos to your photo library so you can keep a permanent record of your fitness journey.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>ShadowLift needs access to your photo library to display your saved progress photos and track your fitness transformation.</string>
+	<string>ProdiusGym needs access to your photo library to display your saved progress photos and track your fitness transformation.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 </dict>

@@ -1,6 +1,6 @@
 //
 //  ExerciseDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera.
 //
@@ -40,12 +40,12 @@ struct ExerciseDetailView: View {
                 /// Displays set and rep count
                 HStack {
                     Text("\(exercise.sets?.count ?? 0) Sets")
-                        .foregroundStyle(appearanceManager.accentColor.color)
+                        .foregroundStyle(PremiumColors.gold)
                         .padding()
                         .bold()
                     Spacer()
                     Text("\(exercise.repGoal) Reps")
-                        .foregroundStyle(appearanceManager.accentColor.color)
+                        .foregroundStyle(PremiumColors.gold)
                         .padding()
                         .bold()
                 }
@@ -148,7 +148,7 @@ struct ExerciseDetailView: View {
                         .scrollContentBackground(.hidden)
                         .background(Color.clear)
                         .listRowBackground(Color.listRowBackground(for: scheme))
-                        .foregroundStyle(appearanceManager.accentColor.color)
+                        .foregroundStyle(PremiumColors.gold)
                     }
                 }
                 .toolbar {

@@ -1,6 +1,6 @@
 //
 //  NotificationsView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 25.11.2025.
 //
@@ -51,7 +51,7 @@ struct NotificationsView: View {
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     if !notificationManager.isAuthorized {
-                        Text("Allow ShadowLift to send you helpful reminders and motivational notifications")
+                        Text("Allow ProdiusGym to send you helpful reminders and motivational notifications")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .listRowBackground(Color.listRowBackground(for: scheme))

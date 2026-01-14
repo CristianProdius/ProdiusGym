@@ -1,6 +1,6 @@
 //
 //  SetupSplitView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 17.10.2024.
 //
@@ -82,7 +82,7 @@ struct SetupSplitView: View {
                                         .padding(.vertical, 10)
                                         .background(
                                             Capsule()
-                                                .fill(splitLength == value ? appearanceManager.accentColor.color : Color.black.opacity(0.2))
+                                                .fill(splitLength == value ? PremiumColors.gold : Color.black.opacity(0.2))
                                         )
                                 }
                                 .buttonStyle(.plain)
@@ -113,7 +113,7 @@ struct SetupSplitView: View {
                     } label: {
                         Text("Create")
                             .fontWeight(.semibold)
-                            .foregroundStyle(isFormValid ? appearanceManager.accentColor.color : .secondary)
+                            .foregroundStyle(isFormValid ? PremiumColors.gold : .secondary)
                     }
                     .disabled(!isFormValid)
                 }

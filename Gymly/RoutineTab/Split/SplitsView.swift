@@ -1,6 +1,6 @@
 //
 //  SplitsView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 27.02.2025.
 //
@@ -94,7 +94,7 @@ struct SplitsView: View {
                                     .bold()
                                     .padding(.horizontal, 24)
                                     .padding(.vertical, 12)
-                                    .background(appearanceManager.accentColor.color)
+                                    .background(PremiumColors.gold)
                                     .foregroundColor(.white)
                                     .cornerRadius(25)
                                 }
@@ -243,7 +243,7 @@ struct SplitsView: View {
                     configuration.label
                 } icon: {
                     Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(configuration.isOn ? AppearanceManager.shared.accentColor.color : .secondary)
+                        .foregroundStyle(configuration.isOn ? PremiumColors.gold : .secondary)
                         .accessibility(label: Text(configuration.isOn ? "Checked" : "Unchecked"))
                         .imageScale(.large)
                 }
@@ -274,7 +274,7 @@ private struct TemplatesButtonContent: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color.opacity(0.7)],
+                            colors: [PremiumColors.gold, PremiumColors.gold.opacity(0.7)],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -310,8 +310,8 @@ private struct TemplatesButtonContent: View {
                 .fill(
                     LinearGradient(
                         colors: [
-                            appearanceManager.accentColor.color.opacity(0.8),
-                            appearanceManager.accentColor.color.opacity(0.6)
+                            PremiumColors.gold.opacity(0.8),
+                            PremiumColors.gold.opacity(0.6)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
@@ -322,7 +322,7 @@ private struct TemplatesButtonContent: View {
                         .stroke(Color.white.opacity(0.15), lineWidth: 1)
                 )
         )
-        .shadow(color: appearanceManager.accentColor.color.opacity(0.3), radius: 6, x: 0, y: 3)
+        .shadow(color: PremiumColors.gold.opacity(0.3), radius: 6, x: 0, y: 3)
     }
 }
 
@@ -339,7 +339,7 @@ private struct AIGeneratorButtonContent: View {
                 Circle()
                     .fill(
                         LinearGradient(
-                            colors: [.purple, appearanceManager.accentColor.color],
+                            colors: [.purple, PremiumColors.gold],
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
@@ -396,7 +396,7 @@ private struct AIGeneratorButtonContent: View {
                         colors: [
                             Color.purple,
                             Color.purple.opacity(0.7),
-                            appearanceManager.accentColor.color.opacity(0.8)
+                            PremiumColors.gold.opacity(0.8)
                         ],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing

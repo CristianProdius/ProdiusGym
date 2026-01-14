@@ -1,6 +1,6 @@
 //
 //  SplitQuestionnaireView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 05.01.2026.
 //
@@ -39,7 +39,7 @@ struct SplitQuestionnaireView: View {
                         ForEach(1...totalSteps, id: \.self) { step in
                             Capsule()
                                 .fill(step <= currentStep ?
-                                      LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .leading, endPoint: .trailing) :
+                                      LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .leading, endPoint: .trailing) :
                                       LinearGradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing))
                                 .frame(height: 3)
                         }
@@ -126,7 +126,7 @@ struct SplitQuestionnaireView: View {
                                     } else {
                                         Text("Prioritizing: \(selectedMuscles.sorted().joined(separator: ", "))")
                                             .font(.caption)
-                                            .foregroundStyle(appearanceManager.accentColor.color)
+                                            .foregroundStyle(PremiumColors.gold)
                                     }
                                 }
                             }
@@ -280,7 +280,7 @@ struct SplitQuestionnaireView: View {
                             Group {
                                 if isNextButtonEnabled {
                                     LinearGradient(
-                                        colors: [.purple, appearanceManager.accentColor.color],
+                                        colors: [.purple, PremiumColors.gold],
                                         startPoint: .leading,
                                         endPoint: .trailing
                                     )
@@ -419,13 +419,13 @@ private struct AISelectionTile: View {
                 ZStack {
                     Circle()
                         .fill(isSelected ?
-                              LinearGradient(colors: [.purple.opacity(0.3), appearanceManager.accentColor.color.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                              LinearGradient(colors: [.purple.opacity(0.3), PremiumColors.gold.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing) :
                               LinearGradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: icon)
                         .font(.system(size: 20))
-                        .foregroundColor(isSelected ? appearanceManager.accentColor.color : .white)
+                        .foregroundColor(isSelected ? PremiumColors.gold : .white)
                 }
 
                 Text(title)
@@ -444,7 +444,7 @@ private struct AISelectionTile: View {
                         RoundedRectangle(cornerRadius: 16)
                             .stroke(
                                 isSelected ?
-                                LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                                LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing) :
                                 LinearGradient(colors: [Color.clear, Color.clear], startPoint: .topLeading, endPoint: .bottomTrailing),
                                 lineWidth: 2
                             )
@@ -474,13 +474,13 @@ private struct AIOptionRow: View {
                 ZStack {
                     Circle()
                         .fill(isSelected ?
-                              LinearGradient(colors: [.purple.opacity(0.3), appearanceManager.accentColor.color.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                              LinearGradient(colors: [.purple.opacity(0.3), PremiumColors.gold.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing) :
                               LinearGradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.05)], startPoint: .topLeading, endPoint: .bottomTrailing))
                         .frame(width: 44, height: 44)
 
                     Image(systemName: icon)
                         .font(.system(size: 18))
-                        .foregroundColor(isSelected ? appearanceManager.accentColor.color : .white)
+                        .foregroundColor(isSelected ? PremiumColors.gold : .white)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
@@ -500,7 +500,7 @@ private struct AIOptionRow: View {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 22))
                         .foregroundStyle(
-                            LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                 }
             }
@@ -512,7 +512,7 @@ private struct AIOptionRow: View {
                         RoundedRectangle(cornerRadius: 14)
                             .stroke(
                                 isSelected ?
-                                LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing) :
+                                LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing) :
                                 LinearGradient(colors: [Color.clear, Color.clear], startPoint: .topLeading, endPoint: .bottomTrailing),
                                 lineWidth: 1.5
                             )
@@ -544,17 +544,17 @@ private struct AIMuscleChip: View {
                     .lineLimit(1)
                     .minimumScaleFactor(0.8)
             }
-            .foregroundColor(isSelected ? appearanceManager.accentColor.color : .white)
+            .foregroundColor(isSelected ? PremiumColors.gold : .white)
             .frame(maxWidth: .infinity)
             .frame(height: 70)
             .background(
                 RoundedRectangle(cornerRadius: 12)
                     .fill(isSelected ?
-                          appearanceManager.accentColor.color.opacity(0.2) :
+                          PremiumColors.gold.opacity(0.2) :
                           Color.white.opacity(0.08))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 1.5)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 1.5)
                     )
             )
         }
@@ -613,7 +613,7 @@ private struct AILimitationsInput: View {
                     .cornerRadius(12)
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isFocused ? appearanceManager.accentColor.color : Color.white.opacity(0.1), lineWidth: 1)
+                            .stroke(isFocused ? PremiumColors.gold : Color.white.opacity(0.1), lineWidth: 1)
                     )
                     .focused($isFocused)
 

@@ -1,6 +1,6 @@
 //
 //  WeightChart.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 26.03.2025.
 //
@@ -106,8 +106,8 @@ struct WeightChart: View {
                         .foregroundStyle(
                             LinearGradient(
                                 gradient: Gradient(colors: [
-                                    appearanceManager.accentColor.color.opacity(0.3),
-                                    appearanceManager.accentColor.color.opacity(0.05)
+                                    PremiumColors.platinum.opacity(0.3),
+                                    PremiumColors.platinum.opacity(0.05)
                                 ]),
                                 startPoint: .top,
                                 endPoint: .bottom
@@ -121,7 +121,7 @@ struct WeightChart: View {
                             y: .value("Weight", weightPoint.weight * weightConversionFactor)
                         )
                         .interpolationMethod(.catmullRom)
-                        .foregroundStyle(appearanceManager.accentColor.color)
+                        .foregroundStyle(PremiumColors.platinum)
                         .lineStyle(StrokeStyle(lineWidth: 3))
 
                         // Point markers
@@ -129,10 +129,10 @@ struct WeightChart: View {
                             x: .value("Date", weightPoint.date),
                             y: .value("Weight", weightPoint.weight * weightConversionFactor)
                         )
-                        .foregroundStyle(appearanceManager.accentColor.color)
+                        .foregroundStyle(PremiumColors.platinum)
                         .symbol {
                             Circle()
-                                .fill(appearanceManager.accentColor.color)
+                                .fill(PremiumColors.platinum)
                                 .frame(width: 8, height: 8)
                                 .overlay(
                                     Circle()

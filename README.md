@@ -1,6 +1,6 @@
-# 🏋️ ShadowLift
+# 🏋️ ProdiusGym
 
-**ShadowLift** is a production-ready iOS fitness tracking app built with 100% native Apple technologies. This sophisticated, performance-optimized workout logging and planning app delivers a complete training experience with AI-powered insights, HealthKit integration, and advanced analytics—all with zero external dependencies.
+**ProdiusGym** is a production-ready iOS fitness tracking app built with 100% native Apple technologies. This sophisticated, performance-optimized workout logging and planning app delivers a complete training experience with AI-powered insights, HealthKit integration, and advanced analytics—all with zero external dependencies.
 
 > **🚀 Currently in TestFlight Beta** - Real users, real workouts, real results.
 
@@ -179,7 +179,7 @@
 ## 📱 App Structure
 
 ```
-ShadowLift/
+ProdiusGym/
 ├── GymlyApp.swift              # App entry point
 ├── ToolBar.swift               # Main TabView navigation
 ├── Config.swift                # Global app state singleton
@@ -233,27 +233,27 @@ ShadowLift/
 ```bash
 git clone https://github.com/rektoooooo/shadowlift.git
 cd shadowlift
-open ShadowLift.xcodeproj
+open ProdiusGym.xcodeproj
 ```
 
 ### Required Permissions
 The app requires these permissions in `Info.plist`:
 ```xml
 <key>NSHealthShareUsageDescription</key>
-<string>ShadowLift needs access to read your health data to sync workout and body metrics</string>
+<string>ProdiusGym needs access to read your health data to sync workout and body metrics</string>
 <key>NSHealthUpdateUsageDescription</key>
-<string>ShadowLift needs access to write workout data to your health records</string>
+<string>ProdiusGym needs access to write workout data to your health records</string>
 <key>NSCameraUsageDescription</key>
-<string>ShadowLift needs camera access to take progress photos</string>
+<string>ProdiusGym needs camera access to take progress photos</string>
 <key>NSPhotoLibraryUsageDescription</key>
-<string>ShadowLift needs photo library access to save progress photos</string>
+<string>ProdiusGym needs photo library access to save progress photos</string>
 ```
 
 ## 🔧 Configuration
 
 ### Bundle Information
 - **Bundle ID:** `com.icservis.GymlyFitness`
-- **App Name:** ShadowLift
+- **App Name:** ProdiusGym
 - **CloudKit Container:** `iCloud.com.gymly.app`
 - **File Type UTI:** `com.shadowlift.split`
 - **File Extension:** `.shadowliftsplit`
@@ -365,7 +365,7 @@ For TestFlight beta access, contact: [support@shadowlift.app](mailto:support@sha
 ## 🎯 Recent Major Updates
 
 ### v1.0 (November 2025)
-- ✅ **Complete Rebrand** – Gymly → ShadowLift
+- ✅ **Complete Rebrand** – Gymly → ProdiusGym
 - ✅ **Advanced Streak Analytics** – Predictions, weekly patterns, detailed insights
 - ✅ **PR Tracking System** – Automatic personal record detection
 - ✅ **Legal Documentation** – Privacy Policy, Terms, FAQ, Support
@@ -389,7 +389,7 @@ For TestFlight beta access, contact: [support@shadowlift.app](mailto:support@sha
 - 🔄 **Enhanced Sync** – Faster, more reliable CloudKit operations
 - 🎨 **More Themes** – Additional color schemes and icons
 
-## 🏆 What Makes ShadowLift Unique
+## 🏆 What Makes ProdiusGym Unique
 
 ### Technical Excellence
 - **Zero external dependencies** – Pure native Apple stack
@@ -415,7 +415,7 @@ For TestFlight beta access, contact: [support@shadowlift.app](mailto:support@sha
 
 ## 📄 License
 
-© 2024 ShadowLift. All rights reserved.
+© 2024 ProdiusGym. All rights reserved.
 
 This is proprietary software developed by Sebastián Kučera.
 

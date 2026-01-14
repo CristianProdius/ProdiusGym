@@ -1,6 +1,6 @@
 //
 //  PremiumSubscriptionView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 20.10.2025.
 //
@@ -146,7 +146,7 @@ struct PremiumSubscriptionView: View {
                                 .foregroundColor(.white)
                                 .padding(.horizontal, 12)
                                 .padding(.vertical, 6)
-                                .background(storeManager.hasAIAccess ? Color.purple : appearanceManager.accentColor.color)
+                                .background(storeManager.hasAIAccess ? Color.purple : PremiumColors.gold)
                                 .cornerRadius(20)
                         }
                         .padding(.top, 4)
@@ -174,7 +174,7 @@ struct PremiumSubscriptionView: View {
                         VStack(alignment: .leading, spacing: 8) {
                             HStack {
                                 Image(systemName: "creditcard.fill")
-                                    .foregroundColor(appearanceManager.accentColor.color)
+                                    .foregroundColor(PremiumColors.gold)
                                 Text("Current Plan")
                                     .font(.headline)
                                 Spacer()
@@ -189,7 +189,7 @@ struct PremiumSubscriptionView: View {
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                             } else {
-                                Text("ShadowLift Pro")
+                                Text("ProdiusGym Pro")
                                     .font(.body)
                                     .foregroundColor(.primary)
                                 Text("Active subscription")
@@ -285,7 +285,7 @@ struct PremiumSubscriptionView: View {
                         .resizable()
                         .frame(width: 300, height: 300)
 
-                    Text("ShadowLift Pro")
+                    Text("ProdiusGym Pro")
                         .font(.largeTitle)
                         .fontWeight(.bold)
 
@@ -384,7 +384,7 @@ struct PremiumSubscriptionView: View {
                                     .foregroundStyle(.secondary)
                             } else {
                                 // Device doesn't support AI - show info
-                                Text("ShadowLift Pro")
+                                Text("ProdiusGym Pro")
                                     .font(.subheadline)
                                     .fontWeight(.semibold)
 
@@ -454,7 +454,7 @@ struct PremiumSubscriptionView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .frame(height: 56)
-                            .background(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold)
                             .cornerRadius(12)
                         }
                         .disabled(storeManager.purchaseInProgress || selectedProduct == nil)
@@ -527,11 +527,11 @@ struct PremiumFeatureRow: View {
         HStack(spacing: 16) {
             ZStack {
                 Circle()
-                    .fill((isAvailable ? appearanceManager.accentColor.color : Color.gray).opacity(0.2))
+                    .fill((isAvailable ? PremiumColors.gold : Color.gray).opacity(0.2))
                     .frame(width: 40, height: 40)
 
                 Image(systemName: icon)
-                    .foregroundStyle(isAvailable ? appearanceManager.accentColor.color : Color.gray)
+                    .foregroundStyle(isAvailable ? PremiumColors.gold : Color.gray)
             }
 
             VStack(alignment: .leading, spacing: 2) {
@@ -567,7 +567,7 @@ struct PremiumFeatureRow: View {
 
             if isAvailable {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(PremiumColors.gold)
                     .font(.title3)
             } else {
                 Image(systemName: "lock.fill")
@@ -595,7 +595,7 @@ struct FeatureRow: View {
         HStack(spacing: 16) {
             Image(systemName: icon)
                 .font(.system(size: 28))
-                .foregroundColor(requiresAI && !deviceSupportsAI ? .gray : appearanceManager.accentColor.color)
+                .foregroundColor(requiresAI && !deviceSupportsAI ? .gray : PremiumColors.gold)
                 .frame(width: 40)
 
             VStack(alignment: .leading, spacing: 4) {
@@ -677,7 +677,7 @@ struct PlanCardReal: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                 }
             }
             .padding()
@@ -686,7 +686,7 @@ struct PlanCardReal: View {
                     .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 2)
                     )
             )
         }
@@ -740,7 +740,7 @@ struct TierCard: View {
                     .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 2)
                     )
             )
         }
@@ -805,7 +805,7 @@ struct PeriodCard: View {
                     .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 2)
                     )
             )
         }
@@ -872,7 +872,7 @@ struct SubscriptionOptionCard: View {
                 // Selection indicator
                 Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
                     .font(.title2)
-                    .foregroundColor(isSelected ? appearanceManager.accentColor.color : .gray.opacity(0.5))
+                    .foregroundColor(isSelected ? PremiumColors.gold : .gray.opacity(0.5))
             }
             .padding()
             .background(
@@ -880,7 +880,7 @@ struct SubscriptionOptionCard: View {
                     .fill(Color.listRowBackground(for: scheme))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 2)
                     )
             )
         }

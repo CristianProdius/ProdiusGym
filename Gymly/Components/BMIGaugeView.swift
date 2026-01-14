@@ -1,6 +1,6 @@
 //
 //  BMIGaugeView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 26.03.2025.
 //
@@ -55,7 +55,7 @@ struct BMIGaugeView: View {
                     .tracking(2)
 
                 Text(String(format: "%.1f", displayedBMI))
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: 48, weight: .semibold, design: .default))
                     .foregroundStyle(bmiColor)
                     .contentTransition(.numericText())
             }

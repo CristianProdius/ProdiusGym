@@ -1,6 +1,6 @@
 //
 //  ImportError.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 04.12.2025.
 //
@@ -52,7 +52,7 @@ enum ImportError: LocalizedError {
             return "Try receiving the file again or saving it to a different location."
 
         case .invalidFormat, .invalidFileExtension:
-            return "Make sure you're importing a workout split file exported from ShadowLift."
+            return "Make sure you're importing a workout split file exported from ProdiusGym."
 
         case .corruptData, .decodingFailed:
             return "The file may have been damaged during transfer. Try exporting it again from the source device."
@@ -61,7 +61,7 @@ enum ImportError: LocalizedError {
             return "Grant file access when prompted, or try selecting the file from a different location."
 
         case .missingRequiredData:
-            return "This file may be from an older version of ShadowLift. Try exporting a fresh copy."
+            return "This file may be from an older version of ProdiusGym. Try exporting a fresh copy."
 
         case .networkError:
             return "Check your internet connection and try again."

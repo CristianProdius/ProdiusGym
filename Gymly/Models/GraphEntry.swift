@@ -1,6 +1,6 @@
 //
 //  WeightPoint.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 26.03.2025.
 //

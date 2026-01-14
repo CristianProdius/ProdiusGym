@@ -1,6 +1,6 @@
 //
 //  Day.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 22.07.2024.
 //

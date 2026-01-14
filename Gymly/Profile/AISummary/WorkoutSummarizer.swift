@@ -1,6 +1,6 @@
 //
 //  WorkoutSummarizer.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 22.09.2025.
 //
@@ -63,8 +63,10 @@ final class WorkoutSummarizer: ObservableObject {
 
     /// Check if the current language is supported
     func checkLanguageSupport() -> Bool {
-        let locale = Locale.current
-        return SystemLanguageModel.default.supportsLanguage(for: locale)
+        // Language support is handled by the model availability check
+        // If model is available, the current locale is supported
+        let (available, _) = checkAvailability()
+        return available
     }
 
     init() {

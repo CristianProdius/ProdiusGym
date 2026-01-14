@@ -1,6 +1,6 @@
 //
 //  CreateExerciseView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 13.05.2024.
 //
@@ -91,7 +91,7 @@ struct CreateExerciseView: View {
                         }
                     }
                     .pickerStyle(.menu)
-                    .tint(appearanceManager.accentColor.color)
+                    .tint(PremiumColors.gold)
                 } header: {
                     Text("Target Muscle")
                 }
@@ -116,7 +116,7 @@ struct CreateExerciseView: View {
                     } label: {
                         Text("Add")
                             .fontWeight(.semibold)
-                            .foregroundStyle(isFormValid ? appearanceManager.accentColor.color : .secondary)
+                            .foregroundStyle(isFormValid ? PremiumColors.gold : .secondary)
                     }
                     .disabled(!isFormValid)
                 }

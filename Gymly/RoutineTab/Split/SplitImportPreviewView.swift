@@ -27,7 +27,7 @@ struct SplitImportPreviewView: View {
         NavigationStack {
             ZStack {
                 // Floating clouds background matching app theme
-                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+                FloatingClouds(theme: CloudsTheme.premium(scheme))
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -44,13 +44,13 @@ struct SplitImportPreviewView: View {
                             }
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(appearanceManager.accentColor.color.opacity(0.2))
-                            .foregroundColor(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold.opacity(0.2))
+                            .foregroundColor(PremiumColors.gold)
                             .cornerRadius(20)
 
                             Image(systemName: "figure.strengthtraining.traditional")
                                 .font(.system(size: 60))
-                                .foregroundColor(appearanceManager.accentColor.color)
+                                .foregroundColor(PremiumColors.gold)
 
                             Text(split.name)
                                 .font(.largeTitle)
@@ -103,7 +103,7 @@ struct SplitImportPreviewView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold)
                             .foregroundColor(.black)
                             .cornerRadius(15)
                         }
@@ -171,7 +171,7 @@ struct DayPreviewCard: View {
                         .fill(Color.black.opacity(0.2))
                         .overlay(
                             RoundedRectangle(cornerRadius: 12)
-                                .stroke(appearanceManager.accentColor.color.opacity(0.3), lineWidth: 1)
+                                .stroke(PremiumColors.gold.opacity(0.3), lineWidth: 1)
                         )
                 )
             }
@@ -202,7 +202,7 @@ struct ExercisePreviewRow: View {
     var body: some View {
         HStack {
             Circle()
-                .fill(appearanceManager.accentColor.color)
+                .fill(PremiumColors.gold)
                 .frame(width: 6, height: 6)
 
             VStack(alignment: .leading, spacing: 2) {

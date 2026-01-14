@@ -1,6 +1,6 @@
 //
 //  AIPersonalizedSplitModels.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 05.01.2026.
 //

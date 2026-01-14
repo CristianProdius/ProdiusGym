@@ -1,6 +1,6 @@
 //
 //  WorkoutSummaryView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera and Claude on 16.09.2025.
 //
@@ -28,7 +28,7 @@ struct WorkoutSummaryView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+                FloatingClouds(theme: CloudsTheme.premium(scheme))
                     .ignoresSafeArea()
 
                 ScrollView {

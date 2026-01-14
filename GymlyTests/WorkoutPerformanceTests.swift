@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ShadowLift
+@testable import ProdiusGym
 
 /// Performance tests that simulate gym usage patterns
 /// These tests measure how fast critical operations are under realistic load

@@ -1,6 +1,6 @@
 //
 //  DeveloperTestingView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 29.11.2025.
 //
@@ -23,7 +23,6 @@ struct DeveloperTestingView: View {
     @State private var deleteError: String?
     @State private var showDeleteError = false
     @State private var deletionComplete = false
-    @State private var showTutorial = false
 
     var body: some View {
         List {
@@ -116,48 +115,6 @@ struct DeveloperTestingView: View {
                         }
                         Spacer()
                     }
-                }
-            }
-
-            Section("Tutorial Testing") {
-                Button(action: {
-                    showTutorial = true
-                }) {
-                    HStack {
-                        Image(systemName: "book.pages")
-                            .foregroundColor(.blue)
-                        VStack(alignment: .leading) {
-                            Text("Show Tutorial")
-                            Text("Preview the new user tutorial")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                        Spacer()
-                    }
-                }
-
-                Toggle(isOn: Binding(
-                    get: { config.hasSeenTutorial },
-                    set: { config.hasSeenTutorial = $0 }
-                )) {
-                    HStack {
-                        Image(systemName: config.hasSeenTutorial ? "checkmark.circle.fill" : "circle")
-                            .foregroundColor(config.hasSeenTutorial ? .green : .gray)
-                        VStack(alignment: .leading) {
-                            Text("Tutorial Seen")
-                            Text(config.hasSeenTutorial ? "User has completed tutorial" : "Tutorial not yet shown")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                }
-
-                HStack {
-                    Image(systemName: "info.circle")
-                        .foregroundColor(.blue)
-                    Text("Toggle off to show tutorial again on next app launch, or tap 'Show Tutorial' to preview it now.")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
                 }
             }
 
@@ -286,11 +243,6 @@ struct DeveloperTestingView: View {
         } message: {
             Text(deleteError ?? "Unknown error occurred")
         }
-        .fullScreenCover(isPresented: $showTutorial) {
-            TutorialView()
-                .environmentObject(config)
-                .environmentObject(AppearanceManager.shared)
-        }
     }
 
     private func performTestDeletion() {
@@ -309,9 +261,6 @@ struct DeveloperTestingView: View {
                     debugLog("✅ TEST DELETION: Local data deleted, CloudKit safe")
                     isDeletingAccount = false
                     deletionComplete = true
-
-                    // Log back in so user can restore
-                    config.isUserLoggedIn = true
                 }
             } catch {
                 await MainActor.run {

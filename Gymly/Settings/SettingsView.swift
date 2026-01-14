@@ -1,6 +1,6 @@
 //
 //  NewSettingsView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 19.10.2025.
 //
@@ -34,7 +34,7 @@ struct SettingsView: View {
 
                 List {
                     // Preferences Section
-                    Section("Preferences") {
+                    Section(header: Text("PREFERENCES").font(.headline).classicalSection()) {
                         HStack {
                             HStack {
                                 Image(systemName: "scalemass")
@@ -91,7 +91,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Integrations Section
-                    Section("Integrations") {
+                    Section(header: Text("INTEGRATIONS").font(.headline).classicalSection()) {
                         NavigationLink(destination: ConnectionsView(viewModel: viewModel)) {
                             Image(systemName: "square.2.layers.3d.top.filled")
                             Text("App Connections")
@@ -101,13 +101,13 @@ struct SettingsView: View {
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Premium Section
-                    Section("Premium") {
+                    Section(header: Text("PREMIUM").font(.headline).classicalSection()) {
                         NavigationLink(destination: PremiumSubscriptionView()) {
                             HStack {
                                 Image(systemName: config.isPremium ? "checkmark.seal.fill" : "star.fill")
                                     .foregroundColor(config.isPremium ? .green : .yellow)
                                 VStack(alignment: .leading, spacing: 4) {
-                                    Text(config.isPremium ? "ShadowLift Pro" : "Upgrade to Premium")
+                                    Text(config.isPremium ? "ProdiusGym Pro" : "Upgrade to Premium")
                                         .foregroundColor(.primary)
                                         .font(.headline)
                                     Text(config.isPremium ? "Manage your subscription" : "Unlock AI summaries, advanced graphs & more")
@@ -122,7 +122,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Support Section
-                    Section("Support") {
+                    Section(header: Text("SUPPORT").font(.headline).classicalSection()) {
                         NavigationLink(destination: HelpFAQView()) {
                             Image(systemName: "questionmark.circle")
                             Text("Help & FAQ")
@@ -162,7 +162,7 @@ struct SettingsView: View {
                         }) {
                             HStack {
                                 Image(systemName: "star.fill")
-                                Text("Rate ShadowLift")
+                                Text("Rate ProdiusGym")
                                 Spacer()
                             }
                         }
@@ -177,7 +177,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Legal Section
-                    Section("Legal") {
+                    Section(header: Text("LEGAL").font(.headline).classicalSection()) {
                         NavigationLink(destination: LegalDocumentView(documentName: "privacy-policy", title: "Privacy Policy")) {
                             Image(systemName: "lock.shield")
                             Text("Privacy Policy")
@@ -192,30 +192,14 @@ struct SettingsView: View {
 
                         NavigationLink(destination: AboutGymlyView()) {
                             Image(systemName: "info.circle")
-                            Text("About ShadowLift")
+                            Text("About ProdiusGym")
                         }
                         .frame(width: 300)
                     }
                     .listRowBackground(Color.listRowBackground(for: scheme))
 
                     // Account Section
-                    Section("Account") {
-                        Button(action: {
-                            // Simple logout - just return to sign-in screen, data stays
-                            AccountManager.shared.logout(config: config)
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.right.square")
-                                    .foregroundColor(.red)
-                                Text("Log Out")
-                                    .foregroundColor(.red)
-                                Spacer()
-                            }
-                        }
-                        .frame(width: 300)
-                        .accessibilityLabel("Log Out")
-                        .accessibilityHint("Double tap to sign out. Your workout data will be preserved.")
-
+                    Section(header: Text("ACCOUNT").font(.headline).classicalSection()) {
                         Button(action: {
                             showDeleteAccountAlert = true
                         }) {
@@ -252,7 +236,7 @@ struct SettingsView: View {
                         HStack {
                             Spacer()
                             VStack(spacing: 4) {
-                                Text("ShadowLift")
+                                Text("ProdiusGym")
                                     .font(.caption)
                                     .foregroundColor(.secondary)
                                 Text("Version \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))")

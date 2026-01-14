@@ -1,6 +1,6 @@
 //
 //  SplitChatModificationView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 05.01.2026.
 //
@@ -123,14 +123,14 @@ struct SplitChatModificationView: View {
                 ZStack {
                     Circle()
                         .fill(
-                            LinearGradient(colors: [.purple.opacity(0.3), appearanceManager.accentColor.color.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [.purple.opacity(0.3), PremiumColors.gold.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                         .frame(width: 40, height: 40)
 
                     Image(systemName: "doc.text.fill")
                         .font(.system(size: 18))
                         .foregroundStyle(
-                            LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                 }
 
@@ -150,10 +150,10 @@ struct SplitChatModificationView: View {
                 if let days = split.days {
                     Text("\(days.count) days")
                         .font(.system(size: 13, weight: .medium))
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
-                        .background(appearanceManager.accentColor.color.opacity(0.15))
+                        .background(PremiumColors.gold.opacity(0.15))
                         .cornerRadius(12)
                 }
             }
@@ -216,7 +216,7 @@ struct SplitChatModificationView: View {
             Image(systemName: "text.cursor")
                 .font(.system(size: 20))
                 .foregroundStyle(
-                    LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
 
             VStack(alignment: .leading, spacing: 2) {
@@ -236,7 +236,7 @@ struct SplitChatModificationView: View {
                 .overlay(
                     RoundedRectangle(cornerRadius: 14)
                         .stroke(
-                            LinearGradient(colors: [.purple.opacity(0.3), appearanceManager.accentColor.color.opacity(0.3)], startPoint: .leading, endPoint: .trailing),
+                            LinearGradient(colors: [.purple.opacity(0.3), PremiumColors.gold.opacity(0.3)], startPoint: .leading, endPoint: .trailing),
                             lineWidth: 1
                         )
                 )
@@ -262,7 +262,7 @@ struct SplitChatModificationView: View {
                         Image(systemName: "sparkles")
                             .font(.system(size: 16))
                             .foregroundStyle(
-                                LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .leading, endPoint: .trailing)
+                                LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .leading, endPoint: .trailing)
                             )
 
                         TextField("Describe your changes...", text: $chatInput, axis: .vertical)
@@ -279,7 +279,7 @@ struct SplitChatModificationView: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .stroke(
                                         isInputFocused ?
-                                        LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .leading, endPoint: .trailing) :
+                                        LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .leading, endPoint: .trailing) :
                                         LinearGradient(colors: [Color.white.opacity(0.1), Color.white.opacity(0.1)], startPoint: .leading, endPoint: .trailing),
                                         lineWidth: 1
                                     )
@@ -293,7 +293,7 @@ struct SplitChatModificationView: View {
                                 .fill(
                                     chatInput.isEmpty || generator.isGenerating ?
                                     LinearGradient(colors: [Color.gray.opacity(0.3), Color.gray.opacity(0.2)], startPoint: .top, endPoint: .bottom) :
-                                    LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                    LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                                 )
                                 .frame(width: 48, height: 48)
 
@@ -314,7 +314,7 @@ struct SplitChatModificationView: View {
                 if generator.isGenerating {
                     HStack(spacing: 8) {
                         Circle()
-                            .fill(LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .leading, endPoint: .trailing))
+                            .fill(LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .leading, endPoint: .trailing))
                             .frame(width: 8, height: 8)
                             .scaleEffect(generator.isGenerating ? 1.2 : 1.0)
                             .animation(.easeInOut(duration: 0.6).repeatForever(autoreverses: true), value: generator.isGenerating)
@@ -370,7 +370,7 @@ private struct ModifyDayChip: View {
                         .fill(
                             day.isRestDay == true ?
                             LinearGradient(colors: [.orange, .orange.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
-                            LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
                 )
 
@@ -425,7 +425,7 @@ private struct SuggestionCategoryCard: View {
                     Image(systemName: icon)
                         .font(.system(size: 14))
                         .foregroundStyle(
-                            LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                            LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                         )
 
                     Text(title)
@@ -449,7 +449,7 @@ private struct SuggestionCategoryCard: View {
                             HStack(spacing: 8) {
                                 Image(systemName: selectedSuggestion == suggestion ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 14))
-                                    .foregroundColor(selectedSuggestion == suggestion ? appearanceManager.accentColor.color : .secondary)
+                                    .foregroundColor(selectedSuggestion == suggestion ? PremiumColors.gold : .secondary)
 
                                 Text(suggestion)
                                     .font(.system(size: 12))
@@ -461,7 +461,7 @@ private struct SuggestionCategoryCard: View {
                             .padding(.horizontal, 8)
                             .background(
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(selectedSuggestion == suggestion ? appearanceManager.accentColor.color.opacity(0.15) : Color.clear)
+                                    .fill(selectedSuggestion == suggestion ? PremiumColors.gold.opacity(0.15) : Color.clear)
                             )
                         }
                         .buttonStyle(.plain)

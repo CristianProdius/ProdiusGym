@@ -1,6 +1,6 @@
 //
 //  ProgressPhotoCompareView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 27.10.2025.
 //
@@ -177,7 +177,7 @@ struct ProgressPhotoCompareView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(appearanceManager.accentColor.color)
+                        .background(PremiumColors.gold)
                         .foregroundColor(.black)
                         .cornerRadius(12)
                     }

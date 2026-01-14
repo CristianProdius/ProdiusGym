@@ -1,6 +1,6 @@
 //
 //  WorkoutViewModel.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 23.10.2024.
 //
@@ -1233,7 +1233,7 @@ final class WorkoutViewModel: ObservableObject {
             // Save to the Documents directory
             let fileManager = FileManager.default
             let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
-            let fileURL = documentsURL.appendingPathComponent("\(split.name).shadowliftsplit")
+            let fileURL = documentsURL.appendingPathComponent("\(split.name).prodiusgymsplit")
 
             try data.write(to: fileURL, options: .atomic) // Ensure file is properly saved
             return fileURL

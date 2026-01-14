@@ -1,6 +1,6 @@
 //
 //  TestDataGenerator.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 25.11.2025.
 //

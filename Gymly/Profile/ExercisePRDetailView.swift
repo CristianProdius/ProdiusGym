@@ -20,7 +20,7 @@ struct ExercisePRDetailView: View {
 
     var body: some View {
         ZStack {
-            FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
                 .ignoresSafeArea()
 
             ScrollView {
@@ -35,7 +35,7 @@ struct ExercisePRDetailView: View {
                             .font(.subheadline)
                             .padding(.horizontal, 16)
                             .padding(.vertical, 6)
-                            .background(appearanceManager.accentColor.color.opacity(0.2))
+                            .background(PremiumColors.gold.opacity(0.2))
                             .cornerRadius(12)
                     }
                     .padding(.top, 20)

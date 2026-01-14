@@ -1,6 +1,6 @@
 //
 //  FitnessProfileDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 17.10.2025.
 //
@@ -27,7 +27,7 @@ struct FitnessProfileDetailView: View {
                         VStack(spacing: 16) {
                             Image(systemName: "figure.strengthtraining.traditional")
                                 .font(.system(size: 60))
-                                .foregroundColor(appearanceManager.accentColor.color)
+                                .foregroundColor(PremiumColors.gold)
                                 .padding(.top, 20)
 
                             Text("Your Fitness Profile")
@@ -53,7 +53,7 @@ struct FitnessProfileDetailView: View {
                             title: "Fitness Goal",
                             value: profile.goal.displayName,
                             description: profile.goal.description,
-                            color: appearanceManager.accentColor.color
+                            color: PremiumColors.gold
                         )
 
                         // Equipment Access Section
@@ -62,7 +62,7 @@ struct FitnessProfileDetailView: View {
                             title: "Equipment Access",
                             value: profile.equipment.displayName,
                             description: profile.equipment.description,
-                            color: appearanceManager.accentColor.color
+                            color: PremiumColors.gold
                         )
 
                         // Experience Level Section
@@ -71,7 +71,7 @@ struct FitnessProfileDetailView: View {
                             title: "Experience Level",
                             value: profile.experience.displayName,
                             description: profile.experience.description,
-                            color: appearanceManager.accentColor.color
+                            color: PremiumColors.gold
                         )
 
                         // Training Days Section
@@ -80,7 +80,7 @@ struct FitnessProfileDetailView: View {
                             title: "Training Days",
                             value: "\(profile.daysPerWeek) days per week",
                             description: getDaysRecommendation(days: profile.daysPerWeek),
-                            color: appearanceManager.accentColor.color
+                            color: PremiumColors.gold
                         )
 
                         // Action Buttons
@@ -94,7 +94,7 @@ struct FitnessProfileDetailView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(appearanceManager.accentColor.color)
+                                .background(PremiumColors.gold)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
                             }
@@ -108,8 +108,8 @@ struct FitnessProfileDetailView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(appearanceManager.accentColor.color.opacity(0.2))
-                                .foregroundColor(appearanceManager.accentColor.color)
+                                .background(PremiumColors.gold.opacity(0.2))
+                                .foregroundColor(PremiumColors.gold)
                                 .cornerRadius(12)
                             }
                         }
@@ -142,7 +142,7 @@ struct FitnessProfileDetailView: View {
                                 }
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(appearanceManager.accentColor.color)
+                                .background(PremiumColors.gold)
                                 .foregroundColor(.white)
                                 .cornerRadius(12)
                             }
@@ -163,11 +163,16 @@ struct FitnessProfileDetailView: View {
         .alert("Reset Fitness Profile", isPresented: $showResetAlert) {
             Button("Cancel", role: .cancel) { }
             Button("Reset", role: .destructive) {
-                iCloudSyncManager.shared.clearProfile()
+                // Clear fitness profile from config
+                config.hasCompletedFitnessProfile = false
+                config.fitnessGoal = ""
+                config.equipmentAccess = ""
+                config.experienceLevel = ""
+                config.trainingDaysPerWeek = 4
                 dismiss()
             }
         } message: {
-            Text("This will clear your fitness profile from both this device and iCloud. You'll need to set it up again.")
+            Text("This will clear your fitness profile. You'll need to set it up again.")
         }
     }
 

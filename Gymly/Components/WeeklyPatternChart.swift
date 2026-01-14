@@ -1,6 +1,6 @@
 //
 //  WeeklyPatternChart.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 03.11.2025.
 //
@@ -39,8 +39,8 @@ struct WeeklyPatternChart: View {
                 .foregroundStyle(
                     LinearGradient(
                         gradient: Gradient(colors: [
-                            appearanceManager.accentColor.color,
-                            appearanceManager.accentColor.color.opacity(0.6)
+                            PremiumColors.platinum,
+                            PremiumColors.platinum.opacity(0.6)
                         ]),
                         startPoint: .top,
                         endPoint: .bottom

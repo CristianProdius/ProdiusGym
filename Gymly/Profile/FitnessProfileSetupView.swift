@@ -1,6 +1,6 @@
 //
 //  FitnessProfileSetupView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 17.10.2025.
 //
@@ -41,7 +41,7 @@ struct FitnessProfileSetupView: View {
 
                 // Progress Bar
                 ProgressView(value: Double(currentStep), total: 4)
-                    .tint(appearanceManager.accentColor.color)
+                    .tint(PremiumColors.gold)
                     .padding(.horizontal, 40)
 
                 Spacer()
@@ -117,7 +117,7 @@ struct FitnessProfileSetupView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(isNextButtonEnabled ? appearanceManager.accentColor.color : Color.secondary.opacity(0.3))
+                        .background(isNextButtonEnabled ? PremiumColors.gold : Color.secondary.opacity(0.3))
                         .foregroundColor(.white)
                         .cornerRadius(12)
                     }
@@ -160,9 +160,6 @@ struct FitnessProfileSetupView: View {
         // Save to Config (triggers view update after dismiss)
         config.fitnessProfile = profile
         config.hasCompletedFitnessProfile = true
-
-        // Sync to iCloud in background (non-blocking) using singleton
-        iCloudSyncManager.shared.syncToiCloud()
 
         // Dismiss immediately for instant feedback
         dismiss()
@@ -294,7 +291,7 @@ struct DaysPerWeekSelectionView: View {
             // Large number display
             Text("\(selectedDays)")
                 .font(.system(size: 80, weight: .bold))
-                .foregroundColor(appearanceManager.accentColor.color)
+                .foregroundColor(PremiumColors.gold)
 
             Text(selectedDays == 1 ? "day per week" : "days per week")
                 .font(.title3)
@@ -311,7 +308,7 @@ struct DaysPerWeekSelectionView: View {
                 }) {
                     Image(systemName: "minus.circle.fill")
                         .font(.system(size: 50))
-                        .foregroundColor(selectedDays > 1 ? appearanceManager.accentColor.color : .secondary.opacity(0.3))
+                        .foregroundColor(selectedDays > 1 ? PremiumColors.gold : .secondary.opacity(0.3))
                 }
                 .disabled(selectedDays <= 1)
 
@@ -324,7 +321,7 @@ struct DaysPerWeekSelectionView: View {
                 }) {
                     Image(systemName: "plus.circle.fill")
                         .font(.system(size: 50))
-                        .foregroundColor(selectedDays < 7 ? appearanceManager.accentColor.color : .secondary.opacity(0.3))
+                        .foregroundColor(selectedDays < 7 ? PremiumColors.gold : .secondary.opacity(0.3))
                 }
                 .disabled(selectedDays >= 7)
             }
@@ -373,7 +370,7 @@ struct SelectionCard: View {
             HStack(spacing: 16) {
                 Image(systemName: icon)
                     .font(.system(size: 32))
-                    .foregroundColor(isSelected ? appearanceManager.accentColor.color : .white)
+                    .foregroundColor(isSelected ? PremiumColors.gold : .white)
                     .frame(width: 50)
                     .accessibilityHidden(true)
 
@@ -393,7 +390,7 @@ struct SelectionCard: View {
                 if isSelected {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 24))
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                         .accessibilityHidden(true)
                 }
             }
@@ -403,7 +400,7 @@ struct SelectionCard: View {
                     .fill(Color.black.opacity(0.3))
                     .overlay(
                         RoundedRectangle(cornerRadius: 12)
-                            .stroke(isSelected ? appearanceManager.accentColor.color : Color.clear, lineWidth: 2)
+                            .stroke(isSelected ? PremiumColors.gold : Color.clear, lineWidth: 2)
                     )
             )
         }

@@ -1,6 +1,6 @@
 //
 //  MuscleGroup.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 19.09.2024.
 //

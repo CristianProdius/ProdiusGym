@@ -1,6 +1,6 @@
 //
 //  ProgressPhotoTimelineView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 27.10.2025.
 //
@@ -80,7 +80,7 @@ struct ProgressPhotoTimelineView: View {
                             .font(.subheadline)
                             .bold()
                     }
-                    .foregroundColor(appearanceManager.accentColor.color)
+                    .foregroundColor(PremiumColors.gold)
                 }
             }
             .padding()
@@ -125,7 +125,7 @@ struct ProgressPhotoTimelineView: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 30)
                             .padding(.vertical, 12)
-                            .background(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold)
                             .cornerRadius(25)
                     }
                     .padding(.top, 8)

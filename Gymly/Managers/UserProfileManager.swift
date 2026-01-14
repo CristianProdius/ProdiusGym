@@ -1,6 +1,6 @@
 //
 //  UserProfileManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by SwiftData Migration on 18.09.2025.
 //

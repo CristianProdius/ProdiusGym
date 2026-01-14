@@ -1,6 +1,6 @@
 //
 //  CloudKitManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by CloudKit Integration on 18.09.2025.
 //
@@ -16,7 +16,7 @@ import SwiftUI
 class CloudKitManager: ObservableObject {
     static let shared = CloudKitManager()
 
-    private let container = CKContainer(identifier: "iCloud.com.gymly.app")
+    private let container = CKContainer(identifier: "iCloud.com.prodius.prodiusgym")
     private let privateDatabase: CKDatabase
 
     @Published var isSyncing = false
@@ -1372,7 +1372,7 @@ class CloudKitManager: ObservableObject {
 
     /// Share a split publicly and get shareable link
     /// Stores split in CloudKit public database and returns clean URL
-    /// Returns: URL like https://shadowlift.app/splits/{id}
+    /// Returns: URL like https://prodiusgym.app/splits/{id}
     func shareSplit(_ split: Split) async throws -> URL {
         debugLog("🔗 SHARE SPLIT: Starting public share for '\(split.name)'")
 
@@ -1420,7 +1420,7 @@ class CloudKitManager: ObservableObject {
             debugLog("✅ SHARE SPLIT: Saved to public database")
 
             // Create clean shareable URL with just the split ID
-            let shareURL = URL(string: "https://shadowlift.app/splits/\(shareID)")!
+            let shareURL = URL(string: "https://prodiusgym.app/splits/\(shareID)")!
             debugLog("🔗 SHARE SPLIT: Generated shareable link: \(shareURL.absoluteString)")
 
             return shareURL

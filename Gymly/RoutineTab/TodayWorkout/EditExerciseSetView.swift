@@ -1,6 +1,6 @@
 //
 //  SetEditorView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 20.09.2024.
 //
@@ -155,7 +155,7 @@ struct EditExerciseSetView: View {
                         saveAllChanges()
                     } label: {
                         Text("Done")
-                            .foregroundStyle(appearanceManager.accentColor.color)
+                            .foregroundStyle(PremiumColors.gold)
                             .padding(.horizontal, 8)
                             .padding(.vertical, 4)
                             .background(Color.white.opacity(0.1))

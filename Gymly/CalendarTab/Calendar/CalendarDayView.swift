@@ -1,6 +1,6 @@
 //
 //  CalendarDayView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 30.09.2024.
 //

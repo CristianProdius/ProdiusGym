@@ -1,6 +1,6 @@
 //
 //  DebugLogger.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 04.12.2025.
 //

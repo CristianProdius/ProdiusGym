@@ -1,6 +1,6 @@
 //
 //  PRManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 03.11.2025.
 //

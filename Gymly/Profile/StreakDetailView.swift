@@ -1,6 +1,6 @@
 //
 //  StreakDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 03.11.2025.
 //
@@ -63,7 +63,7 @@ struct StreakDetailView: View {
         } else if currentStreak >= 7 {
             return .orange
         } else {
-            return appearanceManager.accentColor.color
+            return PremiumColors.gold
         }
     }
 
@@ -281,7 +281,7 @@ struct StreakDetailView: View {
                                     label: "Total Days",
                                     value: "\(totalWorkoutDays)",
                                     icon: "checkmark.circle.fill",
-                                    color: appearanceManager.accentColor.color
+                                    color: PremiumColors.gold
                                 )
                             }
                         }
@@ -322,7 +322,7 @@ struct StreakDetailView: View {
                                     } label: {
                                         Image(systemName: "minus.circle.fill")
                                             .font(.title3)
-                                            .foregroundColor(restDaysPerWeek > 0 ? appearanceManager.accentColor.color : .gray)
+                                            .foregroundColor(restDaysPerWeek > 0 ? PremiumColors.gold : .gray)
                                     }
                                     .disabled(restDaysPerWeek <= 0)
 
@@ -336,7 +336,7 @@ struct StreakDetailView: View {
                                     } label: {
                                         Image(systemName: "plus.circle.fill")
                                             .font(.title3)
-                                            .foregroundColor(restDaysPerWeek < 7 ? appearanceManager.accentColor.color : .gray)
+                                            .foregroundColor(restDaysPerWeek < 7 ? PremiumColors.gold : .gray)
                                     }
                                     .disabled(restDaysPerWeek >= 7)
                                 }
@@ -369,7 +369,7 @@ struct StreakDetailView: View {
                                     .foregroundColor(.secondary)
                             }
                         }
-                        .tint(appearanceManager.accentColor.color)
+                        .tint(PremiumColors.gold)
                         .padding(.vertical, 4)
                     }
                     .listRowBackground(Color.listRowBackground(for: scheme))
@@ -399,7 +399,7 @@ struct StreakDetailView: View {
                         Button("Done") {
                             dismiss()
                         }
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                         .bold()
                     }
                 }
@@ -506,7 +506,7 @@ struct StreakDetailView: View {
             return StreakInsight(
                 icon: "figure.walk",
                 message: "Complete your first workout to start building your streak!",
-                color: appearanceManager.accentColor.color
+                color: PremiumColors.gold
             )
         }
 

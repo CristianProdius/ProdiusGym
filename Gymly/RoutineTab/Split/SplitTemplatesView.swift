@@ -1,6 +1,6 @@
 //
 //  SplitTemplatesView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 26.10.2025.
 //
@@ -23,7 +23,7 @@ struct SplitTemplatesView: View {
     var body: some View {
         NavigationView {
             ZStack {
-                FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: appearanceManager.accentColor))
+                FloatingClouds(theme: CloudsTheme.premium(scheme))
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -214,9 +214,9 @@ struct TemplateCard: View {
                     Text("View Details")
                         .font(.subheadline)
                         .bold()
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                     Image(systemName: "arrow.right")
-                        .foregroundColor(appearanceManager.accentColor.color)
+                        .foregroundColor(PremiumColors.gold)
                 }
             }
             .padding()
@@ -225,7 +225,7 @@ struct TemplateCard: View {
                     .fill(scheme == .dark ? Color.black.opacity(0.3) : Color.white.opacity(0.6))
                     .overlay(
                         RoundedRectangle(cornerRadius: 20)
-                            .stroke(appearanceManager.accentColor.color.opacity(0.3), lineWidth: 1)
+                            .stroke(PremiumColors.gold.opacity(0.3), lineWidth: 1)
                     )
             )
         }
@@ -320,7 +320,7 @@ struct TemplateDetailView: View {
                             }
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold)
                             .foregroundColor(.black)
                             .cornerRadius(15)
                         }
@@ -434,7 +434,7 @@ struct ExerciseRow: View {
     var body: some View {
         HStack {
             Circle()
-                .fill(appearanceManager.accentColor.color)
+                .fill(PremiumColors.gold)
                 .frame(width: 6, height: 6)
 
             VStack(alignment: .leading, spacing: 2) {

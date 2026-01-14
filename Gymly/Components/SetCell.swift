@@ -1,6 +1,6 @@
 //
 //  SetCellView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 07.03.2025.
 //
@@ -95,14 +95,14 @@ struct SetCell: View {
                     HStack {
                         if set.bodyWeight {
                             Text("BW  +")
-                                .foregroundStyle(appearanceManager.accentColor.color)
+                                .foregroundStyle(PremiumColors.platinum)
                                 .bold()
                         }
                         Text("\(Int(round(Double(set.weight) * weightConversionFactor)))")
-                            .foregroundStyle(appearanceManager.accentColor.color)
+                            .foregroundStyle(PremiumColors.platinum)
                             .bold()
                         Text("\(weightUnit)")
-                            .foregroundStyle(appearanceManager.accentColor.color)
+                            .foregroundStyle(PremiumColors.platinum)
                             .opacity(0.6)
                             .offset(x: -5)
                     }

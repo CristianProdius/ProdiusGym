@@ -1,6 +1,6 @@
 //
 //  HealthKitManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 28.01.2025.
 //
@@ -98,7 +98,7 @@ class HealthKitManager: ObservableObject {
             requestAuthorization()
             return
         case .sharingDenied:
-            debugLog("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > ShadowLift")
+            debugLog("❌ HealthKit sharing denied. Please enable in Settings > Privacy & Security > Health > ProdiusGym")
             return
         case .sharingAuthorized:
             debugLog("✅ HealthKit sharing authorized, proceeding to save weight")

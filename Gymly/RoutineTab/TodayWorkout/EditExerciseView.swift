@@ -1,6 +1,6 @@
 //
 //  EditExerciseView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 02.09.2025.
 //
@@ -106,7 +106,7 @@ struct EditExerciseView: View {
                         }
                     }
                     .disabled(!isValid)
-                    .foregroundStyle(isValid ? appearanceManager.accentColor.color : Color.secondary)
+                    .foregroundStyle(isValid ? PremiumColors.gold : Color.secondary)
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)

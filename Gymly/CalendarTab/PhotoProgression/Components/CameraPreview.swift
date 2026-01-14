@@ -1,6 +1,6 @@
 //
 //  CameraPreview.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 27.10.2025.
 //

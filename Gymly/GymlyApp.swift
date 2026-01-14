@@ -1,6 +1,6 @@
 //
 //  GymlyApp.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 13.05.2024.
 //
@@ -161,8 +161,8 @@ struct GymlyApp: App {
     private func handleIncomingFile(_ url: URL, config: Config) {
         debugLog("📂 Opened URL: \(url)")
 
-        // Check if this is a deep link (shadowlift://import-split/{id})
-        if url.scheme == "shadowlift" {
+        // Check if this is a deep link (prodiusgym://import-split/{id})
+        if url.scheme == "prodiusgym" {
             handleDeepLink(url, config: config)
             return
         }
@@ -208,7 +208,7 @@ struct GymlyApp: App {
     private func handleDeepLink(_ url: URL, config: Config) {
         debugLog("🔗 Handling deep link: \(url)")
 
-        // Parse shadowlift://import-split/{id}
+        // Parse prodiusgym://import-split/{id}
         guard url.host == "import-split",
               let shareID = url.pathComponents.dropFirst().first else {
             debugLog("❌ Invalid deep link format")

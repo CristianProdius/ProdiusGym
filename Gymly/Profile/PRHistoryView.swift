@@ -122,7 +122,7 @@ struct PRHistoryView: View {
                                                 .font(.system(size: 42, weight: .black, design: .rounded))
                                                 .foregroundStyle(
                                                     LinearGradient(
-                                                        colors: [appearanceManager.accentColor.color, appearanceManager.accentColor.color.opacity(0.7)],
+                                                        colors: [PremiumColors.gold, PremiumColors.gold.opacity(0.7)],
                                                         startPoint: .topLeading,
                                                         endPoint: .bottomTrailing
                                                     )
@@ -138,7 +138,7 @@ struct PRHistoryView: View {
                                     .padding()
                                     .background(
                                         RoundedRectangle(cornerRadius: 16)
-                                            .fill(appearanceManager.accentColor.color.opacity(0.1))
+                                            .fill(PremiumColors.gold.opacity(0.1))
                                     )
 
                                     // Recent PRs (30 days)
@@ -170,7 +170,7 @@ struct PRHistoryView: View {
                                     HStack(spacing: 12) {
                                         Image(systemName: "dumbbell.fill")
                                             .font(.title3)
-                                            .foregroundStyle(appearanceManager.accentColor.color)
+                                            .foregroundStyle(PremiumColors.gold)
                                             .frame(width: 32)
 
                                         VStack(alignment: .leading, spacing: 2) {
@@ -290,7 +290,7 @@ struct PRHistoryView: View {
                                             .bold()
                                             .padding(.horizontal, 16)
                                             .padding(.vertical, 8)
-                                            .background(selectedMuscleGroup == group ? appearanceManager.accentColor.color : Color.gray.opacity(0.2))
+                                            .background(selectedMuscleGroup == group ? PremiumColors.gold : Color.gray.opacity(0.2))
                                             .foregroundStyle(selectedMuscleGroup == group ? .black : .primary)
                                             .cornerRadius(20)
                                     }

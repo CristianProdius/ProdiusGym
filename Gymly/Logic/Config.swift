@@ -1,6 +1,6 @@
 //
 //  Config.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 21.08.2024.
 //
@@ -92,13 +92,6 @@ class Config: ObservableObject {
             queueSave("lastUpdateDate", lastUpdateDate)
         }
     }
-
-    @Published var isUserLoggedIn: Bool {
-        didSet {
-            queueSave("isUserLoggedIn", isUserLoggedIn)
-        }
-    }
-
 
     @Published var firstSplitEdit: Bool {
         didSet {
@@ -239,14 +232,6 @@ class Config: ObservableObject {
         }
     }
 
-    // MARK: - Tutorial State
-
-    @Published var hasSeenTutorial: Bool {
-        didSet {
-            queueSave("hasSeenTutorial", hasSeenTutorial)
-        }
-    }
-
     // Helper computed property for type-safe access
     var fitnessProfile: FitnessProfile? {
         get {
@@ -287,7 +272,6 @@ class Config: ObservableObject {
             self.splitLength = UserDefaults.standard.object(forKey: "splitLength") as? Int ?? 1
         }
         self.lastUpdateDate = UserDefaults.standard.object(forKey: "lastUpdateDate")  as? Date ?? Date()
-        self.isUserLoggedIn = UserDefaults.standard.object(forKey: "isUserLoggedIn") as? Bool ?? false
         self.firstSplitEdit = UserDefaults.standard.object(forKey: "firstSplitEdit") as? Bool ?? true
         self.activeExercise = UserDefaults.standard.object(forKey: "activeExercise") as? Int ?? 1
         self.graphDataValues = UserDefaults.standard.object(forKey: "graphDataValues") as? [Double] ?? []
@@ -325,10 +309,6 @@ class Config: ObservableObject {
         self.equipmentAccess = UserDefaults.standard.object(forKey: "equipmentAccess") as? String ?? ""
         self.experienceLevel = UserDefaults.standard.object(forKey: "experienceLevel") as? String ?? ""
         self.trainingDaysPerWeek = UserDefaults.standard.object(forKey: "trainingDaysPerWeek") as? Int ?? 4
-
-        // Tutorial state initialization
-        self.hasSeenTutorial = UserDefaults.standard.object(forKey: "hasSeenTutorial") as? Bool ?? false
-
     }
 
     deinit {

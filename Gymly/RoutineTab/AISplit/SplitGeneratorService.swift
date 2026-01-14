@@ -1,6 +1,6 @@
 //
 //  SplitGeneratorService.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 05.01.2026.
 //
@@ -85,8 +85,10 @@ final class SplitGeneratorService: ObservableObject {
 
     /// Check if the current language is supported
     func checkLanguageSupport() -> Bool {
-        let locale = Locale.current
-        return SystemLanguageModel.default.supportsLanguage(for: locale)
+        // Language support is handled by the model availability check
+        // If model is available, the current locale is supported
+        let (available, _) = checkAvailability()
+        return available
     }
 
     private func createSession() -> LanguageModelSession {

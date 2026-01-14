@@ -1,6 +1,6 @@
 //
 //  FloatingClouds.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 10.09.2025.
 //
@@ -16,150 +16,44 @@ struct CloudsTheme {
     var bottomLeading: Color
     var bottomTrailing: Color
 
-    // MARK: Presets (light/dark aware where useful)
-    static func red(_ scheme: ColorScheme) -> CloudsTheme {
+    // MARK: - Classical Theme (Old Money Imperial Blue & Platinum)
+    /// Old Money aesthetic - subtle, calm, refined Imperial Blue palette
+    static func classical(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
-            // Dark: deep red | Light: soft coral white
+            // Dark: Deep Imperial (#00112F) | Light: Ivory (#FDFBF7)
             background: scheme == .dark
-                ? Color(red: 0.40, green: 0.00, blue: 0.00)
-                : Color(red: 1.00, green: 0.96, blue: 0.95),
+                ? PremiumColors.deepImperial
+                : PremiumColors.ivory,
 
+            // Very subtle Imperial Blue - top left
             topLeading: scheme == .dark
-                ? Color(red: 0.50, green: 0.00, blue: 0.00, opacity: 0.8)
-                : Color(red: 1.00, green: 0.65, blue: 0.60, opacity: 0.65),
+                ? PremiumColors.imperialBlue.opacity(0.3)
+                : PremiumColors.imperialBlue.opacity(0.08),
 
+            // Subtle Platinum shimmer - top right
             topTrailing: scheme == .dark
-                ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.6)
-                : Color(red: 1.00, green: 0.75, blue: 0.70, opacity: 0.55),
+                ? PremiumColors.platinum.opacity(0.1)
+                : PremiumColors.silver.opacity(0.06),
 
+            // Imperial Blue depth - bottom left
             bottomLeading: scheme == .dark
-                ? Color(red: 0.70, green: 0.20, blue: 0.20, opacity: 0.45)
-                : Color(red: 0.95, green: 0.60, blue: 0.55, opacity: 0.50),
+                ? PremiumColors.imperialBlue.opacity(0.2)
+                : PremiumColors.platinum.opacity(0.05),
 
+            // Platinum accent - bottom right
             bottomTrailing: scheme == .dark
-                ? Color(red: 0.90, green: 0.50, blue: 0.50, opacity: 0.7)
-                : Color(red: 1.00, green: 0.70, blue: 0.65, opacity: 0.58)
+                ? PremiumColors.platinum.opacity(0.15)
+                : PremiumColors.imperialBlue.opacity(0.04)
         )
     }
 
-    // Dynamic accent color theme (replaces red theme based on user selection)
-    static func accent(_ scheme: ColorScheme, accentColor: AccentColorOption) -> CloudsTheme {
-        switch accentColor {
-        case .red:
-            return red(scheme)
-        case .purple:
-            return purple(scheme)
-        case .blue:
-            return blueAccent(scheme)
-        case .green:
-            return green(scheme)
-        case .orange:
-            return orange(scheme)
-        case .pink:
-            return pink(scheme)
-        }
+    // MARK: - Premium Theme (Alias for Classical)
+    /// Alias for classical theme - maintained for backward compatibility
+    static func premium(_ scheme: ColorScheme) -> CloudsTheme {
+        return classical(scheme)
     }
 
-    static func purple(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep purple | Light: soft lavender white
-            background: scheme == .dark
-                ? Color(red: 0.25, green: 0.00, blue: 0.35)
-                : Color(red: 0.96, green: 0.94, blue: 0.99),
-
-            topLeading: scheme == .dark
-                ? Color(red: 0.40, green: 0.15, blue: 0.55, opacity: 0.8)
-                : Color(red: 0.75, green: 0.55, blue: 0.95, opacity: 0.70),
-
-            topTrailing: scheme == .dark
-                ? Color(red: 0.55, green: 0.25, blue: 0.70, opacity: 0.6)
-                : Color(red: 0.85, green: 0.65, blue: 1.00, opacity: 0.55),
-
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.50, green: 0.20, blue: 0.65, opacity: 0.45)
-                : Color(red: 0.70, green: 0.50, blue: 0.90, opacity: 0.50),
-
-            bottomTrailing: scheme == .dark
-                ? Color(red: 0.75, green: 0.50, blue: 0.90, opacity: 0.7)
-                : Color(red: 0.80, green: 0.60, blue: 0.95, opacity: 0.60)
-        )
-    }
-
-    static func blueAccent(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep blue | Light: soft sky blue white
-            background: scheme == .dark
-                ? Color(red: 0.00, green: 0.15, blue: 0.40)
-                : Color(red: 0.94, green: 0.97, blue: 1.00),
-
-            topLeading: scheme == .dark
-                ? Color(red: 0.00, green: 0.30, blue: 0.60, opacity: 0.8)
-                : Color(red: 0.55, green: 0.75, blue: 1.00, opacity: 0.65),
-
-            topTrailing: scheme == .dark
-                ? Color(red: 0.10, green: 0.40, blue: 0.75, opacity: 0.6)
-                : Color(red: 0.65, green: 0.82, blue: 1.00, opacity: 0.55),
-
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.05, green: 0.35, blue: 0.70, opacity: 0.45)
-                : Color(red: 0.50, green: 0.70, blue: 0.95, opacity: 0.50),
-
-            bottomTrailing: scheme == .dark
-                ? Color(red: 0.40, green: 0.65, blue: 1.00, opacity: 0.7)
-                : Color(red: 0.60, green: 0.78, blue: 1.00, opacity: 0.58)
-        )
-    }
-
-    static func pink(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep magenta | Light: soft blush white
-            background: scheme == .dark
-                ? Color(red: 0.40, green: 0.00, blue: 0.30)
-                : Color(red: 1.00, green: 0.95, blue: 0.97),
-
-            topLeading: scheme == .dark
-                ? Color(red: 0.60, green: 0.05, blue: 0.45, opacity: 0.8)
-                : Color(red: 1.00, green: 0.65, blue: 0.80, opacity: 0.65),
-
-            topTrailing: scheme == .dark
-                ? Color(red: 0.75, green: 0.10, blue: 0.55, opacity: 0.6)
-                : Color(red: 1.00, green: 0.75, blue: 0.88, opacity: 0.55),
-
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.70, green: 0.08, blue: 0.50, opacity: 0.45)
-                : Color(red: 0.95, green: 0.60, blue: 0.75, opacity: 0.50),
-
-            bottomTrailing: scheme == .dark
-                ? Color(red: 1.00, green: 0.40, blue: 0.80, opacity: 0.7)
-                : Color(red: 1.00, green: 0.70, blue: 0.85, opacity: 0.58)
-        )
-    }
-    
-    static func green(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep forest green | Light: soft mint white
-            background: scheme == .dark
-                ? Color(red: 0.0, green: 0.35, blue: 0.0)
-                : Color(red: 0.94, green: 0.99, blue: 0.95),
-
-            topLeading: scheme == .dark
-                ? Color(red: 0.0, green: 0.45, blue: 0.0, opacity: 0.8)
-                : Color(red: 0.55, green: 0.90, blue: 0.65, opacity: 0.65),
-
-            topTrailing: scheme == .dark
-                ? Color(red: 0.0, green: 0.5, blue: 0.0, opacity: 0.6)
-                : Color(red: 0.65, green: 0.95, blue: 0.75, opacity: 0.55),
-
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.0, green: 0.6, blue: 0.0, opacity: 0.45)
-                : Color(red: 0.50, green: 0.88, blue: 0.60, opacity: 0.50),
-
-            bottomTrailing: scheme == .dark
-                ? Color(red: 0.5, green: 1.0, blue: 0.5, opacity: 0.7)
-                : Color(red: 0.60, green: 0.92, blue: 0.70, opacity: 0.58)
-        )
-    }
-    
+    // MARK: - Special Purpose Themes
     static func appleIntelligence(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
             // Inky base with an indigo tint (dark) / airy off-white with lavender cast (light)
@@ -189,31 +83,6 @@ struct CloudsTheme {
         )
     }
     
-    static func orange(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep amber | Light: soft peach white
-            background: scheme == .dark
-                ? Color(red: 0.45, green: 0.25, blue: 0.0)
-                : Color(red: 1.00, green: 0.97, blue: 0.94),
-
-            topLeading: scheme == .dark
-                ? Color(red: 0.55, green: 0.3, blue: 0.0, opacity: 0.8)
-                : Color(red: 1.00, green: 0.75, blue: 0.50, opacity: 0.65),
-
-            topTrailing: scheme == .dark
-                ? Color(red: 0.65, green: 0.35, blue: 0.0, opacity: 0.6)
-                : Color(red: 1.00, green: 0.82, blue: 0.60, opacity: 0.55),
-
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.7, green: 0.4, blue: 0.0, opacity: 0.45)
-                : Color(red: 0.98, green: 0.70, blue: 0.45, opacity: 0.50),
-
-            bottomTrailing: scheme == .dark
-                ? Color(red: 1.0, green: 0.65, blue: 0.3, opacity: 0.7)
-                : Color(red: 1.00, green: 0.78, blue: 0.55, opacity: 0.58)
-        )
-    }
-
     static func black(_ scheme: ColorScheme) -> CloudsTheme {
         CloudsTheme(
             // Dark mode: pure black | Light mode: clean white
@@ -297,35 +166,6 @@ struct CloudsTheme {
             bottomTrailing: Color(red: 0.3, green: 0.7, blue: 1.0, opacity: 0.75)
         )
     }
-
-    static func premium(_ scheme: ColorScheme) -> CloudsTheme {
-        CloudsTheme(
-            // Dark: deep indigo/purple-black | Light: soft cream with purple tint
-            background: scheme == .dark
-                ? Color(red: 0.05, green: 0.03, blue: 0.10)              // Deep indigo black
-                : Color(red: 0.98, green: 0.96, blue: 0.99),             // Soft lavender white
-
-            // Royal purple shimmer - top left
-            topLeading: scheme == .dark
-                ? Color(red: 0.45, green: 0.20, blue: 0.75, opacity: 0.80)  // Royal purple
-                : Color(red: 0.75, green: 0.55, blue: 0.95, opacity: 0.65), // Soft violet
-
-            // Deep violet glow - top right
-            topTrailing: scheme == .dark
-                ? Color(red: 0.60, green: 0.30, blue: 0.85, opacity: 0.70)  // Deep violet
-                : Color(red: 0.85, green: 0.70, blue: 1.00, opacity: 0.55), // Light purple
-
-            // Rich plum warmth - bottom left
-            bottomLeading: scheme == .dark
-                ? Color(red: 0.35, green: 0.15, blue: 0.55, opacity: 0.65)  // Rich plum
-                : Color(red: 0.70, green: 0.50, blue: 0.88, opacity: 0.50), // Soft plum
-
-            // Lavender/light purple - bottom right
-            bottomTrailing: scheme == .dark
-                ? Color(red: 0.65, green: 0.45, blue: 0.90, opacity: 0.75)  // Lavender purple
-                : Color(red: 0.80, green: 0.65, blue: 0.95, opacity: 0.58)  // Light lavender
-        )
-    }
 }
     
 class CloudProvider: ObservableObject {
@@ -366,41 +206,42 @@ struct Cloud: View {
     
 struct FloatingClouds: View {
     @Environment(\.colorScheme) var scheme
-    
+
     var theme: CloudsTheme?
     let blur: CGFloat
 
-    init(theme: CloudsTheme? = nil, blur: CGFloat = 60) {
-        // Defer scheme-based default to runtime via a placeholder; will be overridden in body
+    init(theme: CloudsTheme? = nil, blur: CGFloat = 80) {
+        // Increased default blur for softer, more subtle effect
         self.theme = theme
         self.blur = blur
     }
-    
+
     var body: some View {
-        let t = theme ?? CloudsTheme.red(scheme)
-        
+        let t = theme ?? CloudsTheme.classical(scheme)
+
         GeometryReader { proxy in
             ZStack {
                 t.background
+                // Slower animation durations (2x slower for classical, calm feel)
                 Cloud(proxy: proxy,
                       color: t.bottomTrailing,
                       rotationStart: 0,
-                      duration: 60,
+                      duration: 120,
                       alignment: .bottomTrailing)
                 Cloud(proxy: proxy,
                       color: t.topTrailing,
                       rotationStart: 240,
-                      duration: 50,
+                      duration: 100,
                       alignment: .topTrailing)
                 Cloud(proxy: proxy,
                       color: t.bottomLeading,
                       rotationStart: 120,
-                      duration: 80,
+                      duration: 160,
                       alignment: .bottomLeading)
                 Cloud(proxy: proxy,
                       color: t.topLeading,
                       rotationStart: 180,
-                      duration: 70,
+                      duration: 140,
                       alignment: .topLeading)
             }
             .blur(radius: blur)

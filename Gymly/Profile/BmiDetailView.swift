@@ -1,6 +1,6 @@
 //
 //  WeightAndBmiDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 26.03.2025.
 //
@@ -85,17 +85,8 @@ struct BmiDetailView: View {
 
     var body: some View {
         ZStack {
-            switch bmiColor {
-            case .green: FloatingClouds(theme: CloudsTheme.green(scheme))
-                    .ignoresSafeArea()
-            case .orange: FloatingClouds(theme: CloudsTheme.orange(scheme))
-                    .ignoresSafeArea()
-            case .red: FloatingClouds(theme: CloudsTheme.red(scheme))
-                    .ignoresSafeArea()
-            default:
-                FloatingClouds(theme: CloudsTheme.green(scheme))
-                    .ignoresSafeArea()
-            }
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
+                .ignoresSafeArea()
 
             ScrollView {
                 VStack(spacing: 20) {

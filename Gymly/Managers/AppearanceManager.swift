@@ -1,6 +1,6 @@
 //
 //  AppearanceManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 20.10.2025.
 //
@@ -33,62 +33,56 @@ public enum AppearanceMode: String, CaseIterable, Identifiable {
     }
 }
 
-// MARK: - Accent Color Options
-public enum AccentColorOption: String, Codable, CaseIterable, Identifiable {
-    case red = "Red"
-    case purple = "Purple"
-    case blue = "Blue"
-    case green = "Green"
-    case orange = "Orange"
-    case pink = "Pink"
+// MARK: - Premium Color Palette
+/// Old Money Imperial Blue palette - Classical luxury inspired by heritage brands
+public struct PremiumColors {
+    // Core Palette - Old Money Imperial
+    /// Imperial Blue - Primary color for headers, cards, surfaces
+    public static let imperialBlue = Color(red: 0/255, green: 21/255, blue: 81/255)      // #001D51
 
-    public var id: String { rawValue }
+    /// Deep Imperial - Dark mode backgrounds, deepest navy
+    public static let deepImperial = Color(red: 0/255, green: 17/255, blue: 47/255)      // #00112F
 
-    public var color: Color {
-        switch self {
-        case .red:
-            return Color(red: 1.0, green: 0.23, blue: 0.19) // #FF3B30 - iOS Red
-        case .purple:
-            return Color(red: 0.69, green: 0.32, blue: 0.87) // #AF52DE - iOS Purple
-        case .blue:
-            return Color(red: 0.0, green: 0.48, blue: 1.0) // #007AFF - iOS Blue
-        case .green:
-            return Color(red: 0.20, green: 0.78, blue: 0.35) // #34C759 - iOS Green
-        case .orange:
-            return Color(red: 1.0, green: 0.58, blue: 0.0) // #FF9500 - iOS Orange
-        case .pink:
-            return Color(red: 1.0, green: 0.11, blue: 0.68) // #FF1CAD - Hot Pink
-        }
-    }
+    /// Ivory - Light mode backgrounds, warm white
+    public static let ivory = Color(red: 253/255, green: 251/255, blue: 247/255)         // #FDFBF7
 
-    public var displayName: String {
-        return rawValue
-    }
+    /// Platinum - Primary accent for buttons, highlights, interactive elements
+    public static let platinum = Color(red: 232/255, green: 232/255, blue: 232/255)      // #E8E8E8
 
-    public var icon: String {
-        switch self {
-        case .red: return "flame.fill"
-        case .purple: return "sparkles"
-        case .blue: return "drop.fill"
-        case .green: return "leaf.fill"
-        case .orange: return "sun.max.fill"
-        case .pink: return "heart.fill"
-        }
-    }
+    /// Silver - Secondary accent, muted elements
+    public static let silver = Color(red: 192/255, green: 192/255, blue: 192/255)        // #C0C0C0
+
+    /// Charcoal - Secondary text, subtle UI elements
+    public static let charcoal = Color(red: 54/255, green: 69/255, blue: 79/255)         // #36454F
+
+    // Derived Color Variants
+    /// Light platinum for subtle backgrounds and highlights
+    public static let platinumLight = platinum.opacity(0.2)
+
+    /// Muted platinum for secondary elements
+    public static let platinumMuted = platinum.opacity(0.6)
+
+    /// Light imperial blue for card overlays
+    public static let imperialLight = imperialBlue.opacity(0.15)
+
+    /// Subtle silver for borders and separators
+    public static let silverSubtle = silver.opacity(0.3)
+
+    // Legacy Aliases (for backward compatibility)
+    /// Legacy gold reference - now maps to platinum
+    public static let gold = platinum
+
+    /// Light gold - maps to platinum light
+    public static let goldLight = platinumLight
+
+    /// Muted gold - maps to platinum muted
+    public static let goldMuted = platinumMuted
 }
 
 // MARK: - Appearance Manager
 @MainActor
 public class AppearanceManager: ObservableObject {
     public static let shared = AppearanceManager()
-
-    @Published public var accentColor: AccentColorOption {
-        didSet {
-            saveAccentColor()
-            // Note: App icon is NOT updated here automatically
-            // Only updated when explicitly calling updateAccentColor()
-        }
-    }
 
     @Published public var appearanceMode: AppearanceMode {
         didSet {
@@ -102,18 +96,9 @@ public class AppearanceManager: ObservableObject {
     }
 
     private let userDefaults = UserDefaults.standard
-    private let accentColorKey = "selectedAccentColor"
     private let appearanceModeKey = "selectedAppearanceMode"
 
     public init() {
-        // Load saved accent color or default to red
-        if let savedColorRaw = userDefaults.string(forKey: accentColorKey),
-           let savedColor = AccentColorOption(rawValue: savedColorRaw) {
-            self.accentColor = savedColor
-        } else {
-            self.accentColor = .red // Default
-        }
-
         // Load saved appearance mode or default to system
         if let savedModeRaw = userDefaults.string(forKey: appearanceModeKey),
            let savedMode = AppearanceMode(rawValue: savedModeRaw) {
@@ -122,48 +107,7 @@ public class AppearanceManager: ObservableObject {
             self.appearanceMode = .system // Default
         }
 
-        debugPrint("🎨 AppearanceManager initialized with color: \(accentColor.rawValue), mode: \(appearanceMode.rawValue)")
-    }
-
-    public func updateAccentColor(_ color: AccentColorOption) {
-        withAnimation(.easeInOut(duration: 0.3)) {
-            accentColor = color
-        }
-        debugPrint("🎨 Accent color changed to: \(color.rawValue)")
-
-        // Update app icon to match accent color
-        updateAppIcon(for: color)
-    }
-
-    public func updateAppIcon(for color: AccentColorOption) {
-        let iconName: String? = {
-            switch color {
-            case .red: return nil // nil = default icon (AppIcon)
-            case .purple: return "AppIconPurple"
-            case .blue: return "AppIconBlue"
-            case .green: return "AppIconGreen"
-            case .orange: return "AppIconOrange"
-            case .pink: return "AppIconPink"
-            }
-        }()
-
-        guard UIApplication.shared.supportsAlternateIcons else {
-            debugPrint("⚠️ Alternate icons not supported on this device")
-            return
-        }
-
-        UIApplication.shared.setAlternateIconName(iconName) { error in
-            if let error = error {
-                debugPrint("❌ Error setting app icon: \(error.localizedDescription)")
-            } else {
-                debugPrint("✅ App icon changed to: \(iconName ?? "default")")
-            }
-        }
-    }
-
-    private func saveAccentColor() {
-        userDefaults.set(accentColor.rawValue, forKey: accentColorKey)
-        debugPrint("🎨 Accent color saved: \(accentColor.rawValue)")
+        debugPrint("🎨 AppearanceManager initialized with mode: \(appearanceMode.rawValue)")
     }
 
     private func saveAppearanceMode() {
@@ -174,54 +118,54 @@ public class AppearanceManager: ObservableObject {
 
 // MARK: - Color Extension Helper
 public extension Color {
-    @MainActor
+    /// The app's primary accent color - Premium Platinum
     static var appAccent: Color {
-        AppearanceManager.shared.accentColor.color
+        PremiumColors.platinum
     }
 }
 
 // MARK: - Adaptive Colors for Light/Dark Mode
 public extension Color {
-    /// Adaptive list row background - subtle in both modes
+    /// Adaptive list row background - subtle Imperial Blue tint
     static func listRowBackground(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color.black.opacity(0.1)
-            : Color.black.opacity(0.03)
+            ? PremiumColors.imperialBlue.opacity(0.15)
+            : PremiumColors.imperialBlue.opacity(0.04)
     }
 
-    /// Adaptive card background
+    /// Adaptive card background - deeper, more solid with Imperial tint
     static func cardBackground(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color.white.opacity(0.05)
-            : Color.black.opacity(0.03)
+            ? PremiumColors.imperialBlue.opacity(0.25)
+            : PremiumColors.ivory.opacity(0.9)
     }
 
-    /// Adaptive secondary background
+    /// Adaptive secondary background - Deep Imperial or Ivory
     static func secondaryBackground(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color(white: 0.12)
-            : Color(white: 0.95)
+            ? PremiumColors.deepImperial
+            : PremiumColors.ivory
     }
 
     /// Adaptive text on floating clouds background
     static func adaptiveText(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color.white
-            : Color.black
+            ? PremiumColors.ivory
+            : PremiumColors.deepImperial
     }
 
     /// Adaptive secondary text
     static func adaptiveSecondaryText(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color.white.opacity(0.7)
-            : Color.black.opacity(0.6)
+            ? PremiumColors.platinum.opacity(0.7)
+            : PremiumColors.charcoal
     }
 
     /// Adaptive separator color
     static func adaptiveSeparator(for scheme: ColorScheme) -> Color {
         scheme == .dark
-            ? Color.white.opacity(0.1)
-            : Color.black.opacity(0.1)
+            ? PremiumColors.silver.opacity(0.2)
+            : PremiumColors.imperialBlue.opacity(0.1)
     }
 }
 
@@ -229,5 +173,66 @@ public extension Color {
 public extension View {
     func adaptiveListRowBackground(_ scheme: ColorScheme) -> some View {
         self.listRowBackground(Color.listRowBackground(for: scheme))
+    }
+}
+
+// MARK: - Old Money Typography System
+/// Classical typography helpers for refined, understated luxury feel
+public struct OldMoneyTypography {
+    /// Large header with light weight and letter spacing
+    public static func largeHeader(_ text: String) -> some View {
+        Text(text)
+            .font(.largeTitle)
+            .fontWeight(.light)
+            .tracking(2.0)
+    }
+
+    /// Section header with medium weight and subtle tracking
+    public static func sectionHeader(_ text: String) -> some View {
+        Text(text)
+            .font(.headline)
+            .fontWeight(.medium)
+            .tracking(0.5)
+    }
+
+    /// Number display with semibold weight and default design (not rounded)
+    public static func number(_ value: String, size: CGFloat = 28) -> some View {
+        Text(value)
+            .font(.system(size: size, weight: .semibold, design: .default))
+    }
+
+    /// Body text with regular weight
+    public static func body(_ text: String) -> some View {
+        Text(text)
+            .font(.body)
+            .fontWeight(.regular)
+    }
+
+    /// Caption text with regular weight
+    public static func caption(_ text: String) -> some View {
+        Text(text)
+            .font(.caption)
+            .fontWeight(.regular)
+    }
+}
+
+// MARK: - Typography View Modifiers
+public extension Text {
+    /// Apply classical header styling with light weight and tracking
+    func classicalHeader() -> some View {
+        self.fontWeight(.light)
+            .tracking(1.5)
+    }
+
+    /// Apply section header styling with medium weight
+    func classicalSection() -> some View {
+        self.fontWeight(.medium)
+            .tracking(0.5)
+            .textCase(.uppercase)
+    }
+
+    /// Apply number styling with default design (not rounded)
+    func classicalNumber(size: CGFloat = 28) -> some View {
+        self.font(.system(size: size, weight: .semibold, design: .default))
     }
 }

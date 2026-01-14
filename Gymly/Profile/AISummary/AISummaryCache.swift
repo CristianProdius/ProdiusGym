@@ -1,6 +1,6 @@
 //
 //  AISummaryCache.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 23.10.2025.
 //

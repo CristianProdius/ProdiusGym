@@ -1,6 +1,6 @@
 //
 //  CopyWorkout.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 12.09.2024.
 //

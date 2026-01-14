@@ -1,6 +1,6 @@
 //
 //  SplitDetailView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 27.02.2025.
 //
@@ -44,7 +44,7 @@ struct SplitDetailView: View {
                     ForEach(reorderingBufferDays, id: \.id) { day in
                         HStack {
                             Text("\(orderNumber(for: day))")
-                                .foregroundStyle(appearanceManager.accentColor.color)
+                                .foregroundStyle(PremiumColors.gold)
                                 .bold()
                             Text(day.name)
                             Spacer()
@@ -75,7 +75,7 @@ struct SplitDetailView: View {
                                         .foregroundColor(.secondary)
                                     Text("Rest Day")
                                         .font(.caption)
-                                        .foregroundColor(appearanceManager.accentColor.color)
+                                        .foregroundColor(PremiumColors.gold)
                                 }
                             }
                         }

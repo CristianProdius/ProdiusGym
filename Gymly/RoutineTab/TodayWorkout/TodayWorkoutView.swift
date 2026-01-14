@@ -1,6 +1,6 @@
 //
 //  TodayWorkoutView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 20.08.2024.
 //
@@ -94,12 +94,12 @@ struct TodayWorkoutView: View {
             // OPTIMIZATION: Use cached grouped exercises instead of recalculating
             ForEach(cachedGroupedExercises, id: \.0) { name, exercises in
                 if !exercises.isEmpty {
-                    Section(header: Text(name)) {
+                    Section(header: Text(name.uppercased()).font(.headline).classicalSection()) {
                         ForEach(exercises, id: \.id) { exercise in
                             NavigationLink(destination: ExerciseDetailView(viewModel: viewModel, exercise: exercise)) {
                                 HStack {
                                     Text("\(cachedGlobalOrderMap[exercise.id] ?? 0)")
-                                        .foregroundStyle(exercise.done ? Color.green.opacity(0.8) : appearanceManager.accentColor.color.opacity(0.8))
+                                        .foregroundStyle(exercise.done ? Color.green.opacity(0.8) : PremiumColors.gold.opacity(0.8))
                                     Text(exercise.name)
                                 }
                             }
@@ -164,7 +164,7 @@ struct TodayWorkoutView: View {
                 .scrollContentBackground(.hidden)
                 .background(Color.clear)
                 .listRowBackground(Color.listRowBackground(for: scheme))
-                .foregroundStyle(appearanceManager.accentColor.color)
+                .foregroundStyle(PremiumColors.gold)
             }
         }
         .scrollContentBackground(.hidden)
@@ -200,7 +200,7 @@ struct TodayWorkoutView: View {
                             // Icon
                             Image(systemName: "dumbbell.fill")
                                 .font(.system(size: 70))
-                                .foregroundColor(appearanceManager.accentColor.color.opacity(0.7))
+                                .foregroundColor(PremiumColors.gold.opacity(0.7))
 
                             // Title
                             Text("Ready to Start Training?")
@@ -228,7 +228,7 @@ struct TodayWorkoutView: View {
                                     .bold()
                                     .frame(maxWidth: .infinity)
                                     .padding()
-                                    .background(appearanceManager.accentColor.color)
+                                    .background(PremiumColors.gold)
                                     .foregroundColor(.white)
                                     .cornerRadius(12)
                                 }

@@ -1,6 +1,6 @@
 //
 //  AddProgressPhotoView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 27.10.2025.
 //
@@ -92,7 +92,7 @@ struct AddProgressPhotoView: View {
                 }
                 Button("Cancel", role: .cancel) {}
             } message: {
-                Text("To save progress photos, ShadowLift needs access to your photo library. Please enable it in Settings.")
+                Text("To save progress photos, ProdiusGym needs access to your photo library. Please enable it in Settings.")
             }
         }
     }
@@ -115,7 +115,7 @@ struct AddProgressPhotoView: View {
                 .foregroundColor(.white)
             
             // Description
-            Text("To take progress photos, ShadowLift needs access to your camera. You can still import photos from your library.")
+            Text("To take progress photos, ProdiusGym needs access to your camera. You can still import photos from your library.")
                 .font(.body)
                 .foregroundColor(.white.opacity(0.8))
                 .multilineTextAlignment(.center)
@@ -136,7 +136,7 @@ struct AddProgressPhotoView: View {
                     .bold()
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(appearanceManager.accentColor.color)
+                    .background(PremiumColors.gold)
                     .foregroundColor(.black)
                     .cornerRadius(12)
                 }
@@ -234,7 +234,7 @@ struct AddProgressPhotoView: View {
                                 .padding(.vertical, 10)
                                 .background(
                                     RoundedRectangle(cornerRadius: 20)
-                                        .fill(selectedPhotoType == type ? appearanceManager.accentColor.color : Color.white.opacity(0.2))
+                                        .fill(selectedPhotoType == type ? PremiumColors.gold : Color.white.opacity(0.2))
                                 )
                         }
                     }
@@ -395,7 +395,7 @@ struct ReviewPhotoView: View {
                         .bold()
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(appearanceManager.accentColor.color)
+                        .background(PremiumColors.gold)
                         .foregroundColor(.black)
                         .cornerRadius(12)
                 }

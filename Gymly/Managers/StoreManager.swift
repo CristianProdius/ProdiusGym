@@ -1,6 +1,6 @@
 //
 //  StoreManager.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 28.11.2025.
 //
@@ -19,12 +19,12 @@ class StoreManager: ObservableObject {
 
     // MARK: - Product IDs (will match App Store Connect when ready)
     // Pro tier (without AI features) - €3/month
-    private let proMonthlyProductID = "com.icservis.shadowlift.pro.monthly"
-    private let proYearlyProductID = "com.icservis.shadowlift.pro.yearly"
+    private let proMonthlyProductID = "com.prodius.prodiusgym.pro.monthly"
+    private let proYearlyProductID = "com.prodius.prodiusgym.pro.yearly"
 
     // Pro + AI tier (with AI features) - €5/month
-    private let proAIMonthlyProductID = "com.icservis.shadowlift.proai.monthly"
-    private let proAIYearlyProductID = "com.icservis.shadowlift.proai.yearly"
+    private let proAIMonthlyProductID = "com.prodius.prodiusgym.proai.monthly"
+    private let proAIYearlyProductID = "com.prodius.prodiusgym.proai.yearly"
 
     // Track which tier user has
     @Published private(set) var hasAIAccess: Bool = false

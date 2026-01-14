@@ -1,6 +1,6 @@
 //
 //  ProfileImageCell.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 07.03.2025.
 //

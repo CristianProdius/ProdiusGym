@@ -1,6 +1,6 @@
 //
 //  CalendarView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 30.08.2024.
 //
@@ -34,7 +34,7 @@ struct CalendarView: View {
                                 }) {
                                     Image(systemName: "chevron.left")
                                         .bold()
-                                        .foregroundStyle(appearanceManager.accentColor.color)
+                                        .foregroundStyle(PremiumColors.gold)
                                 }
                                 .accessibilityLabel("Previous month")
                                 .accessibilityHint("Double tap to view the previous month")
@@ -48,7 +48,7 @@ struct CalendarView: View {
                                 }) {
                                     Image(systemName: "chevron.right")
                                         .bold()
-                                        .foregroundStyle(appearanceManager.accentColor.color)
+                                        .foregroundStyle(PremiumColors.gold)
                                 }
                                 .accessibilityLabel("Next month")
                                 .accessibilityHint("Double tap to view the next month")
@@ -68,10 +68,10 @@ struct CalendarView: View {
                                 }
                             }
                             .padding(5)
-                            .background(appearanceManager.accentColor.color)
+                            .background(PremiumColors.gold)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 5)
-                                    .stroke(appearanceManager.accentColor.color, lineWidth: 4)
+                                    .stroke(PremiumColors.gold, lineWidth: 4)
                             )
                             .padding(.bottom, 10)
 
@@ -94,11 +94,11 @@ struct CalendarView: View {
                                             .foregroundColor(Color.white)
                                             .padding(.horizontal, 3)
                                             .padding(.vertical, 2)
-                                            .background(appearanceManager.accentColor.color)
+                                            .background(PremiumColors.gold)
                                             .cornerRadius(25)
                                             .overlay(
                                                 RoundedRectangle(cornerRadius: 25)
-                                                    .stroke(appearanceManager.accentColor.color, lineWidth: 4)
+                                                    .stroke(PremiumColors.gold, lineWidth: 4)
                                             )
                                             .fontWeight(.bold)
                                             .padding(3)
@@ -123,7 +123,7 @@ struct CalendarView: View {
                                                 if hasWorkout {
                                                     Circle()
                                                         .frame(width: 10, height: 10)
-                                                        .foregroundColor(appearanceManager.accentColor.color)
+                                                        .foregroundColor(PremiumColors.gold)
                                                         .offset(x: 0, y: 20)
                                                         .accessibilityHidden(true)
                                                 }

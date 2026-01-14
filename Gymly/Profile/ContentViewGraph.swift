@@ -1,6 +1,6 @@
 //
 //  ContentViewGraph.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 24.09.2024.
 //
@@ -137,10 +137,10 @@ struct ContentViewGraph: View {
                 // Only show red radar chart if there's actual data
                 if chartValues.contains(where: { $0 > 0 }) {
                     RadarChart(values: chartValues, maxValue: chartMax)
-                        .fill(appearanceManager.accentColor.color.opacity(0.4))
+                        .fill(PremiumColors.gold.opacity(0.4))
                         .overlay(
                             RadarChart(values: chartValues, maxValue: chartMax)
-                                .stroke(appearanceManager.accentColor.color, lineWidth: 2)
+                                .stroke(PremiumColors.gold, lineWidth: 2)
                         )
                 }
             }

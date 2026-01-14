@@ -1,6 +1,6 @@
 //
 //  AppearanceView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 20.10.2025.
 //
@@ -10,17 +10,11 @@ import SwiftUI
 struct AppearanceView: View {
     @ObservedObject private var appearanceManager = AppearanceManager.shared
     @Environment(\.colorScheme) private var scheme
-    @EnvironmentObject var config: Config
-    @State private var showColorChangeAnimation = false
-    @State private var selectedColor: AccentColorOption = .red
-    @State private var showSaveButton = false
-    @State private var showPremiumSheet = false
 
     var body: some View {
         ZStack {
-            FloatingClouds(theme: CloudsTheme.accent(scheme, accentColor: selectedColor))
+            FloatingClouds(theme: CloudsTheme.premium(scheme))
                 .ignoresSafeArea()
-                .animation(.easeInOut(duration: 0.5), value: selectedColor)
 
             ScrollView {
                 VStack(spacing: 32) {
@@ -28,20 +22,20 @@ struct AppearanceView: View {
                     VStack(spacing: 8) {
                         Image(systemName: "paintbrush.fill")
                             .font(.system(size: 50))
-                            .foregroundColor(selectedColor.color)
+                            .foregroundColor(PremiumColors.gold)
 
                         Text("App Appearance")
                             .font(.largeTitle)
                             .fontWeight(.bold)
 
-                        Text("Customize your ShadowLift experience")
+                        Text("Premium luxury theme")
                             .font(.subheadline)
                             .foregroundStyle(.secondary)
                     }
                     .padding(.top, 40)
 
                     // Live Preview Card
-                    LivePreviewCard(accentColor: selectedColor)
+                    LivePreviewCard()
                         .padding(.horizontal, 24)
 
                     // Appearance Mode Picker
@@ -59,8 +53,7 @@ struct AppearanceView: View {
                             ForEach(AppearanceMode.allCases) { mode in
                                 AppearanceModeButton(
                                     mode: mode,
-                                    isSelected: appearanceManager.appearanceMode == mode,
-                                    accentColor: selectedColor
+                                    isSelected: appearanceManager.appearanceMode == mode
                                 ) {
                                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                                         appearanceManager.appearanceMode = mode
@@ -81,76 +74,74 @@ struct AppearanceView: View {
                         .padding(.horizontal, 24)
                     }
 
-                    // Accent Color Picker
+                    // Premium Theme Info
                     VStack(spacing: 16) {
                         HStack {
-                            Text("Accent Color")
+                            Text("Premium Theme")
                                 .font(.title2)
                                 .fontWeight(.semibold)
                             Spacer()
                         }
                         .padding(.horizontal, 24)
 
-                        // Info note about app icon change
+                        HStack(spacing: 16) {
+                            // Color swatches
+                            VStack(spacing: 8) {
+                                Circle()
+                                    .fill(PremiumColors.imperialBlue)
+                                    .frame(width: 40, height: 40)
+                                Text("Imperial")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            VStack(spacing: 8) {
+                                Circle()
+                                    .fill(PremiumColors.platinum)
+                                    .frame(width: 40, height: 40)
+                                Text("Platinum")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            VStack(spacing: 8) {
+                                Circle()
+                                    .fill(PremiumColors.deepImperial)
+                                    .frame(width: 40, height: 40)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                                    )
+                                Text("Deep")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            VStack(spacing: 8) {
+                                Circle()
+                                    .fill(PremiumColors.ivory)
+                                    .frame(width: 40, height: 40)
+                                    .overlay(
+                                        Circle()
+                                            .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                                    )
+                                Text("Ivory")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+                        }
+                        .padding(.horizontal, 24)
+
                         HStack(spacing: 8) {
-                            Image(systemName: "app.badge")
-                                .foregroundStyle(.secondary)
-                            Text("Preview your color choice, then save to update the app icon (Works for light mode only)")
+                            Image(systemName: "sparkles")
+                                .foregroundColor(PremiumColors.platinum)
+                            Text("Old Money Imperial Blue palette - classical luxury")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
                         .padding(.horizontal, 24)
-                        .padding(.bottom, 4)
-
-                        // Color Grid
-                        LazyVGrid(columns: [
-                            GridItem(.flexible()),
-                            GridItem(.flexible()),
-                            GridItem(.flexible())
-                        ], spacing: 16) {
-                            ForEach(AccentColorOption.allCases) { colorOption in
-                                let isLocked = !config.isPremium && colorOption != .red
-                                ColorPickerButton(
-                                    colorOption: colorOption,
-                                    isSelected: selectedColor == colorOption,
-                                    isLocked: isLocked
-                                ) {
-                                    if isLocked {
-                                        showPremiumSheet = true
-                                    } else {
-                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                            selectedColor = colorOption
-                                            showSaveButton = selectedColor != appearanceManager.accentColor
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        .padding(.horizontal, 24)
-
-                        // Save Button (only shows when color is different)
-                        if showSaveButton {
-                            Button(action: {
-                                appearanceManager.updateAccentColor(selectedColor)
-                                withAnimation {
-                                    showSaveButton = false
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "checkmark.circle.fill")
-                                    Text("Save Changes")
-                                        .fontWeight(.semibold)
-                                }
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(selectedColor.color)
-                                .foregroundColor(.white)
-                                .cornerRadius(12)
-                            }
-                            .padding(.horizontal, 24)
-                            .padding(.top, 8)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
-                        }
                     }
 
                     Spacer(minLength: 40)
@@ -159,21 +150,12 @@ struct AppearanceView: View {
         }
         .navigationTitle("Appearance")
         .navigationBarTitleDisplayMode(.inline)
-        .sheet(isPresented: $showPremiumSheet) {
-            PremiumSubscriptionView()
-        }
-        .onAppear {
-            // Sync selected color with saved value when view appears
-            selectedColor = appearanceManager.accentColor
-            showSaveButton = false
-        }
     }
 }
 
 // MARK: - Live Preview Card
 struct LivePreviewCard: View {
     @Environment(\.colorScheme) private var scheme
-    let accentColor: AccentColorOption
 
     var body: some View {
         VStack(spacing: 16) {
@@ -192,14 +174,14 @@ struct LivePreviewCard: View {
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
                             .padding()
-                            .background(accentColor.color)
+                            .background(PremiumColors.gold)
                             .cornerRadius(12)
                     }
 
                     Button(action: {}) {
                         Image(systemName: "heart.fill")
                             .font(.title2)
-                            .foregroundColor(accentColor.color)
+                            .foregroundColor(PremiumColors.gold)
                             .frame(width: 50, height: 50)
                             .background(Color.listRowBackground(for: scheme))
                             .cornerRadius(12)
@@ -215,12 +197,12 @@ struct LivePreviewCard: View {
                         Spacer()
                         Text("75%")
                             .font(.subheadline)
-                            .foregroundColor(accentColor.color)
+                            .foregroundColor(PremiumColors.gold)
                             .fontWeight(.semibold)
                     }
 
                     ProgressView(value: 0.75)
-                        .tint(accentColor.color)
+                        .tint(PremiumColors.gold)
                 }
 
                 // Badge Preview
@@ -233,8 +215,8 @@ struct LivePreviewCard: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(accentColor.color.opacity(0.2))
-                    .foregroundColor(accentColor.color)
+                    .background(PremiumColors.goldLight)
+                    .foregroundColor(PremiumColors.gold)
                     .cornerRadius(8)
 
                     HStack(spacing: 6) {
@@ -245,8 +227,8 @@ struct LivePreviewCard: View {
                     .fontWeight(.semibold)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(accentColor.color.opacity(0.2))
-                    .foregroundColor(accentColor.color)
+                    .background(PremiumColors.goldLight)
+                    .foregroundColor(PremiumColors.gold)
                     .cornerRadius(8)
 
                     Spacer()
@@ -259,65 +241,18 @@ struct LivePreviewCard: View {
     }
 }
 
-// MARK: - Color Picker Button
-struct ColorPickerButton: View {
-    let colorOption: AccentColorOption
-    let isSelected: Bool
-    let isLocked: Bool
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(colorOption.color)
-                        .frame(width: 60, height: 60)
-                        .opacity(isLocked ? 0.4 : 1.0)
-
-                    if isLocked {
-                        Image(systemName: "lock.fill")
-                            .font(.title3)
-                            .foregroundColor(.white)
-                    } else if isSelected {
-                        Circle()
-                            .stroke(Color.white, lineWidth: 3)
-                            .frame(width: 60, height: 60)
-
-                        Image(systemName: "checkmark")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.white)
-                    }
-                }
-                .shadow(color: isSelected ? colorOption.color.opacity(0.5) : .clear, radius: 10)
-
-                Text(colorOption.displayName)
-                    .font(.caption)
-                    .fontWeight(isSelected ? .semibold : .regular)
-                    .foregroundColor(isLocked ? .secondary : (isSelected ? colorOption.color : .secondary))
-            }
-        }
-        .buttonStyle(.plain)
-        .scaleEffect(isSelected ? 1.05 : 1.0)
-        .animation(.spring(response: 0.3, dampingFraction: 0.6), value: isSelected)
-        .disabled(isLocked && !isSelected)
-    }
-}
-
 // MARK: - Appearance Mode Button
 struct AppearanceModeButton: View {
     @Environment(\.colorScheme) private var scheme
     let mode: AppearanceMode
     let isSelected: Bool
-    let accentColor: AccentColorOption
     let action: () -> Void
 
     private var modeColor: Color {
         switch mode {
         case .light: return .orange
-        case .dark: return .indigo
-        case .system: return accentColor.color
+        case .dark: return PremiumColors.imperialBlue
+        case .system: return PremiumColors.platinum
         }
     }
 
@@ -326,9 +261,9 @@ struct AppearanceModeButton: View {
         case .light:
             return isSelected ? .orange.opacity(0.15) : Color.listRowBackground(for: scheme)
         case .dark:
-            return isSelected ? .indigo.opacity(0.15) : Color.listRowBackground(for: scheme)
+            return isSelected ? PremiumColors.imperialBlue.opacity(0.15) : Color.listRowBackground(for: scheme)
         case .system:
-            return isSelected ? accentColor.color.opacity(0.15) : Color.listRowBackground(for: scheme)
+            return isSelected ? PremiumColors.platinum.opacity(0.15) : Color.listRowBackground(for: scheme)
         }
     }
 

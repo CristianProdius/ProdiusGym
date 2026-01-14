@@ -1,6 +1,6 @@
 //
 //  WorkoutDayView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 13.05.2024.
 //
@@ -61,7 +61,7 @@ struct ShowSplitDayView: View {
                         ForEach(reorderingBufferExercises, id: \.id) { exercise in
                             HStack {
                                 Text("\(orderNumber(for: exercise))")
-                                    .foregroundStyle(appearanceManager.accentColor.color)
+                                    .foregroundStyle(PremiumColors.gold)
                                     .bold()
                                 Text(exercise.name)
                                 Spacer()

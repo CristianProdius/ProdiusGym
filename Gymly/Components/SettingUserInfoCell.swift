@@ -1,6 +1,6 @@
 //
 //  SettingUserInfoCell.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 25.03.2025.
 //
@@ -87,15 +87,15 @@ struct SettingUserInfoCell: View {
             // Main value - Hero typography (always at bottom)
             HStack(alignment: .firstTextBaseline, spacing: 4) {
                 Text(value)
-                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                    .font(.system(size: 28, weight: .semibold, design: .default))
                     .foregroundStyle(.primary)
 
                 Text(metric)
-                    .font(.system(size: 14, weight: .medium))
+                    .font(.system(size: 14, weight: .regular))
                     .foregroundStyle(.secondary)
             }
         }
-        .padding(14)
+        .padding(18)
         .frame(width: 160, height: 130)
         .background(
             ZStack {

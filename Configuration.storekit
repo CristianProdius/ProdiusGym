@@ -57,7 +57,7 @@
       "localizations" : [
 
       ],
-      "name" : "ShadowLift Pro",
+      "name" : "ProdiusGym Pro",
       "subscriptions" : [
         {
           "adHocOffers" : [
@@ -79,13 +79,13 @@
           "localizations" : [
             {
               "description" : "Monthly subscription with all premium features plus AI-powered insights",
-              "displayName" : "ShadowLift Pro AI Monthly",
+              "displayName" : "ProdiusGym Pro AI Monthly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.icservis.shadowlift.proai.monthly",
+          "productID" : "com.prodius.prodiusgym.proai.monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "ShadowLift Pro AI Monthly",
+          "referenceName" : "ProdiusGym Pro AI Monthly",
           "subscriptionGroupID" : "21489467",
           "type" : "RecurringSubscription"
         },
@@ -109,13 +109,13 @@
           "localizations" : [
             {
               "description" : "Yearly subscription with all premium features plus AI-powered insights - Save 17%",
-              "displayName" : "ShadowLift Pro AI Yearly",
+              "displayName" : "ProdiusGym Pro AI Yearly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.icservis.shadowlift.proai.yearly",
+          "productID" : "com.prodius.prodiusgym.proai.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "ShadowLift Pro AI Yearly",
+          "referenceName" : "ProdiusGym Pro AI Yearly",
           "subscriptionGroupID" : "21489467",
           "type" : "RecurringSubscription"
         },
@@ -138,14 +138,14 @@
           },
           "localizations" : [
             {
-              "description" : "Monthly subscription to ShadowLift Pro with all premium features unlocked",
-              "displayName" : "ShadowLift Pro Monthly",
+              "description" : "Monthly subscription to ProdiusGym Pro with all premium features unlocked",
+              "displayName" : "ProdiusGym Pro Monthly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.icservis.shadowlift.pro.monthly",
+          "productID" : "com.prodius.prodiusgym.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
-          "referenceName" : "ShadowLift Pro Monthly",
+          "referenceName" : "ProdiusGym Pro Monthly",
           "subscriptionGroupID" : "21489467",
           "type" : "RecurringSubscription"
         },
@@ -168,14 +168,14 @@
           },
           "localizations" : [
             {
-              "description" : "Yearly subscription to ShadowLift Pro - Save 17% compared to monthly subscription",
-              "displayName" : "ShadowLift Pro Yearly",
+              "description" : "Yearly subscription to ProdiusGym Pro - Save 17% compared to monthly subscription",
+              "displayName" : "ProdiusGym Pro Yearly",
               "locale" : "en_US"
             }
           ],
-          "productID" : "com.icservis.shadowlift.pro.yearly",
+          "productID" : "com.prodius.prodiusgym.pro.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
-          "referenceName" : "ShadowLift Pro Yearly",
+          "referenceName" : "ProdiusGym Pro Yearly",
           "subscriptionGroupID" : "21489467",
           "type" : "RecurringSubscription"
         }

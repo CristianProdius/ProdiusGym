@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import ShadowLift
+@testable import ProdiusGym
 
 /// Performance tests for the main workout flow
 /// Tests TodayWorkoutView, ExerciseDetailView, EditExerciseSetView

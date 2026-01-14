@@ -1,6 +1,6 @@
 //
 //  EditUserView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 29.01.2025.
 //
@@ -66,12 +66,12 @@ struct EditUserView: View {
                             HStack(spacing: 12) {
                                 ZStack {
                                     Circle()
-                                        .fill(appearanceManager.accentColor.color.opacity(0.15))
+                                        .fill(PremiumColors.gold.opacity(0.15))
                                         .frame(width: 40, height: 40)
 
                                     Image(systemName: "person.fill")
                                         .font(.system(size: 16, weight: .semibold))
-                                        .foregroundStyle(appearanceManager.accentColor.color)
+                                        .foregroundStyle(PremiumColors.gold)
                                 }
 
                                 TextField("Enter username", text: Binding(
@@ -121,15 +121,15 @@ struct EditUserView: View {
                             .background(
                                 LinearGradient(
                                     colors: [
-                                        appearanceManager.accentColor.color,
-                                        appearanceManager.accentColor.color.opacity(0.8)
+                                        PremiumColors.gold,
+                                        PremiumColors.gold.opacity(0.8)
                                     ],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
                             )
                             .cornerRadius(14)
-                            .shadow(color: appearanceManager.accentColor.color.opacity(0.4), radius: 12, x: 0, y: 6)
+                            .shadow(color: PremiumColors.gold.opacity(0.4), radius: 12, x: 0, y: 6)
                         }
                         .buttonStyle(.plain)
                         .padding(.horizontal, 20)
@@ -184,7 +184,7 @@ struct EditUserView: View {
     /// Extracted to avoid @Sendable closure issues with @MainActor properties
     @ViewBuilder
     private var profileImagePicker: some View {
-        let accentColor = appearanceManager.accentColor.color
+        let accentColor = PremiumColors.gold
         let currentAvatarImage = avatarImage
         let currentProfileImage = profileImage
         let pressed = isImagePressed

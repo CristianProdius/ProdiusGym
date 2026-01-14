@@ -1,6 +1,6 @@
 //
 //  ShowSplitDayExerciseView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 09.02.2025.
 //
@@ -39,12 +39,12 @@ struct ShowSplitDayExerciseView: View {
             /// Displays set and rep count
             HStack {
                 Text("\((exercise.sets ?? []).count) Sets")
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(PremiumColors.gold)
                     .padding()
                     .bold()
                 Spacer()
                 Text("\(exercise.repGoal) Reps")
-                    .foregroundStyle(appearanceManager.accentColor.color)
+                    .foregroundStyle(PremiumColors.gold)
                     .padding()
                     .bold()
             }

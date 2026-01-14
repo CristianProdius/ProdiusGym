@@ -7,7 +7,7 @@
 
 ## Introduction
 
-Welcome to ShadowLift ("we," "us," or "our"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how ShadowLift Fitness collects, uses, shares, and protects information when you use our fitness tracking application and related services (collectively, the "Service").
+Welcome to ProdiusGym ("we," "us," or "our"). We respect your privacy and are committed to protecting your personal data. This Privacy Policy explains how ProdiusGym Fitness collects, uses, shares, and protects information when you use our fitness tracking application and related services (collectively, the "Service").
 
 **Key Points:**
 - We collect minimal data necessary for app functionality
@@ -16,7 +16,7 @@ Welcome to ShadowLift ("we," "us," or "our"). We respect your privacy and are co
 - We never sell your personal information
 - You can delete your data at any time
 
-By using ShadowLift, you agree to the collection and use of information in accordance with this policy. If you do not agree with our practices, please do not use the Service.
+By using ProdiusGym, you agree to the collection and use of information in accordance with this policy. If you do not agree with our practices, please do not use the Service.
 
 ---
 
@@ -138,7 +138,7 @@ We implement industry-standard security measures:
 
 ### We Do NOT Sell Your Data
 
-ShadowLift Fitness does not and will never sell your personal information to third parties.
+ProdiusGym Fitness does not and will never sell your personal information to third parties.
 
 ### Limited Data Sharing
 
@@ -184,7 +184,7 @@ You can access all your data at any time within the app:
 ### Control Data Syncing
 
 - **iCloud:** Toggle on/off in Settings → Connections
-- **Apple Health:** Manage permissions in iOS Settings → Health → Apps → ShadowLift
+- **Apple Health:** Manage permissions in iOS Settings → Health → Apps → ProdiusGym
 
 ### GDPR Rights (EU Users)
 
@@ -210,7 +210,7 @@ Email sebastian.kucera@icloud.com with subject "CCPA Request" to exercise these 
 
 ## Children's Privacy
 
-ShadowLift is not intended for children under 13 years of age.
+ProdiusGym is not intended for children under 13 years of age.
 
 **We do not knowingly collect data from children:**
 - No directed marketing to children
@@ -224,13 +224,13 @@ If you believe your child has provided personal information to us, contact sebas
 
 ## International Data Transfers
 
-ShadowLift is operated from the United States.
+ProdiusGym is operated from the United States.
 
 **Primary Storage:**
 - Your device (local storage)
 - iCloud storage (your iCloud account region)
 
-If you're using ShadowLift from outside the United States, your data may be transferred to and processed in the United States.
+If you're using ProdiusGym from outside the United States, your data may be transferred to and processed in the United States.
 
 ---
 
@@ -254,7 +254,7 @@ Email: sebastian.kucera@icloud.com
 Subject Line: "Privacy Inquiry"
 
 **Mailing Address:**
-ShadowLift Fitness
+ProdiusGym Fitness
 Attn: Privacy Department
 [Your Address Here]
 
@@ -266,7 +266,7 @@ Attn: Privacy Department
 
 ### Acknowledgment
 
-By using ShadowLift, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
+By using ProdiusGym, you acknowledge that you have read and understood this Privacy Policy and agree to its terms.
 
 **Your privacy is our priority.** We're committed to transparency, user control, and data protection.
 

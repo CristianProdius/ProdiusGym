@@ -1,4 +1,4 @@
-# About ShadowLift
+# About ProdiusGym
 
 **Version 1.0 (Build 7)**
 
@@ -6,7 +6,7 @@
 
 ## Our Mission
 
-ShadowLift is built by lifters, for lifters. We believe that tracking your workouts shouldn't be complicated, frustrating, or time-consuming. That's why we created a fitness app that's fast, intuitive, and designed specifically for strength training.
+ProdiusGym is built by lifters, for lifters. We believe that tracking your workouts shouldn't be complicated, frustrating, or time-consuming. That's why we created a fitness app that's fast, intuitive, and designed specifically for strength training.
 
 **Our Philosophy:**
 - **Gym-First Design:** Every feature is tested in actual gym conditions, including poor cellular connections
@@ -16,11 +16,11 @@ ShadowLift is built by lifters, for lifters. We believe that tracking your worko
 
 ---
 
-## The ShadowLift Story
+## The ProdiusGym Story
 
-ShadowLift was born from frustration with existing fitness apps that lagged in the gym, required constant internet connections, and made simple tasks unnecessarily complicated.
+ProdiusGym was born from frustration with existing fitness apps that lagged in the gym, required constant internet connections, and made simple tasks unnecessarily complicated.
 
-After experiencing the "gym lag" problem firsthand - where workout apps would freeze or slow down during crucial gym sessions - our founder Sebastián Kučera decided to build something better. The result is ShadowLift: a native iOS app built entirely with Apple's frameworks, optimized for performance, and designed to work flawlessly even with poor or no internet connection.
+After experiencing the "gym lag" problem firsthand - where workout apps would freeze or slow down during crucial gym sessions - our founder Sebastián Kučera decided to build something better. The result is ProdiusGym: a native iOS app built entirely with Apple's frameworks, optimized for performance, and designed to work flawlessly even with poor or no internet connection.
 
 **What Makes Us Different:**
 - **100% Native:** Built with pure Swift and SwiftUI - no external dependencies
@@ -130,9 +130,9 @@ Your privacy is our top priority:
 **Category:** Health & Fitness
 **Age Rating:** 4+ (suitable for all ages, exercise under supervision recommended)
 
-**Bundle Identifier:** com.shadowlift.app
-**Developer:** ShadowLift
-**Copyright:** © 2024 ShadowLift. All rights reserved.
+**Bundle Identifier:** com.prodiusgym.app
+**Developer:** ProdiusGym
+**Copyright:** © 2024 ProdiusGym. All rights reserved.
 
 ---
 
@@ -141,7 +141,7 @@ Your privacy is our top priority:
 **Terms of Service:** View in Settings → Legal → Terms of Service
 **Privacy Policy:** View in Settings → Legal → Privacy Policy
 
-ShadowLift is a registered trademark of ShadowLift.
+ProdiusGym is a registered trademark of ProdiusGym.
 
 All product names, logos, and brands are property of their respective owners. Apple, iPhone, iPad, iOS, HealthKit, iCloud, and related marks are trademarks of Apple Inc.
 
@@ -159,9 +159,9 @@ All product names, logos, and brands are property of their respective owners. Ap
 - General feedback: sebastian.kucera@icloud.com
 
 **Follow Us:**
-- Website: shadowlift.app
-- Twitter/X: @shadowlift_app
-- Instagram: @shadowlift_fitness
+- Website: prodiusgym.app
+- Twitter/X: @prodiusgym_app
+- Instagram: @prodiusgym_fitness
 
 ---
 
@@ -192,7 +192,7 @@ All product names, logos, and brands are property of their respective owners. Ap
 
 ## Thank You
 
-Thank you for choosing ShadowLift for your strength training journey. Whether you're a beginner starting your first program or an experienced lifter chasing PRs, we're honored to be part of your fitness story.
+Thank you for choosing ProdiusGym for your strength training journey. Whether you're a beginner starting your first program or an experienced lifter chasing PRs, we're honored to be part of your fitness story.
 
 Every rep counts. Every set matters. Every workout is progress.
 
@@ -202,17 +202,17 @@ Every rep counts. Every set matters. Every workout is progress.
 
 *Made with passion, powered by caffeine, tested under the iron.*
 
-*ShadowLift - Building tools for serious lifters.*
+*ProdiusGym - Building tools for serious lifters.*
 
 ---
 
 ### Contact Information
 
-**ShadowLift**
+**ProdiusGym**
 [Your Address Here]
 
 **General Inquiries:** sebastian.kucera@icloud.com
 **Support:** sebastian.kucera@icloud.com
 **Privacy:** sebastian.kucera@icloud.com
 
-© 2024 ShadowLift. All rights reserved.
+© 2024 ProdiusGym. All rights reserved.

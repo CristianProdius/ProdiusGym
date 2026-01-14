@@ -1,6 +1,6 @@
 //
 //  WeightSelectorCell.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Sebastián Kučera on 06.03.2025.
 //
@@ -98,7 +98,7 @@ struct SetWeightCell: View {
                     configuration.label
                 } icon: {
                     Image(systemName: configuration.isOn ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(configuration.isOn ? AppearanceManager.shared.accentColor.color : .secondary)
+                        .foregroundStyle(configuration.isOn ? PremiumColors.gold : .secondary)
                         .accessibility(label: Text(configuration.isOn ? "Checked" : "Unchecked"))
                         .imageScale(.large)
                 }

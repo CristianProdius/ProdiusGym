@@ -1,6 +1,6 @@
 //
 //  GeneratedSplitPreviewView.swift
-//  ShadowLift
+//  ProdiusGym
 //
 //  Created by Claude Code on 05.01.2026.
 //
@@ -80,7 +80,7 @@ struct GeneratedSplitPreviewView: View {
                 // Static outer ring
                 Circle()
                     .stroke(
-                        LinearGradient(colors: [.purple.opacity(0.3), appearanceManager.accentColor.color.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing),
+                        LinearGradient(colors: [.purple.opacity(0.3), PremiumColors.gold.opacity(0.3)], startPoint: .topLeading, endPoint: .bottomTrailing),
                         lineWidth: 2
                     )
                     .frame(width: 100, height: 100)
@@ -88,7 +88,7 @@ struct GeneratedSplitPreviewView: View {
                 // Center icon background
                 Circle()
                     .fill(
-                        LinearGradient(colors: [.purple.opacity(0.2), appearanceManager.accentColor.color.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [.purple.opacity(0.2), PremiumColors.gold.opacity(0.2)], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .frame(width: 80, height: 80)
 
@@ -96,7 +96,7 @@ struct GeneratedSplitPreviewView: View {
                 Image(systemName: loadingMessages[loadingMessageIndex].1)
                     .font(.system(size: 32))
                     .foregroundStyle(
-                        LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                        LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                     )
                     .contentTransition(.symbolEffect(.replace))
             }
@@ -120,7 +120,7 @@ struct GeneratedSplitPreviewView: View {
                 ForEach(0..<loadingMessages.count, id: \.self) { index in
                     Circle()
                         .fill(index <= loadingMessageIndex ?
-                              LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .leading, endPoint: .trailing) :
+                              LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .leading, endPoint: .trailing) :
                               LinearGradient(colors: [Color.white.opacity(0.2), Color.white.opacity(0.2)], startPoint: .leading, endPoint: .trailing))
                         .frame(width: 6, height: 6)
                 }
@@ -171,7 +171,7 @@ struct GeneratedSplitPreviewView: View {
             Image(systemName: "sparkles")
                 .font(.system(size: 60))
                 .foregroundStyle(
-                    LinearGradient(colors: [.purple.opacity(0.5), appearanceManager.accentColor.color.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
+                    LinearGradient(colors: [.purple.opacity(0.5), PremiumColors.gold.opacity(0.5)], startPoint: .topLeading, endPoint: .bottomTrailing)
                 )
 
             Text("Ready to Generate")
@@ -341,7 +341,7 @@ struct GeneratedSplitPreviewView: View {
                     .frame(height: 50)
                     .background(
                         LinearGradient(
-                            colors: [.purple, appearanceManager.accentColor.color],
+                            colors: [.purple, PremiumColors.gold],
                             startPoint: .leading,
                             endPoint: .trailing
                         )
@@ -427,7 +427,7 @@ private struct GeneratedDayPreviewCard: View {
                                     .fill(
                                         day.isRestDay == true ?
                                         LinearGradient(colors: [.orange, .orange.opacity(0.8)], startPoint: .top, endPoint: .bottom) :
-                                        LinearGradient(colors: [.purple, appearanceManager.accentColor.color], startPoint: .topLeading, endPoint: .bottomTrailing)
+                                        LinearGradient(colors: [.purple, PremiumColors.gold], startPoint: .topLeading, endPoint: .bottomTrailing)
                                     )
                             )
                     }
@@ -522,7 +522,7 @@ private struct GeneratedExercisePreviewRow: View {
                     if let muscleGroup = exercise.muscleGroup {
                         HStack(spacing: 4) {
                             Circle()
-                                .fill(appearanceManager.accentColor.color)
+                                .fill(PremiumColors.gold)
                                 .frame(width: 6, height: 6)
                             Text(muscleGroup)
                                 .font(.system(size: 11))
@@ -533,7 +533,7 @@ private struct GeneratedExercisePreviewRow: View {
                     if let sets = exercise.sets, let reps = exercise.repRange {
                         Text("\(sets) × \(reps)")
                             .font(.system(size: 11, weight: .medium))
-                            .foregroundColor(appearanceManager.accentColor.color.opacity(0.8))
+                            .foregroundColor(PremiumColors.gold.opacity(0.8))
                     }
                 }
             }
